@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Compras - Cyberpunk UI</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+
+        :root {
+            --bg-main: #020208;
+            --bg-card: #050714;
+            --bg-input: #080c25;
+            --border-cyan: #00d2ff;
+            --border-purple: #c300ff;
+            --text-cyan: #00e5ff;
+            --text-purple: #d400ff;
+            --text-orange: #ff9900;
+            --text-gray: #7d85b2;
+            --danger: #ff1a40;
+            --success: #00ffaa;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 412px;
+            background-color: var(--bg-card);
+            border: 2px solid #0f1642;
+            border-radius: 28px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.05), inset 0 0 20px rgba(5, 7, 20, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--border-purple), var(--border-cyan));
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            margin-bottom: 25px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cart-icon-container {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,210,255,0.1) 0%, rgba(5,7,20,1) 70%);
+            border: 2px solid var(--border-cyan);
+            box-shadow: 0 0 12px rgba(0, 210, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-cyan);
+        }
+
+        .header-title h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            letter-spacing: 2px;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .header-title h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 26px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #9d4edd, #00f0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+            margin-bottom: 2px;
+        }
+
+        .header-title p {
+            font-size: 11px;
+            color: var(--text-gray);
+        }
+
+        .settings-btn {
+            width: 40px;
+            height: 40px;
+            background: #0d1130;
+            border: 1.5px solid var(--border-purple);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-purple);
+            box-shadow: 0 0 8px rgba(195, 0, 255, 0.2);
+            clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+        }
+
+        /* TASA DOLAR */
+        .dollar-card {
+            background: rgba(8, 12, 37, 0.6);
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            border-radius: 14px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .dollar-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dollar-badge {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border-cyan);
+            color: var(--text-cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 8px rgba(0, 210, 255, 0.3);
+        }
+
+        .dollar-text span {
+            font-size: 10px;
+            color: var(--text-cyan);
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .dollar-text var {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-style: normal;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-cyan);
+        }
+
+        .update-btn-container {
+            text-align: right;
+        }
+
+        .update-btn {
+            background: transparent;
+            border: 1px solid rgba(0, 210, 255, 0.4);
+            color: #ffffff;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .update-time {
+            font-size: 9px;
+            color: var(--text-gray);
+            margin-top: 4px;
+            display: block;
+        }
+
+        /* SECCIONES Y CONTENEDORES */
+        .section-box {
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 25px;
+            position: relative;
+            background: linear-gradient(180deg, rgba(5,7,20,0.8) 0%, rgba(8,12,37,0.4) 100%);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: #ffffff;
+            margin-bottom: 16px;
+        }
+
+        .section-title i {
+            color: var(--text-cyan);
+        }
+
+        .input-group {
+            display: flex;
+            background: var(--bg-input);
+            border: 1px solid rgba(125, 133, 178, 0.2);
+            border-radius: 10px;
+            align-items: center;
+            padding: 0 12px;
+            margin-bottom: 14px;
+            height: 48px;
+        }
+
+        .input-group i {
+            color: var(--text-purple);
+            margin-right: 12px;
+        }
+
+        .input-group.cyan-icon i {
+            color: var(--text-cyan);
+        }
+
+        .input-group input {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            width: 100%;
+            height: 100%;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .input-group input::placeholder {
+            color: #3e456d;
+        }
+
+        .label-small {
+            font-size: 10px;
+            color: var(--text-orange);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .row-inputs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .col-half {
+            flex: 1;
+        }
+
+        /* INTERRUPTORES / TOGGLES */
+        .currency-toggle {
+            display: flex;
+            background: var(--bg-input);
+            border: 1px solid rgba(125, 133, 178, 0.2);
+            border-radius: 8px;
+            padding: 3px;
+            height: 40px;
+            position: relative;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #4a527a;
+            font-weight: 700;
+            font-size: 13px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .toggle-btn.active-bs {
+            background: linear-gradient(90deg, #aa1400 0%, #d46a00 100%);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(212, 106, 0, 0.4);
+        }
+
+        .toggle-btn.active-usd {
+            background: linear-gradient(90deg, #0055ff 0%, #0099ff 100%);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 153, 255, 0.4);
+        }
+
+        .select-custom {
+            background: var(--bg-input);
+            border: 1px solid rgba(125, 133, 178, 0.2);
+            border-radius: 8px;
+            width: 100%;
+            height: 40px;
+            color: #ffffff;
+            padding: 0 12px;
+            font-size: 14px;
+            outline: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23c300ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+
+        .btn-add {
+            width: 100%;
+            height: 46px;
+            background: linear-gradient(90deg, #1f0647 0%, #3d005e 50%, #1f0647 100%);
+            border: 1.5px solid var(--border-purple);
+            border-radius: 12px;
+            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(195, 0, 255, 0.2);
+        }
+
+        /* LISTA DE COMPRAS */
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .list-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .list-title i {
+            color: var(--border-cyan);
+        }
+
+        .badge-count {
+            background: #0d1438;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            color: #5580ff;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        #listaProductos {
+            max-height: 290px;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+
+        #listaProductos::-webkit-scrollbar {
+            width: 4px;
+        }
+        #listaProductos::-webkit-scrollbar-thumb {
+            background: rgba(195, 0, 255, 0.3);
+            border-radius: 2px;
+        }
+
+        .cart-item {
+            background: rgba(8, 12, 37, 0.5);
+            border: 1px solid rgba(125, 133, 178, 0.1);
+            border-radius: 12px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .item-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .item-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            background: #0b0d26;
+            border: 1px solid var(--border-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-purple);
+        }
+
+        .item-icon.cyan-icon {
+            border-color: var(--border-cyan);
+            color: var(--text-cyan);
+        }
+
+        .item-details h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+
+        .item-meta {
+            font-size: 11px;
+            color: var(--text-gray);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .item-currency-badge {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 4px;
+            margin-top: 3px;
+            display: inline-block;
+        }
+
+        .item-currency-badge.purple {
+            background: rgba(195, 0, 255, 0.15);
+            border: 1px solid var(--border-purple);
+            color: #ea70ff;
+        }
+
+        .item-currency-badge.orange {
+            background: rgba(255, 153, 0, 0.15);
+            border: 1px solid var(--text-orange);
+            color: var(--text-orange);
+        }
+
+        .item-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .item-price {
+            font-size: 14px;
+            font-weight: 700;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .price-cyan { color: var(--text-cyan); }
+        .price-orange { color: var(--text-orange); }
+
+        .btn-delete-item {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 26, 64, 0.1);
+            border: 1px solid rgba(255, 26, 64, 0.4);
+            border-radius: 6px;
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* TOTALES PANEL */
+        .totals-panel {
+            border: 1px solid rgba(0, 210, 255, 0.4);
+            border-radius: 14px;
+            padding: 12px 16px;
+            background: linear-gradient(90deg, rgba(5,7,20,1) 0%, rgba(8,12,37,0.8) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .totals-left, .totals-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .totals-left {
+            border-right: 1px solid rgba(125, 133, 178, 0.2);
+        }
+
+        .totals-right {
+            padding-left: 16px;
+        }
+
+        .total-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .total-label {
+            font-size: 10px;
+            color: var(--text-gray);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .total-amount {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .total-amount.cyan { color: var(--text-cyan); }
+        .total-amount.orange { color: var(--text-orange); }
+
+        .totals-subtext {
+            position: absolute;
+            bottom: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            color: var(--text-gray);
+            white-space: nowrap;
+        }
+
+        .totals-subtext strong {
+            color: var(--text-gray);
+        }
+
+        /* NUEVO PANEL BALANCES */
+        .panel-balance {
+            border: 1px solid rgba(195, 0, 255, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 25px;
+            background: linear-gradient(180deg, rgba(5,7,20,0.8) 0%, rgba(13,11,36,0.4) 100%);
+        }
+
+        /* ACCIONES INFERIORES */
+        .bottom-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .btn-bottom {
+            flex: 1;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 11px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .btn-clear {
+            border: 1px solid var(--danger);
+            color: #ffffff;
+            background: linear-gradient(180deg, rgba(255,26,64,0.05) 0%, rgba(0,0,0,0) 100%);
+        }
+
+        .btn-clear .btn-text-wrapper div:first-child { color: var(--danger); }
+
+        .btn-share {
+            border: 1px solid var(--success);
+            color: #ffffff;
+            background: linear-gradient(180deg, rgba(0,255,170,0.05) 0%, rgba(0,0,0,0) 100%);
+        }
+
+        .btn-share .btn-text-wrapper div:first-child { color: var(--success); }
+
+        .btn-text-wrapper {
+            text-align: left;
+        }
+
+        .btn-text-wrapper div:first-child {
+            font-size: 11px;
+            line-height: 1.1;
+        }
+
+        .btn-text-wrapper div:last-child {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 9px;
+            color: var(--text-gray);
+            font-weight: 400;
+            letter-spacing: 0;
+            margin-top: 1px;
+        }
+
+        .btn-clear i { color: var(--danger); }
+        .btn-share i { color: var(--success); }
+
+        /* MODAL DE TASA */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 2, 8, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 2px solid var(--border-cyan);
+            border-radius: 20px;
+            padding: 22px;
+            width: 90%;
+            max-width: 340px;
+            box-shadow: 0 0 25px rgba(0, 210, 255, 0.2);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 5px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            height: 40px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .btn-cancel {
+            border: 1px solid var(--text-gray);
+            color: var(--text-gray);
+        }
+
+        .btn-accept {
+            border: 1px solid var(--border-cyan);
+            color: #ffffff;
+            background: rgba(0, 210, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container" id="captureArea">
+        
+        <header class="header">
+            <div class="header-left">
+                <div class="cart-icon-container">
+                    <i data-lucide="shopping-cart" style="width: 26px; height: 26px;"></i>
+                </div>
+                <div class="header-title">
+                    <h1>REGISTRO DE</h1>
+                    <h2>COMPRAS</h2>
+                    <p>Creado por Ing. Luis aular</p>
+                </div>
+            </div>
+            <button class="settings-btn">
+                <i data-lucide="settings" style="width: 18px; height: 18px;"></i>
+            </button>
+        </header>
+
+        <div class="dollar-card">
+            <div class="dollar-info">
+                <div class="dollar-badge">
+                    <i data-lucide="dollar-sign" style="width: 18px; height: 18px;"></i>
+                </div>
+                <div class="dollar-text">
+                    <span>Dólar Actual</span>
+                    <var id="lblTasaDolar">Bs. 36.85</var>
+                </div>
+            </div>
+            <div class="update-btn-container">
+                <button class="update-btn" onclick="abrirModalTasa()">
+                    <i data-lucide="refresh-cw" style="width: 11px; height: 11px;"></i> ACTUALIZAR
+                </button>
+                <span class="update-time" id="lblFechaActualizacion">Última actualización:<br>24/05/2024 - 10:30 AM</span>
+            </div>
+        </div>
+
+        <section class="section-box" data-html2canvas-ignore="true">
+            <div class="section-title">
+                <i data-lucide="box" style="width: 16px; height: 16px;"></i> AGREGAR PRODUCTO
+            </div>
+            
+            <div class="label-small" style="color: var(--text-purple);">Producto</div>
+            <div class="input-group">
+                <i data-lucide="shopping-bag" style="width: 18px; height: 18px;"></i>
+                <input type="text" id="txtProducto" placeholder="Nombre del producto">
+            </div>
+
+            <div class="label-small" style="color: var(--text-cyan);">Precio (Bs o $)</div>
+            <div class="input-group cyan-icon">
+                <i data-lucide="tag" style="width: 18px; height: 18px;"></i>
+                <input type="number" id="txtPrecio" placeholder="0.00" step="0.01">
+            </div>
+
+            <div class="row-inputs">
+                <div class="col-half">
+                    <span class="label-small">Moneda de precio</span>
+                    <div class="currency-toggle">
+                        <button class="toggle-btn active-bs" id="btnMonedaBs" onclick="cambiarMonedaFormulario('Bs')">Bs</button>
+                        <button class="toggle-btn" id="btnMonedaUsd" onclick="cambiarMonedaFormulario('$')">$</button>
+                    </div>
+                </div>
+                <div class="col-half">
+                    <span class="label-small" style="color: var(--text-purple);">Cantidad</span>
+                    <select class="select-custom" id="selCantidad">
+                        </select>
+                </div>
+            </div>
+
+            <button class="btn-add" onclick="agregarProductoAALista()">
+                <i data-lucide="plus-circle" style="width: 16px; height: 16px;"></i> AGREGAR
+            </button>
+        </section>
+
+        <section>
+            <div class="list-header">
+                <div class="list-title">
+                    <i data-lucide="list-ordered" style="width: 16px; height: 16px;"></i> LISTA DE COMPRAS
+                </div>
+                <div class="badge-count" id="lblContadorProductos">0 PRODUCTOS</div>
+            </div>
+
+            <div id="listaProductos">
+                </div>
+        </section>
+
+        <div class="totals-panel">
+            <div class="totals-left">
+                <div class="total-box">
+                    <i data-lucide="pie-chart" style="width: 22px; height: 22px; color: var(--text-cyan);"></i>
+                    <div>
+                        <div class="total-label">Total en $</div>
+                        <div class="total-amount cyan" id="lblTotalUsd">$0.00</div>
+                    </div>
+                </div>
+            </div>
+            <div class="totals-right">
+                <div class="total-box">
+                    <div>
+                        <div class="total-label">Total en Bs</div>
+                        <div class="total-amount orange" id="lblTotalBs">Bs 0.00</div>
+                    </div>
+                    <i data-lucide="trending-up" style="width: 22px; height: 22px; color: var(--text-orange); margin-left: auto;"></i>
+                </div>
+            </div>
+            <div class="totals-subtext">Tasa del dólar: <strong id="lblSubtextTasa">Bs. 36.85</strong></div>
+        </div>
+
+        <div class="panel-balance">
+            <div class="section-title" style="margin:0 0 12px 0;">
+                <i data-lucide="wallet" style="width:16px; height:16px;"></i> SALDO / BALANCE
+            </div>
+            <div class="row-inputs">
+                <div class="col-half">
+                    <span style="font-size:10px; color:var(--text-gray);">Saldo Actual</span>
+                    <div class="input-group" style="margin:0; border-color:var(--border-purple);">
+                        <i data-lucide="coins" style="width:18px; height:18px; color:var(--text-purple);"></i>
+                        <input type="number" id="inputBalance" placeholder="0.00" step="0.01" style="font-weight:700;" oninput="calcularTodo()">
+                    </div>
+                </div>
+                <div class="col-half">
+                    <span style="font-size:10px; color:var(--text-gray);">Moneda del Balance</span>
+                    <div class="currency-toggle" style="height:42px;">
+                        <button class="toggle-btn active-bs" id="balBtnBs" onclick="cambiarBalanceMoneda('Bs')">Bs</button>
+                        <button class="toggle-btn" id="balBtnUsd" onclick="cambiarBalanceMoneda('$')">$</button>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(195,0,255,0.2); display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:12px; color:var(--text-gray); font-weight:700;">SALDO RESTANTE</span>
+                <span id="lblBalanceRestante" style="font-size:20px; font-weight:900; color:var(--success);">Bs 0.00</span>
+            </div>
+        </div> 
+
+        <div class="bottom-actions" data-html2canvas-ignore="true">
+            <button class="btn-bottom btn-clear" onclick="limpiarListaCompleta()">
+                <i data-lucide="trash-2"></i>
+                <div class="btn-text-wrapper">
+                    <div>BORRAR</div>
+                    <div>Eliminar producto</div>
+                </div>
+            </button>
+            <button class="btn-bottom btn-share" onclick="compartirListaImagen()">
+                <i data-lucide="message-square"></i>
+                <div class="btn-text-wrapper">
+                    <div>COMPARTIR</div>
+                    <div>Enviar por WhatsApp</div>
+                </div>
+            </button>
+        </div>
+
+    </div>
+
+    <div class="modal-overlay" id="modalTasa">
+        <div class="modal-content">
+            <div class="modal-title">
+                <i data-lucide="refresh-cw" style="width:16px; height:16px; color:var(--text-cyan);"></i> ACTUALIZAR TASA
+            </div>
+            <div class="label-small" style="color: var(--text-cyan); margin-bottom:8px;">Nueva tasa del Dólar (Bs)</div>
+            <div class="input-group cyan-icon" style="border-color: rgba(0, 210, 255, 0.4);">
+                <i data-lucide="dollar-sign" style="width:18px; height:18px;"></i>
+                <input type="number" id="txtNuevaTasa" placeholder="Ej. 24.77" step="0.01">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" onclick="cerrarModalTasa()">CANCELAR</button>
+                <button class="modal-btn btn-accept" onclick="aceptarNuevaTasa()">ACEPTAR</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables de Estado de la Aplicación
+        let tasaDolar = 36.85;
+        let formularioMoneda = 'Bs'; // 'Bs' o '$'
+        let balanceMoneda = 'Bs'; // 'Bs' o '$'
+        let listaCompras = [];
+
+        // Mapeo Inteligente de Palabras Clave a Iconos de Lucide
+        const diccionarioIconos = {
+            audifono: 'headphones', auricular: 'headphones', wireless: 'headphones',
+            leche: 'milk', lacteo: 'milk', queso: 'milk', yogurt: 'milk',
+            camiseta: 'shirt', camisa: 'shirt', franela: 'shirt', sueter: 'shirt', ropa: 'shirt',
+            agua: 'container', mineral: 'container', botella: 'container', jugo: 'container',
+            harina: 'wheat', trigo: 'wheat', maiz: 'wheat', pan: 'wheat',
+            espaguetti: 'soup', fideo: 'soup', pasta: 'soup', macarron: 'soup',
+            arroz: 'grain', cereal: 'grain',
+            cafe: 'coffee', tinto: 'coffee', espresso: 'coffee',
+            azucar: 'candy', dulce: 'candy', caramelo: 'candy',
+            salsa: 'droplet', ketchup: 'droplet', mayonesa: 'droplet', aceite: 'droplet',
+            carne: 'beef', bistec: 'beef', pollo: 'beef', cochino: 'beef', pescado: 'beef',
+            electronico: 'cpu', telefono: 'cpu', pc: 'cpu', tablet: 'cpu', cable: 'cpu', tv: 'cpu',
+            bebida: 'wine', refresco: 'wine', cerveza: 'wine', licor: 'wine',
+            pantalon: 'columns', jean: 'columns', short: 'columns',
+            zapato: 'footprints', bota: 'footprints', tenis: 'footprints', sandalia: 'footprints',
+            gorra: 'smile', sombrero: 'smile',
+            pulsera: 'watch', reloj: 'watch', anillo: 'watch', joya: 'watch'
+        };
+
+        // Al cargar la Ventana
+        window.onload = function() {
+            inicializarSelectCantidad();
+            actualizarPantallaTasa();
+            calcularTodo();
+        };
+
+        function inicializarSelectCantidad() {
+            const select = document.getElementById('selCantidad');
+            select.innerHTML = '';
+            for(let i = 1; i <= 10; i++) {
+                let opt = document.createElement('option');
+                opt.value = i;
+                opt.innerText = i;
+                select.appendChild(opt);
+            }
+        }
+
+        // --- LÓGICA DE TASA ---
+        function abrirModalTasa() {
+            document.getElementById('txtNuevaTasa').value = tasaDolar;
+            document.getElementById('modalTasa').classList.add('active');
+        }
+
+        function cerrarModalTasa() {
+            document.getElementById('modalTasa').classList.remove('active');
+        }
+
+        function aceptarNuevaTasa() {
+            const nuevoValor = parseFloat(document.getElementById('txtNuevaTasa').value);
+            if (!isNaN(nuevoValor) && nuevoValor > 0) {
+                tasaDolar = nuevoValor;
+                actualizarPantallaTasa();
+                
+                // Actualizar marca de tiempo
+                const ahora = new Date();
+                const dia = String(ahora.getDate()).padStart(2, '0');
+                const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+                const anio = ahora.getFullYear();
+                let horas = ahora.getHours();
+                const minutos = String(ahora.getMinutes()).padStart(2, '0');
+                const ampm = horas >= 12 ? 'PM' : 'AM';
+                horas = horas % 12;
+                horas = horas ? horas : 12; // el cero son las 12
+                const strHora = String(horas).padStart(2, '0') + ':' + minutos + ' ' + ampm;
+                
+                document.getElementById('lblFechaActualizacion').innerHTML = `Última actualización:<br>${dia}/${mes}/${anio} - ${strHora}`;
+                
+                cerrarModalTasa();
+                calcularTodo();
+            } else {
+                alert("Por favor, ingrese un número válido mayor a cero.");
+            }
+        }
+
+        function actualizarPantallaTasa() {
+            document.getElementById('lblTasaDolar').innerText = `Bs. ${tasaDolar.toFixed(2)}`;
+            document.getElementById('lblSubtextTasa').innerText = `Bs. ${tasaDolar.toFixed(2)}`;
+        }
+
+        // --- LÓGICA DE FORMULARIO ---
+        function cambiarMonedaFormulario(moneda) {
+            formularioMoneda = moneda;
+            const btnBs = document.getElementById('btnMonedaBs');
+            const btnUsd = document.getElementById('btnMonedaUsd');
+
+            if(moneda === 'Bs') {
+                btnBs.className = "toggle-btn active-bs";
+                btnUsd.className = "toggle-btn";
+            } else {
+                btnBs.className = "toggle-btn";
+                btnUsd.className = "toggle-btn active-usd";
+            }
+        }
+
+        function cambiarBalanceMoneda(moneda) {
+            balanceMoneda = moneda;
+            const btnBs = document.getElementById('balBtnBs');
+            const btnUsd = document.getElementById('balBtnUsd');
+
+            if(moneda === 'Bs') {
+                btnBs.className = "toggle-btn active-bs";
+                btnUsd.className = "toggle-btn";
+            } else {
+                btnBs.className = "toggle-btn";
+                btnUsd.className = "toggle-btn active-usd";
+            }
+            calcularTodo();
+        }
+
+        // --- DETECCIÓN DE ICONO INTELIGENTE ---
+        function obtenerIconoPorNombre(nombre) {
+            const nombreMin = nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Quitar acentos
+            for (const clave in diccionarioIconos) {
+                if (nombreMin.includes(clave)) {
+                    return diccionarioIconos[clave];
+                }
+            }
+            return 'shopping-bag'; // Icono por defecto genérico
+        }
+
+        // --- LÓGICA DEL CARRITO ---
+        function agregarProductoAALista() {
+            const inputProd = document.getElementById('txtProducto');
+            const inputPrec = document.getElementById('txtPrecio');
+            const selectCant = document.getElementById('selCantidad');
+
+            const nombre = inputProd.value.trim();
+            const precioUnitario = parseFloat(inputPrec.value);
+            const cantidad = parseInt(selectCant.value);
+
+            if(nombre === "" || isNaN(precioUnitario) || precioUnitario <= 0) {
+                alert("Por favor ingresa un nombre válido y un precio mayor a 0.");
+                return;
+            }
+
+            // Crear objeto de producto
+            const nuevoProducto = {
+                id: Date.now(),
+                nombre: nombre,
+                precioUnitario: precioUnitario,
+                cantidad: cantidad,
+                moneda: formularioMoneda, // Moneda original del ingreso
+                icono: obtenerIconoPorNombre(nombre)
+            };
+
+            listaCompras.push(nuevoProducto);
+
+            // Resetear inputs del formulario
+            inputProd.value = "";
+            inputPrec.value = "";
+            selectCant.value = "1";
+
+            renderizarLista();
+            calcularTodo();
+        }
+
+        function eliminarProducto(id) {
+            listaCompras = listaCompras.filter(item => item.id !== id);
+            renderizarLista();
+            calcularTodo();
+        }
+
+        function limpiarListaCompleta() {
+            if(listaCompras.length === 0) return;
+            if(confirm("¿Estás seguro de que deseas vaciar por completo la lista de compras?")) {
+                listaCompras = [];
+                renderizarLista();
+                calcularTodo();
+            }
+        }
+
+        // Redibujar UI de la lista
+        function renderizarLista() {
+            const contenedor = document.getElementById('listaProductos');
+            contenedor.innerHTML = '';
+
+            document.getElementById('lblContadorProductos').innerText = `${listaCompras.length} PRODUCTOS`;
+
+            listaCompras.forEach(item => {
+                // Cálculo de la fila en su moneda respectiva
+                const totalItemFila = item.precioUnitario * item.cantidad;
+                
+                // Formatear texto descriptivo de la segunda línea siempre en base referencial a su costo unitario
+                const textoMeta = `Cant: ${item.cantidad}  •  ${item.moneda}${item.precioUnitario.toFixed(2)} c/u`;
+
+                const divCard = document.createElement('div');
+                divCard.className = 'cart-item';
+
+                // Determinar clases visuales por moneda
+                const esCyan = (item.moneda === '$');
+                const claseIcono = esCyan ? 'item-icon cyan-icon' : 'item-icon';
+                const claseBadge = esCyan ? 'item-currency-badge purple' : 'item-currency-badge orange';
+                const clasePrecio = esCyan ? 'item-price price-cyan' : 'item-price price-orange';
+                const prefijoMone = esCyan ? '$' : 'Bs ';
+
+                divCard.innerHTML = `
+                    <div class="item-main">
+                        <div class="${claseIcono}">
+                            <i data-lucide="${item.icono}" style="width: 20px; height: 20px;"></i>
+                        </div>
+                        <div class="item-details">
+                            <h3>${item.nombre}</h3>
+                            <div class="item-meta">${textoMeta}</div>
+                            <span class="${claseBadge}">${item.moneda}</span>
+                        </div>
+                    </div>
+                    <div class="item-right">
+                        <span class="${clasePrecio}">${prefijoMone}${totalItemFila.toFixed(2)}</span>
+                        <button class="btn-delete-item" onclick="eliminarProducto(${item.id})">
+                            <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                        </button>
+                    </div>
+                `;
+                contenedor.appendChild(divCard);
+            });
+
+            lucide.createIcons();
+        }
+
+        // --- CÁLCULO DE TOTALES Y BALANCES COMPLETOS ---
+        function calcularTodo() {
+            let acumuladoUsd = 0;
+            let acumuladoBs = 0;
+
+            listaCompras.forEach(item => {
+                const totalFila = item.precioUnitario * item.cantidad;
+                if(item.moneda === '$') {
+                    acumuladoUsd += totalFila;
+                    acumuladoBs += (totalFila * tasaDolar);
+                } else {
+                    acumuladoBs += totalFila;
+                    acumuladoUsd += (totalFila / tasaDolar);
+                }
+            });
+
+            // Renderizar Totales Generales Cruzados
+            document.getElementById('lblTotalUsd').innerText = `$${acumuladoUsd.toFixed(2)}`;
+            document.getElementById('lblTotalBs').innerText = `Bs ${acumuladoBs.toFixed(2)}`;
+
+            // Lógica Balance / Saldo Restante
+            const inputBal = document.getElementById('inputBalance');
+            let saldoActual = parseFloat(inputBal.value);
+            if(isNaN(saldoActual) || saldoActual < 0) saldoActual = 0;
+
+            const lblRestante = document.getElementById('lblBalanceRestante');
+            
+            if(balanceMoneda === 'Bs') {
+                // El saldo ingresado está en Bs, restamos el gasto total acumulado expresado en Bs
+                const restanteBs = saldoActual - acumuladoBs;
+                lblRestante.innerText = `Bs ${restanteBs.toFixed(2)}`;
+                lblRestante.style.color = restanteBs >= 0 ? 'var(--success)' : 'var(--danger)';
+            } else {
+                // El saldo ingresado está en $, restamos el gasto total acumulado expresado en $
+                const restanteUsd = saldoActual - acumuladoUsd;
+                lblRestante.innerText = `$${restanteUsd.toFixed(2)}`;
+                lblRestante.style.color = restanteUsd >= 0 ? 'var(--success)' : 'var(--danger)';
+            }
+        }
+
+        // --- COMPARTIR POR WHATSAPP COMO IMAGEN ---
+        function compartirListaImagen() {
+            if(listaCompras.length === 0) {
+                alert("Agrega productos a la lista antes de intentar compartir.");
+                return;
+            }
+
+            const appContainer = document.getElementById('captureArea');
+            
+            // Renderizado nativo del contenedor DOM hacia Canvas usando la librería importada
+            html2canvas(appContainer, {
+                backgroundColor: "#050714",
+                scale: 2, // Eleva resolución de la imagen final para pantallas móviles de alta densidad
+                logging: false,
+                useCORS: true
+            }).then(canvas => {
+                // Convertir la captura en Blob binario legible
+                canvas.toBlob(function(blob) {
+                    const archivoImagen = new File([blob], "Lista_De_Compras.png", { type: "image/png" });
+                    
+                    // Validar si el navegador del móvil admite la API de compartición nativa de archivos
+                    if (navigator.canShare && navigator.canShare({ files: [archivoImagen] })) {
+                        navigator.share({
+                            files: [archivoImagen],
+                            title: 'Mi Lista de Compras',
+                            text: 'Código e Interfaz generada dinámicamente.'
+                        })
+                        .catch(err => console.log('Error al compartir:', err));
+                    } else {
+                        // Respaldo clásico si el navegador bloquea la API Share: descarga directa local
+                        const urlDescarga = canvas.toDataURL("image/png");
+                        const enlaceTemporal = document.createElement('a');
+                        enlaceTemporal.download = `Lista_Compras_${Date.now()}.png`;
+                        enlaceTemporal.href = urlDescarga;
+                        enlaceTemporal.click();
+                        alert("Tu navegador no soporta el envío directo. Se ha descargado la imagen del recibo en tu dispositivo; ahora puedes adjuntarla en tu WhatsApp.");
+                    }
+                }, 'image/png');
+            });
+        }
+    </script>
+</body>
+</html>
