@@ -52,9 +52,6 @@
             box-shadow: 0 0 30px rgba(0, 210, 255, 0.05);
             position: relative;
             overflow: hidden;
-            /* Fuerza el uso de GPU en celular para evitar artefactos visuales */
-            transform: translateZ(0);
-            -webkit-transform: translateZ(0);
         }
 
         .app-container::before {
@@ -397,6 +394,7 @@
         #listaProductos {
             max-height: 320px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             padding-right: 2px;
         }
 
@@ -418,7 +416,6 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 10px;
-            transform: translateZ(0); /* Aceleración por hardware individual */
         }
 
         .item-main {
