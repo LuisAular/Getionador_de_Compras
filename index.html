@@ -119,6 +119,12 @@
             color: var(--text-gray);
         }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .settings-btn {
             width: 40px;
             height: 40px;
@@ -228,6 +234,22 @@
 
         .section-title i, .section-title svg {
             color: var(--text-cyan);
+        }
+
+        .btn-peso {
+            background: rgba(255, 153, 0, 0.1);
+            border: 1px solid var(--text-orange);
+            color: var(--text-orange);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
         }
 
         .input-group {
@@ -652,6 +674,25 @@
         .btn-clear i, .btn-clear svg { color: var(--danger); }
         .btn-share i, .btn-share svg { color: var(--success); }
 
+        .btn-nueva-compra {
+            width: 100%;
+            height: 46px;
+            margin-top: 20px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border-cyan);
+            background: linear-gradient(90deg, rgba(0,210,255,0.08) 0%, rgba(195,0,255,0.08) 100%);
+            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
         /* MODAL DE TASA */
         .modal-overlay {
             position: fixed;
@@ -726,6 +767,193 @@
             color: #ffffff;
             background: rgba(0, 210, 255, 0.1);
         }
+
+        /* PREVIEW MODAL PESO */
+        .peso-preview {
+            background: var(--bg-input);
+            border: 1px solid rgba(255, 153, 0, 0.3);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 5px;
+        }
+
+        .peso-preview-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            padding: 4px 0;
+            color: var(--text-gray);
+        }
+
+        .peso-preview-row strong {
+            color: var(--text-orange);
+            font-size: 15px;
+        }
+
+        /* HISTORIAL - DRAWER DERECHA A IZQUIERDA */
+        .history-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 2, 8, 0.75);
+            z-index: 150;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .history-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .history-drawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 88%;
+            max-width: 380px;
+            height: 100%;
+            background: var(--bg-card);
+            border-left: 2px solid var(--border-cyan);
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            transition: right 0.3s ease;
+        }
+
+        .history-drawer.active {
+            right: 0;
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(0, 210, 255, 0.2);
+        }
+
+        .history-close-btn {
+            width: 32px;
+            height: 32px;
+            background: #0d1130;
+            border: 1px solid var(--border-purple);
+            border-radius: 8px;
+            color: var(--text-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .history-empty {
+            text-align: center;
+            color: var(--text-gray);
+            font-size: 12px;
+            margin-top: 40px;
+        }
+
+        .history-day-card {
+            border: 1px solid rgba(0, 210, 255, 0.25);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            background: #060a1f;
+        }
+
+        .history-day-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            cursor: pointer;
+        }
+
+        .history-day-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+        }
+
+        .history-day-sub {
+            font-size: 10px;
+            color: var(--text-gray);
+            margin-top: 3px;
+        }
+
+        .history-day-chevron {
+            color: var(--text-cyan);
+            transition: transform 0.2s ease;
+        }
+
+        .history-day-card.open .history-day-chevron {
+            transform: rotate(180deg);
+        }
+
+        .history-day-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            border-top: 1px solid rgba(0, 210, 255, 0.15);
+        }
+
+        .history-day-card.open .history-day-body {
+            max-height: 2000px;
+        }
+
+        .history-compra-block {
+            padding: 12px 14px;
+            border-bottom: 1px dashed rgba(125, 133, 178, 0.25);
+        }
+
+        .history-compra-block:last-child {
+            border-bottom: none;
+        }
+
+        .history-compra-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-gray);
+            margin-bottom: 8px;
+        }
+
+        .history-compra-meta span strong {
+            color: var(--text-cyan);
+        }
+
+        .history-item-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11.5px;
+            padding: 3px 0;
+            color: #d7daf0;
+        }
+
+        .history-item-row span:last-child {
+            color: var(--text-orange);
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        .history-compra-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(125, 133, 178, 0.2);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .history-compra-total .cyan { color: var(--text-cyan); }
+        .history-compra-total .orange { color: var(--text-orange); }
     </style>
 </head>
 <body>
@@ -743,9 +971,14 @@
                     <p>Creado por Ing. Luis aular</p>
                 </div>
             </div>
-            <button class="settings-btn">
-                <i data-lucide="settings" style="width: 18px; height: 18px;"></i>
-            </button>
+            <div class="header-actions">
+                <button class="settings-btn" id="btnHistorial" onclick="toggleHistorial()" title="Historial">
+                    <i data-lucide="history" style="width: 18px; height: 18px;"></i>
+                </button>
+                <button class="settings-btn">
+                    <i data-lucide="settings" style="width: 18px; height: 18px;"></i>
+                </button>
+            </div>
         </header>
 
         <div class="dollar-card">
@@ -767,8 +1000,13 @@
         </div>
 
         <section class="section-box" data-html2canvas-ignore="true">
-            <div class="section-title">
-                <i data-lucide="box" style="width: 16px; height: 16px;"></i> AGREGAR PRODUCTO
+            <div class="section-title" style="justify-content: space-between;">
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="box" style="width: 16px; height: 16px;"></i> AGREGAR PRODUCTO
+                </span>
+                <button class="btn-peso" onclick="abrirModalPeso()" type="button">
+                    <i data-lucide="scale" style="width: 12px; height: 12px;"></i> POR PESO
+                </button>
             </div>
             
             <div class="label-small" style="color: var(--text-purple);">Producto</div>
@@ -863,6 +1101,11 @@
             </div>
         </div> 
 
+        <button class="btn-nueva-compra" onclick="nuevaCompra()" data-html2canvas-ignore="true">
+            <i data-lucide="rotate-cw" style="width: 15px; height: 15px;"></i>
+            NUEVA COMPRA
+        </button>
+
         <div class="bottom-actions" data-html2canvas-ignore="true">
             <button class="btn-bottom btn-clear" onclick="limpiarListaCompleta()">
                 <i data-lucide="trash-2"></i>
@@ -899,11 +1142,80 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modalPeso">
+        <div class="modal-content">
+            <div class="modal-title">
+                <i data-lucide="scale" style="width:16px; height:16px; color:var(--text-orange);"></i> CALCULAR POR PESO
+            </div>
+
+            <div class="label-small" style="color: var(--text-purple);">Producto</div>
+            <div class="input-group">
+                <i data-lucide="shopping-bag" style="width: 18px; height: 18px;"></i>
+                <input type="text" id="txtPesoProducto" placeholder="Ej. Queso blanco" oninput="calcularPreviewPeso()">
+            </div>
+
+            <div class="row-inputs">
+                <div class="col-half">
+                    <span class="label-small" style="color: var(--text-orange);">Peso (gramos)</span>
+                    <div class="input-group" style="margin:0;">
+                        <i data-lucide="weight" style="width: 16px; height: 16px;"></i>
+                        <input type="number" id="txtPesoGramos" placeholder="Ej. 450" step="1" oninput="calcularPreviewPeso()">
+                    </div>
+                </div>
+                <div class="col-half">
+                    <span class="label-small" style="color: var(--text-cyan);">Precio x 1000g</span>
+                    <div class="input-group cyan-icon" style="margin:0;">
+                        <i data-lucide="tag" style="width: 16px; height: 16px;"></i>
+                        <input type="number" id="txtPesoPrecioKg" placeholder="0.00" step="0.01" oninput="calcularPreviewPeso()">
+                    </div>
+                </div>
+            </div>
+
+            <span class="label-small" style="margin-top:14px;">Moneda del precio</span>
+            <div class="currency-toggle" style="margin-bottom:16px;">
+                <button class="toggle-btn active-bs" id="btnPesoMonedaBs" onclick="cambiarMonedaPeso('Bs')">Bs</button>
+                <button class="toggle-btn" id="btnPesoMonedaUsd" onclick="cambiarMonedaPeso('$')">$</button>
+            </div>
+
+            <div class="peso-preview">
+                <div class="peso-preview-row">
+                    <span>Total en $</span>
+                    <strong id="lblPesoPreviewUsd">$0.00</strong>
+                </div>
+                <div class="peso-preview-row">
+                    <span>Total en Bs</span>
+                    <strong id="lblPesoPreviewBs">Bs 0.00</strong>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" onclick="cerrarModalPeso()">CANCELAR</button>
+                <button class="modal-btn btn-accept" onclick="agregarProductoPeso()">AGREGAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="history-overlay" id="historyOverlay" onclick="toggleHistorial()"></div>
+    <aside class="history-drawer" id="historyDrawer">
+        <div class="history-header">
+            <div class="modal-title" style="margin:0;">
+                <i data-lucide="history" style="width:16px; height:16px; color:var(--text-cyan);"></i> HISTORIAL DE COMPRAS
+            </div>
+            <button class="history-close-btn" onclick="toggleHistorial()">
+                <i data-lucide="x" style="width:18px; height:18px;"></i>
+            </button>
+        </div>
+        <div id="listaHistorial" class="history-list"></div>
+    </aside>
+
     <script>
         let tasaDolar = 36.85;
         let formularioMoneda = 'Bs';
         let balanceMoneda = 'Bs';
+        let pesoMoneda = 'Bs';
         let listaCompras = [];
+        let historial = [];
+        const STORAGE_KEY = 'registroComprasEstado_v1';
 
         // Diccionario con las definiciones completas en código SVG crudo de Lucide para renderizado móvil directo e infalible
         const svgIconos = {
@@ -949,10 +1261,60 @@
 
         window.onload = function() {
             inicializarSelectCantidad();
+            cargarEstado();
             actualizarPantallaTasa();
+            renderizarLista();
             calcularTodo();
             lucide.createIcons(); // Solo para los del header inmóviles
         };
+
+        // ===== PERSISTENCIA (localStorage) =====
+        function guardarEstado() {
+            try {
+                const estado = {
+                    tasaDolar,
+                    formularioMoneda,
+                    balanceMoneda,
+                    listaCompras,
+                    historial,
+                    inputBalance: document.getElementById('inputBalance').value,
+                    lblFechaActualizacion: document.getElementById('lblFechaActualizacion').innerHTML
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(estado));
+            } catch (e) {
+                console.warn('No se pudo guardar el estado localmente:', e);
+            }
+        }
+
+        function cargarEstado() {
+            try {
+                const crudo = localStorage.getItem(STORAGE_KEY);
+                if (!crudo) return;
+                const estado = JSON.parse(crudo);
+
+                if (typeof estado.tasaDolar === 'number') tasaDolar = estado.tasaDolar;
+                if (estado.formularioMoneda) formularioMoneda = estado.formularioMoneda;
+                if (estado.balanceMoneda) balanceMoneda = estado.balanceMoneda;
+                if (Array.isArray(estado.listaCompras)) listaCompras = estado.listaCompras;
+                if (Array.isArray(estado.historial)) historial = estado.historial;
+
+                if (estado.inputBalance !== undefined) {
+                    document.getElementById('inputBalance').value = estado.inputBalance;
+                }
+                if (estado.lblFechaActualizacion) {
+                    document.getElementById('lblFechaActualizacion').innerHTML = estado.lblFechaActualizacion;
+                }
+
+                // Refleja los toggles de moneda restaurados
+                cambiarMonedaFormulario(formularioMoneda);
+                const btnBal = balanceMoneda === '$' ? 'balBtnUsd' : 'balBtnBs';
+                const btnBalOtro = balanceMoneda === '$' ? 'balBtnBs' : 'balBtnUsd';
+                document.getElementById(btnBal).className = balanceMoneda === '$' ? 'toggle-btn active-usd' : 'toggle-btn active-bs';
+                document.getElementById(btnBalOtro).className = 'toggle-btn';
+            } catch (e) {
+                console.warn('No se pudo cargar el estado guardado:', e);
+            }
+        }
 
         function inicializarSelectCantidad() {
             const select = document.getElementById('selCantidad');
@@ -1013,6 +1375,7 @@
                 btnBs.className = "toggle-btn";
                 btnUsd.className = "toggle-btn active-usd";
             }
+            guardarEstado();
         }
 
         function cambiarBalanceMoneda(moneda) {
@@ -1094,7 +1457,9 @@
 
             listaCompras.forEach(item => {
                 const totalItemFila = item.precioUnitario * item.cantidad;
-                const textoMeta = `Cant: ${item.cantidad}  •  ${item.moneda}${item.precioUnitario.toFixed(2)} c/u`;
+                const textoMeta = item.pesoGramos
+                    ? `${item.pesoGramos}g  •  ${item.moneda}${item.precioPorKg.toFixed(2)}/kg`
+                    : `Cant: ${item.cantidad}  •  ${item.moneda}${item.precioUnitario.toFixed(2)} c/u`;
 
                 const divCard = document.createElement('div');
                 divCard.className = 'cart-item';
@@ -1163,25 +1528,301 @@
                 lblRestante.innerText = `$${restanteUsd.toFixed(2)}`;
                 lblRestante.style.color = restanteUsd >= 0 ? 'var(--success)' : 'var(--danger)';
             }
+
+            guardarEstado();
+        }
+
+        // ===== NUEVA COMPRA / HISTORIAL =====
+        function nuevaCompra() {
+            if (listaCompras.length === 0) {
+                alert("Agrega al menos un producto antes de iniciar una nueva compra.");
+                return;
+            }
+            if (!confirm("Esto archivará la lista actual en el historial y comenzará una compra nueva. ¿Continuar?")) {
+                return;
+            }
+
+            let acumuladoUsd = 0;
+            let acumuladoBs = 0;
+            listaCompras.forEach(item => {
+                const totalFila = item.precioUnitario * item.cantidad;
+                if (item.moneda === '$') {
+                    acumuladoUsd += totalFila;
+                    acumuladoBs += (totalFila * tasaDolar);
+                } else {
+                    acumuladoBs += totalFila;
+                    acumuladoUsd += (totalFila / tasaDolar);
+                }
+            });
+
+            const inputBal = document.getElementById('inputBalance');
+            const saldoActual = parseFloat(inputBal.value) || 0;
+
+            const ahora = new Date();
+            const fechaKey = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
+            const fechaDisplay = `${String(ahora.getDate()).padStart(2, '0')}/${String(ahora.getMonth() + 1).padStart(2, '0')}/${ahora.getFullYear()}`;
+            let horas = ahora.getHours();
+            const ampm = horas >= 12 ? 'PM' : 'AM';
+            horas = horas % 12; horas = horas ? horas : 12;
+            const horaDisplay = `${String(horas).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')} ${ampm}`;
+
+            historial.unshift({
+                id: Date.now(),
+                fechaKey,
+                fechaDisplay,
+                horaDisplay,
+                tasa: tasaDolar,
+                productos: JSON.parse(JSON.stringify(listaCompras)),
+                totalUsd: acumuladoUsd,
+                totalBs: acumuladoBs,
+                pagado: saldoActual,
+                pagadoMoneda: balanceMoneda
+            });
+
+            listaCompras = [];
+            inputBal.value = '';
+            renderizarLista();
+            calcularTodo();
+            alert("Compra archivada en el historial. ¡Lista lista para una nueva compra!");
+        }
+
+        function toggleHistorial() {
+            const overlay = document.getElementById('historyOverlay');
+            const drawer = document.getElementById('historyDrawer');
+            const seAbre = !drawer.classList.contains('active');
+            overlay.classList.toggle('active');
+            drawer.classList.toggle('active');
+            if (seAbre) renderizarHistorial();
+        }
+
+        function renderizarHistorial() {
+            const contenedor = document.getElementById('listaHistorial');
+            contenedor.innerHTML = '';
+
+            if (historial.length === 0) {
+                contenedor.innerHTML = `<div class="history-empty">Aún no hay compras archivadas.<br>Usa "NUEVA COMPRA" para guardar tu lista actual aquí.</div>`;
+                return;
+            }
+
+            // Agrupar por fecha
+            const grupos = {};
+            historial.forEach(compra => {
+                if (!grupos[compra.fechaKey]) grupos[compra.fechaKey] = { fechaDisplay: compra.fechaDisplay, compras: [] };
+                grupos[compra.fechaKey].compras.push(compra);
+            });
+
+            const fechasOrdenadas = Object.keys(grupos).sort().reverse();
+
+            fechasOrdenadas.forEach((fechaKey, idx) => {
+                const grupo = grupos[fechaKey];
+                const totalDiaUsd = grupo.compras.reduce((acc, c) => acc + c.totalUsd, 0);
+
+                const divDia = document.createElement('div');
+                divDia.className = 'history-day-card';
+                divDia.id = `historyDay_${fechaKey}`;
+
+                let bloquesHtml = '';
+                grupo.compras.forEach(compra => {
+                    let itemsHtml = '';
+                    compra.productos.forEach(p => {
+                        const totalItem = p.precioUnitario * p.cantidad;
+                        itemsHtml += `<div class="history-item-row"><span>${p.nombre}</span><span>${p.moneda}${totalItem.toFixed(2)}</span></div>`;
+                    });
+                    bloquesHtml += `
+                        <div class="history-compra-block">
+                            <div class="history-compra-meta">
+                                <span>${compra.horaDisplay}</span>
+                                <span>Tasa: <strong>Bs ${compra.tasa.toFixed(2)}</strong></span>
+                            </div>
+                            ${itemsHtml}
+                            <div class="history-compra-total">
+                                <span class="cyan">$${compra.totalUsd.toFixed(2)}</span>
+                                <span class="orange">Bs ${compra.totalBs.toFixed(2)}</span>
+                            </div>
+                            <div class="history-compra-meta" style="margin-top:6px; margin-bottom:0;">
+                                <span>Pagado</span>
+                                <span><strong>${compra.pagadoMoneda}${compra.pagado.toFixed(2)}</strong></span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                divDia.innerHTML = `
+                    <div class="history-day-header" onclick="toggleDiaHistorial('historyDay_${fechaKey}')">
+                        <div>
+                            <div class="history-day-title">${grupo.fechaDisplay}</div>
+                            <div class="history-day-sub">${grupo.compras.length} compra(s) • $${totalDiaUsd.toFixed(2)} en total</div>
+                        </div>
+                        <i data-lucide="chevron-down" class="history-day-chevron" style="width:18px; height:18px;"></i>
+                    </div>
+                    <div class="history-day-body">${bloquesHtml}</div>
+                `;
+                contenedor.appendChild(divDia);
+            });
+
+            lucide.createIcons();
+        }
+
+        function toggleDiaHistorial(idElemento) {
+            document.getElementById(idElemento).classList.toggle('open');
+        }
+
+        // ===== MODAL: CALCULAR POR PESO =====
+        function abrirModalPeso() {
+            document.getElementById('txtPesoProducto').value = '';
+            document.getElementById('txtPesoGramos').value = '';
+            document.getElementById('txtPesoPrecioKg').value = '';
+            calcularPreviewPeso();
+            document.getElementById('modalPeso').classList.add('active');
+        }
+
+        function cerrarModalPeso() {
+            document.getElementById('modalPeso').classList.remove('active');
+        }
+
+        function cambiarMonedaPeso(moneda) {
+            pesoMoneda = moneda;
+            const btnBs = document.getElementById('btnPesoMonedaBs');
+            const btnUsd = document.getElementById('btnPesoMonedaUsd');
+            if (moneda === 'Bs') {
+                btnBs.className = "toggle-btn active-bs";
+                btnUsd.className = "toggle-btn";
+            } else {
+                btnBs.className = "toggle-btn";
+                btnUsd.className = "toggle-btn active-usd";
+            }
+            calcularPreviewPeso();
+        }
+
+        function calcularPreviewPeso() {
+            const gramos = parseFloat(document.getElementById('txtPesoGramos').value) || 0;
+            const precioKg = parseFloat(document.getElementById('txtPesoPrecioKg').value) || 0;
+            const totalEnMonedaIngresada = (gramos / 1000) * precioKg;
+
+            let totalUsd, totalBs;
+            if (pesoMoneda === '$') {
+                totalUsd = totalEnMonedaIngresada;
+                totalBs = totalEnMonedaIngresada * tasaDolar;
+            } else {
+                totalBs = totalEnMonedaIngresada;
+                totalUsd = totalEnMonedaIngresada / tasaDolar;
+            }
+
+            document.getElementById('lblPesoPreviewUsd').innerText = `$${totalUsd.toFixed(2)}`;
+            document.getElementById('lblPesoPreviewBs').innerText = `Bs ${totalBs.toFixed(2)}`;
+        }
+
+        function agregarProductoPeso() {
+            const nombre = document.getElementById('txtPesoProducto').value.trim();
+            const gramos = parseFloat(document.getElementById('txtPesoGramos').value);
+            const precioKg = parseFloat(document.getElementById('txtPesoPrecioKg').value);
+
+            if (nombre === "" || isNaN(gramos) || gramos <= 0 || isNaN(precioKg) || precioKg <= 0) {
+                alert("Completa el nombre, el peso en gramos y el precio por 1000g correctamente.");
+                return;
+            }
+
+            const precioFinal = (gramos / 1000) * precioKg;
+
+            const nuevoProducto = {
+                id: Date.now(),
+                nombre: nombre,
+                precioUnitario: precioFinal,
+                cantidad: 1,
+                moneda: pesoMoneda,
+                icono: obtenerIconoPorNombre(nombre),
+                pesoGramos: gramos,
+                precioPorKg: precioKg
+            };
+
+            listaCompras.push(nuevoProducto);
+            cerrarModalPeso();
+            renderizarLista();
+            calcularTodo();
+        }
+
+        function generarHtmlRecibo() {
+            const ahora = new Date();
+            const fechaDisplay = `${String(ahora.getDate()).padStart(2, '0')}/${String(ahora.getMonth() + 1).padStart(2, '0')}/${ahora.getFullYear()}`;
+            let horas = ahora.getHours();
+            const ampm = horas >= 12 ? 'PM' : 'AM';
+            horas = horas % 12; horas = horas ? horas : 12;
+            const horaDisplay = `${String(horas).padStart(2, '0')}:${String(ahora.getMinutes()).padStart(2, '0')} ${ampm}`;
+
+            let acumuladoUsd = 0;
+            let acumuladoBs = 0;
+            let filasHtml = '';
+
+            listaCompras.forEach(item => {
+                const totalFila = item.precioUnitario * item.cantidad;
+                if (item.moneda === '$') {
+                    acumuladoUsd += totalFila;
+                    acumuladoBs += (totalFila * tasaDolar);
+                } else {
+                    acumuladoBs += totalFila;
+                    acumuladoUsd += (totalFila / tasaDolar);
+                }
+                const detalle = item.pesoGramos
+                    ? `${item.pesoGramos}g &bull; ${item.moneda}${item.precioPorKg.toFixed(2)}/kg`
+                    : `Cant: ${item.cantidad} &bull; ${item.moneda}${item.precioUnitario.toFixed(2)} c/u`;
+
+                filasHtml += `
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:10px 0; border-bottom:1px dashed #1c2452;">
+                        <div style="max-width:70%;">
+                            <div style="font-size:14px; font-weight:600; color:#ffffff;">${item.nombre}</div>
+                            <div style="font-size:11px; color:#7d85b2; margin-top:2px;">${detalle}</div>
+                        </div>
+                        <div style="font-size:14px; font-weight:700; color:#ff9900; white-space:nowrap;">${item.moneda}${totalFila.toFixed(2)}</div>
+                    </div>
+                `;
+            });
+
+            return `
+                <div style="width:380px; background:#050714; color:#ffffff; font-family:'Plus Jakarta Sans', Arial, sans-serif; padding:26px; border:2px solid #00d2ff;">
+                    <div style="text-align:center; margin-bottom:18px;">
+                        <div style="font-family:'Orbitron', Arial, sans-serif; font-size:12px; letter-spacing:2px; color:#ffffff;">REGISTRO DE</div>
+                        <div style="font-family:'Orbitron', Arial, sans-serif; font-size:26px; font-weight:900; background:linear-gradient(90deg,#9d4edd,#00f0ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">COMPRAS</div>
+                        <div style="font-size:11px; color:#7d85b2; margin-top:6px;">${fechaDisplay} &bull; ${horaDisplay}</div>
+                        <div style="font-size:11px; color:#00e5ff; margin-top:2px; font-weight:700;">Tasa del dólar: Bs ${tasaDolar.toFixed(2)}</div>
+                    </div>
+                    <div style="border-top:1px solid #1c2452; margin-bottom:4px;"></div>
+                    ${filasHtml}
+                    <div style="margin-top:16px; padding-top:14px; border-top:2px solid #00d2ff; display:flex; justify-content:space-between;">
+                        <div>
+                            <div style="font-size:10px; color:#7d85b2; text-transform:uppercase;">Total en $</div>
+                            <div style="font-size:20px; font-weight:900; color:#00e5ff;">$${acumuladoUsd.toFixed(2)}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:10px; color:#7d85b2; text-transform:uppercase;">Total en Bs</div>
+                            <div style="font-size:20px; font-weight:900; color:#ff9900;">Bs ${acumuladoBs.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <div style="text-align:center; margin-top:18px; font-size:9px; color:#4a527a;">Generado por Ing. Luis aular</div>
+                </div>
+            `;
         }
 
         function compartirListaImagen() {
-            if(listaCompras.length === 0) {
+            if (listaCompras.length === 0) {
                 alert("Agrega productos antes de compartir.");
                 return;
             }
 
-            const appContainer = document.getElementById('captureArea');
-            
-            html2canvas(appContainer, {
+            const recibo = document.createElement('div');
+            recibo.style.cssText = 'position:fixed; left:-9999px; top:0; z-index:-1;';
+            recibo.innerHTML = generarHtmlRecibo();
+            document.body.appendChild(recibo);
+
+            html2canvas(recibo.firstElementChild, {
                 backgroundColor: "#050714",
                 scale: 2,
                 logging: false,
                 useCORS: true
             }).then(canvas => {
+                document.body.removeChild(recibo);
                 canvas.toBlob(function(blob) {
                     const archivoImagen = new File([blob], "Lista_De_Compras.png", { type: "image/png" });
-                    
+
                     if (navigator.canShare && navigator.canShare({ files: [archivoImagen] })) {
                         navigator.share({
                             files: [archivoImagen],
@@ -1194,9 +1835,12 @@
                         enlaceTemporal.download = `Lista_Compras.png`;
                         enlaceTemporal.href = urlDescarga;
                         enlaceTemporal.click();
-                        alert("Se ha descargado la lista como imagen. ¡Ya puedes enviarla por WhatsApp!");
+                        alert("Se ha descargado el recibo como imagen. ¡Ya puedes enviarlo por WhatsApp!");
                     }
                 }, 'image/png');
+            }).catch(() => {
+                if (recibo.parentNode) document.body.removeChild(recibo);
+                alert("No se pudo generar la imagen del recibo. Intenta de nuevo.");
             });
         }
     </script>
