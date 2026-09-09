@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Compras - Cyberpunk UI</title>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
 
@@ -459,6 +458,7 @@
             align-items: center;
             justify-content: center;
             color: var(--text-purple);
+            cursor: pointer;
         }
 
         .item-icon.cyan-icon {
@@ -927,6 +927,20 @@
             color: var(--text-cyan);
         }
 
+        .history-compra-store {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .history-compra-store i, .history-compra-store svg {
+            color: var(--text-orange);
+        }
+
         .history-item-row {
             display: flex;
             justify-content: space-between;
@@ -1101,7 +1115,7 @@
             </div>
         </div> 
 
-        <button class="btn-nueva-compra" onclick="nuevaCompra()" data-html2canvas-ignore="true">
+        <button class="btn-nueva-compra" onclick="abrirModalNuevaCompra()" data-html2canvas-ignore="true">
             <i data-lucide="rotate-cw" style="width: 15px; height: 15px;"></i>
             NUEVA COMPRA
         </button>
@@ -1195,6 +1209,62 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modalEditar">
+        <div class="modal-content">
+            <div class="modal-title">
+                <i data-lucide="pencil" style="width:16px; height:16px; color:var(--text-purple);"></i> EDITAR PRODUCTO
+            </div>
+
+            <div class="label-small" style="color: var(--text-purple);">Producto</div>
+            <div class="input-group">
+                <i data-lucide="shopping-bag" style="width: 18px; height: 18px;"></i>
+                <input type="text" id="txtEditNombre" placeholder="Nombre del producto">
+            </div>
+
+            <div class="label-small" style="color: var(--text-cyan);">Precio (Bs o $)</div>
+            <div class="input-group cyan-icon">
+                <i data-lucide="tag" style="width: 18px; height: 18px;"></i>
+                <input type="number" id="txtEditPrecio" placeholder="0.00" step="0.01">
+            </div>
+
+            <div class="row-inputs">
+                <div class="col-half">
+                    <span class="label-small">Moneda</span>
+                    <div class="currency-toggle">
+                        <button class="toggle-btn active-bs" id="btnEditMonedaBs" onclick="cambiarMonedaEdicion('Bs')">Bs</button>
+                        <button class="toggle-btn" id="btnEditMonedaUsd" onclick="cambiarMonedaEdicion('$')">$</button>
+                    </div>
+                </div>
+                <div class="col-half">
+                    <span class="label-small" style="color: var(--text-purple);">Cantidad</span>
+                    <select class="select-custom" id="selEditCantidad"></select>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" onclick="cerrarModalEditar()">CANCELAR</button>
+                <button class="modal-btn btn-accept" onclick="guardarEdicionProducto()">GUARDAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalNuevaCompra">
+        <div class="modal-content">
+            <div class="modal-title">
+                <i data-lucide="store" style="width:16px; height:16px; color:var(--text-cyan);"></i> ¿DÓNDE COMPRASTE?
+            </div>
+            <div class="label-small" style="color: var(--text-cyan); margin-bottom:8px;">Nombre del local / tienda</div>
+            <div class="input-group cyan-icon" style="border-color: rgba(0, 210, 255, 0.4);">
+                <i data-lucide="map-pin" style="width:18px; height:18px;"></i>
+                <input type="text" id="txtNombreLocal" placeholder="Ej. Supermercado Central">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" onclick="cerrarModalNuevaCompra()">CANCELAR</button>
+                <button class="modal-btn btn-accept" onclick="confirmarNuevaCompra()">GUARDAR</button>
+            </div>
+        </div>
+    </div>
+
     <div class="history-overlay" id="historyOverlay" onclick="toggleHistorial()"></div>
     <aside class="history-drawer" id="historyDrawer">
         <div class="history-header">
@@ -1261,6 +1331,7 @@
 
         window.onload = function() {
             inicializarSelectCantidad();
+            inicializarSelectEditCantidad();
             cargarEstado();
             actualizarPantallaTasa();
             renderizarLista();
@@ -1475,7 +1546,7 @@
 
                 divCard.innerHTML = `
                     <div class="item-main">
-                        <div class="${claseIcono}">
+                        <div class="${claseIcono}" onclick="abrirModalEditar(${item.id})" title="Editar producto">
                             ${svgInyectable}
                         </div>
                         <div class="item-details">
@@ -1533,14 +1604,22 @@
         }
 
         // ===== NUEVA COMPRA / HISTORIAL =====
-        function nuevaCompra() {
+        function abrirModalNuevaCompra() {
             if (listaCompras.length === 0) {
                 alert("Agrega al menos un producto antes de iniciar una nueva compra.");
                 return;
             }
-            if (!confirm("Esto archivará la lista actual en el historial y comenzará una compra nueva. ¿Continuar?")) {
-                return;
-            }
+            document.getElementById('txtNombreLocal').value = '';
+            document.getElementById('modalNuevaCompra').classList.add('active');
+        }
+
+        function cerrarModalNuevaCompra() {
+            document.getElementById('modalNuevaCompra').classList.remove('active');
+        }
+
+        function confirmarNuevaCompra() {
+            const nombreLocalInput = document.getElementById('txtNombreLocal').value.trim();
+            const nombreLocal = nombreLocalInput === '' ? 'Local no especificado' : nombreLocalInput;
 
             let acumuladoUsd = 0;
             let acumuladoBs = 0;
@@ -1571,6 +1650,7 @@
                 fechaKey,
                 fechaDisplay,
                 horaDisplay,
+                local: nombreLocal,
                 tasa: tasaDolar,
                 productos: JSON.parse(JSON.stringify(listaCompras)),
                 totalUsd: acumuladoUsd,
@@ -1581,9 +1661,84 @@
 
             listaCompras = [];
             inputBal.value = '';
+            cerrarModalNuevaCompra();
             renderizarLista();
             calcularTodo();
-            alert("Compra archivada en el historial. ¡Lista lista para una nueva compra!");
+        }
+
+        // ===== EDITAR PRODUCTO (clic en el icono de la tarjeta) =====
+        let idProductoEnEdicion = null;
+        let edicionMoneda = 'Bs';
+
+        function inicializarSelectEditCantidad() {
+            const select = document.getElementById('selEditCantidad');
+            select.innerHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                let opt = document.createElement('option');
+                opt.value = i; opt.innerText = i;
+                select.appendChild(opt);
+            }
+        }
+
+        function cambiarMonedaEdicion(moneda) {
+            edicionMoneda = moneda;
+            const btnBs = document.getElementById('btnEditMonedaBs');
+            const btnUsd = document.getElementById('btnEditMonedaUsd');
+            if (moneda === 'Bs') {
+                btnBs.className = "toggle-btn active-bs";
+                btnUsd.className = "toggle-btn";
+            } else {
+                btnBs.className = "toggle-btn";
+                btnUsd.className = "toggle-btn active-usd";
+            }
+        }
+
+        function abrirModalEditar(id) {
+            const item = listaCompras.find(p => p.id === id);
+            if (!item) return;
+
+            idProductoEnEdicion = id;
+            document.getElementById('txtEditNombre').value = item.nombre;
+            document.getElementById('txtEditPrecio').value = item.precioUnitario;
+            document.getElementById('selEditCantidad').value = item.cantidad;
+            cambiarMonedaEdicion(item.moneda);
+
+            document.getElementById('modalEditar').classList.add('active');
+        }
+
+        function cerrarModalEditar() {
+            document.getElementById('modalEditar').classList.remove('active');
+            idProductoEnEdicion = null;
+        }
+
+        function guardarEdicionProducto() {
+            if (idProductoEnEdicion === null) return;
+
+            const nombre = document.getElementById('txtEditNombre').value.trim();
+            const precio = parseFloat(document.getElementById('txtEditPrecio').value);
+            const cantidad = parseInt(document.getElementById('selEditCantidad').value);
+
+            if (nombre === "" || isNaN(precio) || precio <= 0) {
+                alert("Por favor ingresa un nombre válido y un precio mayor a 0.");
+                return;
+            }
+
+            const item = listaCompras.find(p => p.id === idProductoEnEdicion);
+            if (!item) { cerrarModalEditar(); return; }
+
+            item.nombre = nombre;
+            item.precioUnitario = precio;
+            item.cantidad = cantidad;
+            item.moneda = edicionMoneda;
+            item.icono = obtenerIconoPorNombre(nombre);
+            // Si el producto había sido cargado "por peso", al editarlo manualmente
+            // dejamos de mostrar ese dato para no contradecir el nuevo precio.
+            delete item.pesoGramos;
+            delete item.precioPorKg;
+
+            cerrarModalEditar();
+            renderizarLista();
+            calcularTodo();
         }
 
         function toggleHistorial() {
@@ -1630,6 +1785,9 @@
                     });
                     bloquesHtml += `
                         <div class="history-compra-block">
+                            <div class="history-compra-store">
+                                <i data-lucide="store" style="width:12px; height:12px;"></i> ${compra.local || 'Local no especificado'}
+                            </div>
                             <div class="history-compra-meta">
                                 <span>${compra.horaDisplay}</span>
                                 <span>Tasa: <strong>Bs ${compra.tasa.toFixed(2)}</strong></span>
@@ -1741,7 +1899,7 @@
             calcularTodo();
         }
 
-        function generarHtmlRecibo() {
+        function generarTextoRecibo() {
             const ahora = new Date();
             const fechaDisplay = `${String(ahora.getDate()).padStart(2, '0')}/${String(ahora.getMonth() + 1).padStart(2, '0')}/${ahora.getFullYear()}`;
             let horas = ahora.getHours();
@@ -1751,9 +1909,9 @@
 
             let acumuladoUsd = 0;
             let acumuladoBs = 0;
-            let filasHtml = '';
+            let lineas = [];
 
-            listaCompras.forEach(item => {
+            listaCompras.forEach((item, i) => {
                 const totalFila = item.precioUnitario * item.cantidad;
                 if (item.moneda === '$') {
                     acumuladoUsd += totalFila;
@@ -1763,43 +1921,25 @@
                     acumuladoUsd += (totalFila / tasaDolar);
                 }
                 const detalle = item.pesoGramos
-                    ? `${item.pesoGramos}g &bull; ${item.moneda}${item.precioPorKg.toFixed(2)}/kg`
-                    : `Cant: ${item.cantidad} &bull; ${item.moneda}${item.precioUnitario.toFixed(2)} c/u`;
+                    ? `${item.pesoGramos}g (${item.moneda}${item.precioPorKg.toFixed(2)}/kg)`
+                    : `x${item.cantidad}`;
 
-                filasHtml += `
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:10px 0; border-bottom:1px dashed #1c2452;">
-                        <div style="max-width:70%;">
-                            <div style="font-size:14px; font-weight:600; color:#ffffff;">${item.nombre}</div>
-                            <div style="font-size:11px; color:#7d85b2; margin-top:2px;">${detalle}</div>
-                        </div>
-                        <div style="font-size:14px; font-weight:700; color:#ff9900; white-space:nowrap;">${item.moneda}${totalFila.toFixed(2)}</div>
-                    </div>
-                `;
+                lineas.push(`${i + 1}. ${item.nombre} _(${detalle})_ - *${item.moneda}${totalFila.toFixed(2)}*`);
             });
 
-            return `
-                <div style="width:380px; background:#050714; color:#ffffff; font-family:'Plus Jakarta Sans', Arial, sans-serif; padding:26px; border:2px solid #00d2ff;">
-                    <div style="text-align:center; margin-bottom:18px;">
-                        <div style="font-family:'Orbitron', Arial, sans-serif; font-size:12px; letter-spacing:2px; color:#ffffff;">REGISTRO DE</div>
-                        <div style="font-family:'Orbitron', Arial, sans-serif; font-size:26px; font-weight:900; background:linear-gradient(90deg,#9d4edd,#00f0ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">COMPRAS</div>
-                        <div style="font-size:11px; color:#7d85b2; margin-top:6px;">${fechaDisplay} &bull; ${horaDisplay}</div>
-                        <div style="font-size:11px; color:#00e5ff; margin-top:2px; font-weight:700;">Tasa del dólar: Bs ${tasaDolar.toFixed(2)}</div>
-                    </div>
-                    <div style="border-top:1px solid #1c2452; margin-bottom:4px;"></div>
-                    ${filasHtml}
-                    <div style="margin-top:16px; padding-top:14px; border-top:2px solid #00d2ff; display:flex; justify-content:space-between;">
-                        <div>
-                            <div style="font-size:10px; color:#7d85b2; text-transform:uppercase;">Total en $</div>
-                            <div style="font-size:20px; font-weight:900; color:#00e5ff;">$${acumuladoUsd.toFixed(2)}</div>
-                        </div>
-                        <div style="text-align:right;">
-                            <div style="font-size:10px; color:#7d85b2; text-transform:uppercase;">Total en Bs</div>
-                            <div style="font-size:20px; font-weight:900; color:#ff9900;">Bs ${acumuladoBs.toFixed(2)}</div>
-                        </div>
-                    </div>
-                    <div style="text-align:center; margin-top:18px; font-size:9px; color:#4a527a;">Generado por Ing. Luis aular</div>
-                </div>
-            `;
+            const texto =
+`🛒 *REGISTRO DE COMPRAS*
+📅 ${fechaDisplay} - ${horaDisplay}
+💵 Tasa: Bs ${tasaDolar.toFixed(2)}
+━━━━━━━━━━━━━━
+${lineas.join('\n')}
+━━━━━━━━━━━━━━
+💰 Total: *$${acumuladoUsd.toFixed(2)}*
+💰 Total: *Bs ${acumuladoBs.toFixed(2)}*
+
+_Generado con Registro de Compras_`;
+
+            return texto;
         }
 
         function compartirListaImagen() {
@@ -1808,40 +1948,18 @@
                 return;
             }
 
-            const recibo = document.createElement('div');
-            recibo.style.cssText = 'position:fixed; left:-9999px; top:0; z-index:-1;';
-            recibo.innerHTML = generarHtmlRecibo();
-            document.body.appendChild(recibo);
+            const texto = generarTextoRecibo();
 
-            html2canvas(recibo.firstElementChild, {
-                backgroundColor: "#050714",
-                scale: 2,
-                logging: false,
-                useCORS: true
-            }).then(canvas => {
-                document.body.removeChild(recibo);
-                canvas.toBlob(function(blob) {
-                    const archivoImagen = new File([blob], "Lista_De_Compras.png", { type: "image/png" });
-
-                    if (navigator.canShare && navigator.canShare({ files: [archivoImagen] })) {
-                        navigator.share({
-                            files: [archivoImagen],
-                            title: 'Mi Lista de Compras'
-                        })
-                        .catch(err => console.log('Error:', err));
-                    } else {
-                        const urlDescarga = canvas.toDataURL("image/png");
-                        const enlaceTemporal = document.createElement('a');
-                        enlaceTemporal.download = `Lista_Compras.png`;
-                        enlaceTemporal.href = urlDescarga;
-                        enlaceTemporal.click();
-                        alert("Se ha descargado el recibo como imagen. ¡Ya puedes enviarlo por WhatsApp!");
-                    }
-                }, 'image/png');
-            }).catch(() => {
-                if (recibo.parentNode) document.body.removeChild(recibo);
-                alert("No se pudo generar la imagen del recibo. Intenta de nuevo.");
-            });
+            if (navigator.share) {
+                navigator.share({
+                    text: texto,
+                    title: 'Mi Lista de Compras'
+                }).catch(err => console.log('Compartir cancelado o falló:', err));
+            } else {
+                // Fallback universal: abre WhatsApp directamente con el texto ya cargado
+                const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+                window.open(urlWhatsApp, '_blank');
+            }
         }
     </script>
 </body>
