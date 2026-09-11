@@ -106,8 +106,11 @@
             font-family: 'Orbitron', sans-serif;
             font-size: 26px;
             font-weight: 900;
+            /* MEJORA 1.2: color sólido de respaldo si el navegador no soporta el recorte de texto */
+            color: #00f0ff;
             background: linear-gradient(90deg, #9d4edd, #00f0ff);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             line-height: 1.1;
             margin-bottom: 2px;
@@ -124,6 +127,70 @@
             gap: 8px;
         }
 
+        /* MEJORA 2: BANNER DE COMPATIBILIDAD (no bloqueante) */
+        .compat-banner {
+            display: none;
+            background: rgba(255, 153, 0, 0.1);
+            border: 1px solid var(--text-orange);
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 14px;
+        }
+
+        .compat-banner.active {
+            display: block;
+        }
+
+        .compat-banner-text {
+            font-size: 11px;
+            color: #ffd9a3;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .compat-banner-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .compat-btn {
+            flex: 1;
+            min-width: 90px;
+            background: rgba(255, 153, 0, 0.15);
+            border: 1px solid var(--text-orange);
+            color: var(--text-orange);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            padding: 7px 6px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .compat-btn-ghost {
+            background: transparent;
+            color: var(--text-gray);
+            border-color: rgba(125, 133, 178, 0.4);
+        }
+
+        /* MEJORA 5: botón interno dentro del input de nombre de producto */
+        .btn-lista-inline {
+            background: transparent;
+            border: none;
+            color: var(--text-cyan);
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        .btn-lista-inline:hover, .btn-lista-inline:active {
+            background: rgba(0, 210, 255, 0.1);
+        }
+
         .settings-btn {
             width: 40px;
             height: 40px;
@@ -135,7 +202,19 @@
             justify-content: center;
             color: var(--text-purple);
             box-shadow: 0 0 8px rgba(195, 0, 255, 0.2);
-            clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+            /* MEJORA 1.3: se quitó clip-path octagonal; recortaba el box-shadow en Chrome Android */
+        }
+
+        /* MEJORA 1: clases de fallback aplicadas por JS según soporte real del navegador */
+        body.no-backdrop .modal-overlay {
+            background: rgba(2, 2, 8, 0.97) !important;
+            -webkit-backdrop-filter: none !important;
+            backdrop-filter: none !important;
+        }
+        body.no-clippath .settings-btn,
+        body.no-clippath .btn-nueva-compra {
+            clip-path: none !important;
+            border-radius: 10px;
         }
 
         /* TASA DOLAR */
@@ -417,7 +496,7 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
-            contain: content;
+            /* MEJORA 1.4: se quitó "contain: content" — colapsaba la altura de la lista en Chrome Android */
             padding-right: 2px;
         }
 
@@ -439,7 +518,7 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 10px;
-            contain: layout style paint;
+            /* MEJORA 1.4: se quitó "contain: layout style paint" — colapsaba la altura de la tarjeta en Chrome Android */
         }
 
         .item-main {
@@ -697,8 +776,8 @@
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(2, 2, 8, 0.9);
-            backdrop-filter: blur(5px);
+            /* MEJORA 1.1: fallback sólido por defecto (Chrome Android no siempre pinta backdrop-filter) */
+            background: rgba(2, 2, 8, 0.97);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -706,6 +785,15 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.2s ease;
+        }
+
+        /* Solo si el navegador soporta backdrop-filter de verdad, se usa el blur translúcido */
+        @supports ((backdrop-filter: blur(5px)) or (-webkit-backdrop-filter: blur(5px))) {
+            .modal-overlay {
+                background: rgba(2, 2, 8, 0.9);
+                -webkit-backdrop-filter: blur(5px);
+                backdrop-filter: blur(5px);
+            }
         }
 
         .modal-overlay.active {
@@ -968,6 +1056,256 @@
 
         .history-compra-total .cyan { color: var(--text-cyan); }
         .history-compra-total .orange { color: var(--text-orange); }
+
+        /* ===== MEJORA 4: DRAWER IZQUIERDO - LISTA DE FALTANTES ===== */
+        .faltantes-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 2, 8, 0.75);
+            z-index: 150;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .faltantes-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .faltantes-drawer {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 88%;
+            max-width: 380px;
+            height: 100%;
+            background: var(--bg-card);
+            border-right: 2px solid var(--text-orange);
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            transition: left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .faltantes-drawer.active {
+            left: 0;
+        }
+
+        .faltantes-counter {
+            font-size: 11px;
+            color: var(--text-gray);
+            margin-bottom: 14px;
+        }
+
+        .faltantes-form-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 153, 0, 0.08);
+            border: 1px solid var(--text-orange);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-orange);
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .faltantes-form-toggle .lucide, .faltantes-form-toggle svg {
+            transition: transform 0.2s ease;
+        }
+        .faltantes-form-toggle.open svg {
+            transform: rotate(180deg);
+        }
+
+        .faltantes-form {
+            display: none;
+            background: #060a1f;
+            border: 1px solid rgba(255, 153, 0, 0.2);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+        .faltantes-form.open {
+            display: block;
+        }
+
+        .faltantes-form-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .btn-calc-faltante {
+            width: 46px;
+            flex-shrink: 0;
+            background: rgba(0, 210, 255, 0.1);
+            border: 1px solid var(--border-cyan);
+            border-radius: 10px;
+            color: var(--text-cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .faltantes-list {
+            flex: 1;
+        }
+
+        .faltante-empty {
+            text-align: center;
+            color: var(--text-gray);
+            font-size: 12px;
+            margin-top: 30px;
+        }
+
+        .faltante-card {
+            background: #060a1f;
+            border: 1px solid rgba(255, 153, 0, 0.25);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+        .faltante-card.movido {
+            opacity: 0.55;
+            border-style: dashed;
+        }
+
+        .faltante-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            background: #050714;
+            border: 1px solid var(--text-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-orange);
+            flex-shrink: 0;
+        }
+
+        .faltante-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .faltante-info h4 {
+            font-size: 13px;
+            color: #ffffff;
+            font-weight: 600;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .faltante-badge {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(0, 210, 255, 0.12);
+            color: var(--text-cyan);
+            border: 1px solid var(--border-cyan);
+        }
+
+        .faltante-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .btn-mover-faltante {
+            background: rgba(0, 255, 133, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+            border-radius: 8px;
+            width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+
+        .btn-borrar-faltante {
+            background: rgba(255, 46, 99, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            border-radius: 8px;
+            width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+        }
+
+        .faltantes-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(125, 133, 178, 0.2);
+        }
+
+        .calc-breakdown {
+            background: var(--bg-input);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 10px;
+            padding: 14px;
+            font-family: 'Plus Jakarta Sans', monospace;
+            font-size: 12.5px;
+            color: #d7daf0;
+            line-height: 1.9;
+            margin-bottom: 6px;
+            white-space: pre-line;
+        }
+        .calc-breakdown strong {
+            color: var(--text-cyan);
+        }
+        .calc-breakdown .destacado {
+            color: var(--text-orange);
+            font-weight: 700;
+        }
+
+        /* MEJORA 5: MODAL RÁPIDO DE FALTANTES */
+        .faltantes-rapido-list {
+            max-height: 300px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .faltante-rapido-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 4px;
+            border-bottom: 1px solid rgba(125, 133, 178, 0.15);
+        }
+
+        .faltante-rapido-row input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--text-cyan);
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .faltante-rapido-nombre {
+            font-size: 13.5px;
+            color: #ffffff;
+            cursor: pointer;
+            flex: 1;
+        }
+        .faltante-rapido-row.adquirido .faltante-rapido-nombre {
+            text-decoration: line-through;
+            color: var(--text-gray);
+            opacity: 0.6;
+        }
     </style>
 </head>
 <body>
@@ -986,14 +1324,26 @@
                 </div>
             </div>
             <div class="header-actions">
-                <button class="settings-btn" id="btnHistorial" onclick="toggleHistorial()" title="Historial">
+                <button class="settings-btn" id="btnHistorial" onclick="toggleHistorial()" title="Historial" aria-label="Abrir historial de compras">
                     <i data-lucide="history" style="width: 18px; height: 18px;"></i>
                 </button>
-                <button class="settings-btn">
-                    <i data-lucide="settings" style="width: 18px; height: 18px;"></i>
+                <button class="settings-btn" id="btnFaltantes" onclick="toggleListaFaltantes()" title="Lista de faltantes" aria-label="Abrir lista de faltantes">
+                    <i data-lucide="list-checks" style="width: 18px; height: 18px;"></i>
                 </button>
             </div>
         </header>
+
+        <!-- MEJORA 2: Banner de compatibilidad NO bloqueante para Chrome Android -->
+        <div class="compat-banner" id="compatBanner">
+            <div class="compat-banner-text">
+                ⚠️ Detectamos posibles fallos en Chrome Android. Para mejor experiencia, abre en Firefox.
+            </div>
+            <div class="compat-banner-actions">
+                <button class="compat-btn" onclick="copiarEnlaceCompat()" aria-label="Copiar enlace de la aplicación">COPIAR ENLACE</button>
+                <button class="compat-btn" onclick="continuarCompat()" aria-label="Continuar de todas formas">CONTINUAR</button>
+                <button class="compat-btn compat-btn-ghost" onclick="noMostrarCompat()" aria-label="No mostrar este aviso de nuevo">NO MOSTRAR DE NUEVO</button>
+            </div>
+        </div>
 
         <div class="dollar-card">
             <div class="dollar-info">
@@ -1027,6 +1377,9 @@
             <div class="input-group">
                 <i data-lucide="shopping-bag" style="width: 18px; height: 18px;"></i>
                 <input type="text" id="txtProducto" placeholder="Nombre del producto">
+                <button class="btn-lista-inline" onclick="abrirModalFaltantesRapido()" title="Ver faltantes" aria-label="Ver lista de faltantes">
+                    <i data-lucide="list-checks" style="width: 16px; height: 16px;"></i>
+                </button>
             </div>
 
             <div class="label-small" style="color: var(--text-cyan);">Precio (Bs o $)</div>
@@ -1265,13 +1618,160 @@
         </div>
     </div>
 
+    <!-- ===== MEJORA 4: DRAWER IZQUIERDO - LISTA DE FALTANTES ===== -->
+    <div class="faltantes-overlay" id="faltantesOverlay" onclick="toggleListaFaltantes()"></div>
+    <aside class="faltantes-drawer" id="faltantesDrawer">
+        <div class="history-header">
+            <div class="modal-title" style="margin:0;">
+                <i data-lucide="list-checks" style="width:16px; height:16px; color:var(--text-cyan);"></i> LISTA DE FALTANTES
+            </div>
+            <button class="history-close-btn" onclick="toggleListaFaltantes()" aria-label="Cerrar lista de faltantes">
+                <i data-lucide="x" style="width:18px; height:18px;"></i>
+            </button>
+        </div>
+        <div class="faltantes-counter" id="lblContadorFaltantes">0 productos</div>
+
+        <div class="faltantes-form-toggle" id="btnToggleFormFaltante" onclick="toggleFormFaltante()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); toggleFormFaltante();}" role="button" tabindex="0" aria-label="Mostrar u ocultar formulario para agregar faltante">
+            <span>+ AGREGAR FALTANTE</span>
+            <i data-lucide="chevron-down" id="iconFormFaltante" style="width:16px; height:16px;"></i>
+        </div>
+
+        <div class="faltantes-form" id="formFaltante">
+            <div class="input-group">
+                <i data-lucide="shopping-bag" style="width: 16px; height: 16px;"></i>
+                <input type="text" id="txtFaltanteNombre" placeholder="Ej. Harina P.A.N.">
+            </div>
+            <div class="row-inputs">
+                <div class="col-half">
+                    <span class="label-small">Cantidad (unidades)</span>
+                    <div class="input-group" style="margin:0;">
+                        <i data-lucide="hash" style="width: 15px; height: 15px;"></i>
+                        <input type="number" id="txtFaltanteCantidad" placeholder="1" value="1" min="1" step="1">
+                    </div>
+                </div>
+                <div class="col-half">
+                    <span class="label-small" style="color: var(--text-orange);">Peso x unidad (g)</span>
+                    <div class="input-group" style="margin:0;">
+                        <i data-lucide="weight" style="width: 15px; height: 15px;"></i>
+                        <input type="number" id="txtFaltantePeso" placeholder="Ej. 1000" step="1">
+                    </div>
+                </div>
+            </div>
+            <div class="row-inputs">
+                <div class="col-half">
+                    <span class="label-small" style="color: var(--text-cyan);">Consumo/comida (g)</span>
+                    <div class="input-group cyan-icon" style="margin:0;">
+                        <i data-lucide="utensils" style="width: 15px; height: 15px;"></i>
+                        <input type="number" id="txtFaltanteConsumo" placeholder="Ej. 100" step="1">
+                    </div>
+                </div>
+                <div class="col-half">
+                    <span class="label-small" style="color: var(--text-purple);">Comidas x día</span>
+                    <select class="select-custom" id="selFaltanteComidasDia" style="margin:0;"></select>
+                </div>
+            </div>
+            <div class="faltantes-form-buttons">
+                <button class="btn-calc-faltante" onclick="abrirModalCalculadoraFaltante()" title="Ver cálculo" aria-label="Ver cálculo de duración">
+                    <i data-lucide="calculator" style="width: 16px; height: 16px;"></i>
+                </button>
+                <button class="modal-btn btn-accept" style="flex:1;" onclick="agregarFaltante()">AGREGAR A FALTANTES</button>
+            </div>
+        </div>
+
+        <div id="listaFaltantesDrawer" class="faltantes-list"></div>
+
+        <div class="faltantes-footer">
+            <button class="btn-bottom btn-share" onclick="compartirListaFaltantes()" aria-label="Compartir lista de faltantes por WhatsApp">
+                <i data-lucide="message-square" style="width:16px; height:16px;"></i> COMPARTIR
+            </button>
+            <button class="btn-bottom btn-clear" onclick="borrarTodoFaltantes()" aria-label="Borrar toda la lista de faltantes">
+                <i data-lucide="trash-2" style="width:16px; height:16px;"></i> BORRAR TODO
+            </button>
+        </div>
+    </aside>
+
+    <!-- MODAL CALCULADORA DE FALTANTE -->
+    <div class="modal-overlay" id="modalCalculadoraFaltante">
+        <div class="modal-content">
+            <div class="modal-title">
+                <i data-lucide="calculator" style="width:16px; height:16px; color:var(--text-cyan);"></i> DESGLOSE DE DURACIÓN
+            </div>
+            <div class="calc-breakdown" id="calcFaltanteBody"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-accept" style="width:100%;" onclick="cerrarModalCalculadora()">CERRAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR FALTANTE -->
+    <div class="modal-overlay" id="modalEditarFaltante">
+        <div class="modal-content">
+            <div class="modal-title">
+                <i data-lucide="pencil" style="width:16px; height:16px; color:var(--text-purple);"></i> EDITAR FALTANTE
+            </div>
+            <div class="input-group">
+                <i data-lucide="shopping-bag" style="width: 18px; height: 18px;"></i>
+                <input type="text" id="txtEditFaltanteNombre" placeholder="Nombre">
+            </div>
+            <div class="row-inputs">
+                <div class="col-half">
+                    <span class="label-small">Cantidad</span>
+                    <div class="input-group" style="margin:0;">
+                        <i data-lucide="hash" style="width: 15px; height: 15px;"></i>
+                        <input type="number" id="txtEditFaltanteCantidad" min="1" step="1">
+                    </div>
+                </div>
+                <div class="col-half">
+                    <span class="label-small" style="color: var(--text-orange);">Peso x unidad (g)</span>
+                    <div class="input-group" style="margin:0;">
+                        <i data-lucide="weight" style="width: 15px; height: 15px;"></i>
+                        <input type="number" id="txtEditFaltantePeso" step="1">
+                    </div>
+                </div>
+            </div>
+            <div class="row-inputs">
+                <div class="col-half">
+                    <span class="label-small" style="color: var(--text-cyan);">Consumo/comida (g)</span>
+                    <div class="input-group cyan-icon" style="margin:0;">
+                        <i data-lucide="utensils" style="width: 15px; height: 15px;"></i>
+                        <input type="number" id="txtEditFaltanteConsumo" step="1">
+                    </div>
+                </div>
+                <div class="col-half">
+                    <span class="label-small" style="color: var(--text-purple);">Comidas x día</span>
+                    <select class="select-custom" id="selEditFaltanteComidasDia" style="margin:0;"></select>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" onclick="cerrarModalEditarFaltante()">CANCELAR</button>
+                <button class="modal-btn btn-accept" onclick="guardarEdicionFaltante()">GUARDAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MEJORA 5: MODAL RÁPIDO DE FALTANTES (desde el input de producto) -->
+    <div class="modal-overlay" id="modalFaltantesRapido">
+        <div class="modal-content">
+            <div class="modal-title" style="justify-content:space-between;">
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="list-checks" style="width:16px; height:16px; color:var(--text-cyan);"></i> FALTANTES
+                </span>
+                <span class="label-small" id="lblContadorRapido" style="margin:0;">0/0</span>
+            </div>
+            <div id="listaFaltantesRapido" class="faltantes-rapido-list"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-accept" style="width:100%;" onclick="cerrarModalFaltantesRapido()">CERRAR</button>
+            </div>
+        </div>
+    </div>
+
     <div class="history-overlay" id="historyOverlay" onclick="toggleHistorial()"></div>
     <aside class="history-drawer" id="historyDrawer">
         <div class="history-header">
             <div class="modal-title" style="margin:0;">
                 <i data-lucide="history" style="width:16px; height:16px; color:var(--text-cyan);"></i> HISTORIAL DE COMPRAS
             </div>
-            <button class="history-close-btn" onclick="toggleHistorial()">
+            <button class="history-close-btn" onclick="toggleHistorial()" aria-label="Cerrar historial de compras">
                 <i data-lucide="x" style="width:18px; height:18px;"></i>
             </button>
         </div>
@@ -1279,34 +1779,46 @@
     </aside>
 
     <script>
+        // ===== MEJORA 1: DETECCIÓN DE FEATURES (Chrome Android compat) =====
+        const soportaBackdrop = window.CSS && CSS.supports && (CSS.supports('backdrop-filter', 'blur(5px)') || CSS.supports('-webkit-backdrop-filter', 'blur(5px)'));
+        const soportaClipPath = window.CSS && CSS.supports && CSS.supports('clip-path', 'polygon(0 0, 100% 0, 100% 100%)');
+
+        if (!soportaBackdrop) document.body.classList.add('no-backdrop');
+        if (!soportaClipPath) document.body.classList.add('no-clippath');
+
+        // Detección de Chrome en Android (UA) combinada con ausencia de alguna feature, usada en MEJORA 2
+        const uaEsChromeAndroid = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent) && !/Firefox|FxiOS|EdgA|OPR/i.test(navigator.userAgent);
+        const esChromeAndroid = uaEsChromeAndroid;
+
         let tasaDolar = 36.85;
         let formularioMoneda = 'Bs';
         let balanceMoneda = 'Bs';
         let pesoMoneda = 'Bs';
         let listaCompras = [];
         let historial = [];
+        let listaFaltantes = [];
         const STORAGE_KEY = 'registroComprasEstado_v1';
 
         // Diccionario con las definiciones completas en código SVG crudo de Lucide para renderizado móvil directo e infalible
         const svgIconos = {
-            'headphones': `<svg viewBox="0 0 24 24"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>`,
-            'milk': `<svg viewBox="0 0 24 24"><path d="M8 2h8l1 2v4H7V4l1-2z"/><path d="M7 8h10v12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8z"/><path d="M11 12h2"/><path d="M12 11v2"/></svg>`,
-            'shirt': `<svg viewBox="0 0 24 24"><path d="M20.38 3.46 16 7.57l-1-1H9l-1 1-4.38-4.11a1 1 0 0 0-1.42.16l-2 3a1 1 0 0 0 .16 1.42L5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7l4.64-3.86a1 1 0 0 0 .16-1.42l-2-3a1 1 0 0 0-1.42-.16Z"/></svg>`,
-            'container': `<svg viewBox="0 0 24 24"><path d="M22 7.7c0-.6-.4-1.2-1-1.3l-7-1.4a2 2 0 0 0-1 0l-7 1.4c-.6.1-1 .7-1 1.3V17c0 .6.4 1.2 1 1.3l7 1.4c.3.1.7.1 1 0l7-1.4c.6-.1 1-.7 1-1.3V7.7Z"/><path d="M2 7.5h20"/><path d="M12 5.1v15.3"/></svg>`,
-            'wheat': `<svg viewBox="0 0 24 24"><path d="M2 22 22 2"/><path d="M8.5 12.5c.6.6 1.4.9 2.3.9 1.4 0 2.8-1.2 3-2.7.1-.9-.2-1.7-.9-2.3a3.3 3.3 0 0 0-2.3-.9c-1.4 0-2.8 1.2-3 2.7-.1.9.2 1.7.9 2.3Z"/><path d="M11.5 15.5c.6.6 1.4.9 2.3.9 1.4 0 2.8-1.2 3-2.7.1-.9-.2-1.7-.9-2.3a3.3 3.3 0 0 0-2.3-.9c-1.4 0-2.8 1.2-3 2.7-.1.9.2 1.7.9 2.3Z"/><path d="M5.5 9.5c.6.6 1.4.9 2.3.9 1.4 0 2.8-1.2 3-2.7.1-.9-.2-1.7-.9-2.3A3.3 3.3 0 0 0 7.7 4.5c-1.4 0-2.8 1.2-3 2.7-.1.9.2 1.7.9 2.3Z"/></svg>`,
-            'soup': `<svg viewBox="0 0 24 24"><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M7 12V8c0-1.7 1.3-3 3-3h4c1.7 0 3 1.3 3 3v4"/><path d="M11 2v3"/><path d="M13 2v3"/></svg>`,
-            'grain': `<svg viewBox="0 0 24 24"><path d="M4.5 16.5c1.5.5 3.5.5 5 0 2-1 2.5-4 2.5-6.5S10 4 8 5c-1.5 1-3 3.5-3.5 5.5s-.5 4.5.5 6Z"/><path d="M12 14c1.5.5 3.5.5 5 0 2-1 2.5-4 2.5-6.5S17 2 15 3c-1.5 1-3 3.5-3.5 5.5s-.5 4.5.5 6Z"/></svg>`,
-            'coffee': `<svg viewBox="0 0 24 24"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><path d="M6 2v2"/><path d="M10 2v2"/><path d="M14 2v2"/></svg>`,
-            'candy': `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="m15.5 8.5 4.5-4.5V8l-4.5 4.5"/><path d="m8.5 15.5-4.5 4.5V16l4.5-4.5"/><path d="M15.5 15.5 20 20v-4l-4.5-4.5"/><path d="M8.5 8.5 4 4v4l4.5 4.5"/></svg>`,
-            'droplet': `<svg viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/></svg>`,
-            'beef': `<svg viewBox="0 0 24 24"><path d="M13.5 2c-3 0-5.5 2.5-5.5 5.5v.5c0 1.2-.5 2.4-1.3 3.2L3.5 14.4c-.6.6-.6 1.6 0 2.2l4 4c.6.6 1.6.6 2.2 0l3.2-3.2c.8-.8 2-1.3 3.2-1.3h.5c3 0 5.5-2.5 5.5-5.5V2h-5.5Z"/><circle cx="15" cy="7" r="1"/></svg>`,
-            'cpu': `<svg viewBox="0 0 24 24"><rect width="16" height="16" x="4" y="4" rx="2"/><path d="M9 20v2"/><path d="M15 20v2"/><path d="M9 2v2"/><path d="M15 2v2"/><path d="M20 9h2"/><path d="M20 15h2"/><path d="M2 9h2"/><path d="M2 15h2"/><path d="M9 9h6v6H9z"/></svg>`,
-            'wine': `<svg viewBox="0 0 24 24"><path d="M8 22h8"/><path d="M12 11v11"/><path d="M19 3a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1v5c0 3.5 2.5 6.6 6 7.1V11h2v3.1c3.5-.5 6-3.6 6-7.1V3z"/></svg>`,
-            'columns': `<svg viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/></svg>`,
-            'footprints': `<svg viewBox="0 0 24 24"><path d="M4 16v-2.38C4 11.5 5.88 9.85 6 7.07l.08-2.13A1.66 1.66 0 0 1 7.82 3.4a1.79 1.79 0 0 1 1.93 1.4l.65 3.56c.33 1.78-.4 3.61-1.85 4.59L7 14v4a2 2 0 0 1-2 2H4Z"/><path d="M16 14v-2.38c0-2.12-1.88-3.77-2-6.55l-.08-2.13A1.66 1.66 0 0 0 12.18 1.4a1.79 1.79 0 0 0-1.93 1.4l-.65 3.56c-.33 1.78.4 3.61 1.85 4.59L13 12v4a2 2 0 0 0 2 2h1Z"/></svg>`,
-            'smile': `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>`,
-            'watch': `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M16.24 7.76l2.83-2.83"/><path d="M4.93 16.24l2.83-2.83"/></svg>`,
-            'shopping-bag': `<svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`
+            'headphones': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>`,
+            'milk': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 2h8l1 2v4H7V4l1-2z"/><path d="M7 8h10v12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8z"/><path d="M11 12h2"/><path d="M12 11v2"/></svg>`,
+            'shirt': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.38 3.46 16 7.57l-1-1H9l-1 1-4.38-4.11a1 1 0 0 0-1.42.16l-2 3a1 1 0 0 0 .16 1.42L5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7l4.64-3.86a1 1 0 0 0 .16-1.42l-2-3a1 1 0 0 0-1.42-.16Z"/></svg>`,
+            'container': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 7.7c0-.6-.4-1.2-1-1.3l-7-1.4a2 2 0 0 0-1 0l-7 1.4c-.6.1-1 .7-1 1.3V17c0 .6.4 1.2 1 1.3l7 1.4c.3.1.7.1 1 0l7-1.4c.6-.1 1-.7 1-1.3V7.7Z"/><path d="M2 7.5h20"/><path d="M12 5.1v15.3"/></svg>`,
+            'wheat': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2 22 22 2"/><path d="M8.5 12.5c.6.6 1.4.9 2.3.9 1.4 0 2.8-1.2 3-2.7.1-.9-.2-1.7-.9-2.3a3.3 3.3 0 0 0-2.3-.9c-1.4 0-2.8 1.2-3 2.7-.1.9.2 1.7.9 2.3Z"/><path d="M11.5 15.5c.6.6 1.4.9 2.3.9 1.4 0 2.8-1.2 3-2.7.1-.9-.2-1.7-.9-2.3a3.3 3.3 0 0 0-2.3-.9c-1.4 0-2.8 1.2-3 2.7-.1.9.2 1.7.9 2.3Z"/><path d="M5.5 9.5c.6.6 1.4.9 2.3.9 1.4 0 2.8-1.2 3-2.7.1-.9-.2-1.7-.9-2.3A3.3 3.3 0 0 0 7.7 4.5c-1.4 0-2.8 1.2-3 2.7-.1.9.2 1.7.9 2.3Z"/></svg>`,
+            'soup': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M7 12V8c0-1.7 1.3-3 3-3h4c1.7 0 3 1.3 3 3v4"/><path d="M11 2v3"/><path d="M13 2v3"/></svg>`,
+            'grain': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.5 16.5c1.5.5 3.5.5 5 0 2-1 2.5-4 2.5-6.5S10 4 8 5c-1.5 1-3 3.5-3.5 5.5s-.5 4.5.5 6Z"/><path d="M12 14c1.5.5 3.5.5 5 0 2-1 2.5-4 2.5-6.5S17 2 15 3c-1.5 1-3 3.5-3.5 5.5s-.5 4.5.5 6Z"/></svg>`,
+            'coffee': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><path d="M6 2v2"/><path d="M10 2v2"/><path d="M14 2v2"/></svg>`,
+            'candy': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="5"/><path d="m15.5 8.5 4.5-4.5V8l-4.5 4.5"/><path d="m8.5 15.5-4.5 4.5V16l4.5-4.5"/><path d="M15.5 15.5 20 20v-4l-4.5-4.5"/><path d="M8.5 8.5 4 4v4l4.5 4.5"/></svg>`,
+            'droplet': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-13-7-13S5 10.7 5 15a7 7 0 0 0 7 7z"/></svg>`,
+            'beef': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 2c-3 0-5.5 2.5-5.5 5.5v.5c0 1.2-.5 2.4-1.3 3.2L3.5 14.4c-.6.6-.6 1.6 0 2.2l4 4c.6.6 1.6.6 2.2 0l3.2-3.2c.8-.8 2-1.3 3.2-1.3h.5c3 0 5.5-2.5 5.5-5.5V2h-5.5Z"/><circle cx="15" cy="7" r="1"/></svg>`,
+            'cpu': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect width="16" height="16" x="4" y="4" rx="2"/><path d="M9 20v2"/><path d="M15 20v2"/><path d="M9 2v2"/><path d="M15 2v2"/><path d="M20 9h2"/><path d="M20 15h2"/><path d="M2 9h2"/><path d="M2 15h2"/><path d="M9 9h6v6H9z"/></svg>`,
+            'wine': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 22h8"/><path d="M12 11v11"/><path d="M19 3a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1v5c0 3.5 2.5 6.6 6 7.1V11h2v3.1c3.5-.5 6-3.6 6-7.1V3z"/></svg>`,
+            'columns': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/></svg>`,
+            'footprints': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 16v-2.38C4 11.5 5.88 9.85 6 7.07l.08-2.13A1.66 1.66 0 0 1 7.82 3.4a1.79 1.79 0 0 1 1.93 1.4l.65 3.56c.33 1.78-.4 3.61-1.85 4.59L7 14v4a2 2 0 0 1-2 2H4Z"/><path d="M16 14v-2.38c0-2.12-1.88-3.77-2-6.55l-.08-2.13A1.66 1.66 0 0 0 12.18 1.4a1.79 1.79 0 0 0-1.93 1.4l-.65 3.56c-.33 1.78.4 3.61 1.85 4.59L13 12v4a2 2 0 0 0 2 2h1Z"/></svg>`,
+            'smile': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>`,
+            'watch': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="6"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M16.24 7.76l2.83-2.83"/><path d="M4.93 16.24l2.83-2.83"/></svg>`,
+            'shopping-bag': `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`
         };
 
         const diccionarioIconos = {
@@ -1332,12 +1844,45 @@
         window.onload = function() {
             inicializarSelectCantidad();
             inicializarSelectEditCantidad();
+            inicializarSelectComidasDia('selFaltanteComidasDia');
+            inicializarSelectComidasDia('selEditFaltanteComidasDia');
             cargarEstado();
             actualizarPantallaTasa();
             renderizarLista();
+            renderizarListaFaltantes();
             calcularTodo();
+            inicializarBannerCompat();
             lucide.createIcons(); // Solo para los del header inmóviles
         };
+
+        // ===== MEJORA 2: BANNER DE COMPATIBILIDAD (no bloqueante) =====
+        function inicializarBannerCompat() {
+            const estadoBanner = localStorage.getItem('bannerChromeIgnorado');
+            if (estadoBanner === 'siempre') return; // el usuario pidió no verlo nunca más
+            if (esChromeAndroid) {
+                document.getElementById('compatBanner').classList.add('active');
+            }
+        }
+
+        function copiarEnlaceCompat() {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(window.location.href)
+                    .then(() => alert('Enlace copiado. Pégalo en Firefox para abrir la app.'))
+                    .catch(() => alert('No se pudo copiar el enlace automáticamente.'));
+            } else {
+                alert('Tu navegador no permite copiar automáticamente. Copia la URL manualmente.');
+            }
+        }
+
+        function continuarCompat() {
+            document.getElementById('compatBanner').classList.remove('active');
+            localStorage.setItem('bannerChromeIgnorado', 'true');
+        }
+
+        function noMostrarCompat() {
+            document.getElementById('compatBanner').classList.remove('active');
+            localStorage.setItem('bannerChromeIgnorado', 'siempre');
+        }
 
         // ===== PERSISTENCIA (localStorage) =====
         function guardarEstado() {
@@ -1348,6 +1893,7 @@
                     balanceMoneda,
                     listaCompras,
                     historial,
+                    listaFaltantes,
                     inputBalance: document.getElementById('inputBalance').value,
                     lblFechaActualizacion: document.getElementById('lblFechaActualizacion').innerHTML
                 };
@@ -1368,6 +1914,7 @@
                 if (estado.balanceMoneda) balanceMoneda = estado.balanceMoneda;
                 if (Array.isArray(estado.listaCompras)) listaCompras = estado.listaCompras;
                 if (Array.isArray(estado.historial)) historial = estado.historial;
+                if (Array.isArray(estado.listaFaltantes)) listaFaltantes = estado.listaFaltantes;
 
                 if (estado.inputBalance !== undefined) {
                     document.getElementById('inputBalance').value = estado.inputBalance;
@@ -1393,6 +1940,18 @@
             for(let i = 1; i <= 10; i++) {
                 let opt = document.createElement('option');
                 opt.value = i; opt.innerText = i;
+                select.appendChild(opt);
+            }
+        }
+
+        // MEJORA 4: selector de comidas por día (1-6, default 3) reutilizado en agregar y editar faltante
+        function inicializarSelectComidasDia(idSelect) {
+            const select = document.getElementById(idSelect);
+            select.innerHTML = '';
+            for (let i = 1; i <= 6; i++) {
+                let opt = document.createElement('option');
+                opt.value = i; opt.innerText = i;
+                if (i === 3) opt.selected = true;
                 select.appendChild(opt);
             }
         }
@@ -1461,6 +2020,299 @@
                 btnUsd.className = "toggle-btn active-usd";
             }
             calcularTodo();
+        }
+
+        // ============================================================
+        // MEJORA 4: MÓDULO "LISTA DE FALTANTES" (drawer izquierdo)
+        // ============================================================
+        function toggleListaFaltantes() {
+            const overlay = document.getElementById('faltantesOverlay');
+            const drawer = document.getElementById('faltantesDrawer');
+            const seAbre = !drawer.classList.contains('active');
+            overlay.classList.toggle('active');
+            drawer.classList.toggle('active');
+            if (seAbre) renderizarListaFaltantes();
+        }
+
+        function toggleFormFaltante() {
+            document.getElementById('formFaltante').classList.toggle('open');
+            document.getElementById('btnToggleFormFaltante').classList.toggle('open');
+        }
+
+        // Valida y calcula comidasTotales/diasDuracion. Devuelve null (y alerta) si algo es inválido.
+        function calcularFaltanteValores(pesoUnidad, cantidad, consumoPorComida, comidasPorDia) {
+            if (isNaN(pesoUnidad) || pesoUnidad <= 0 || isNaN(consumoPorComida) || consumoPorComida <= 0) {
+                alert("El peso por unidad y el consumo por comida deben ser mayores a 0.");
+                return null;
+            }
+            if (consumoPorComida > pesoUnidad) {
+                alert("El consumo por comida supera el peso de una unidad.");
+                return null;
+            }
+            if (isNaN(comidasPorDia) || comidasPorDia < 1 || comidasPorDia > 6) {
+                alert("Las comidas por día deben estar entre 1 y 6.");
+                return null;
+            }
+            const comidasTotales = (pesoUnidad * cantidad) / consumoPorComida;
+            const diasDuracion = comidasTotales / comidasPorDia;
+            return { comidasTotales, diasDuracion };
+        }
+
+        function abrirModalCalculadoraFaltante() {
+            const nombre = document.getElementById('txtFaltanteNombre').value.trim() || 'Producto';
+            const cantidad = parseInt(document.getElementById('txtFaltanteCantidad').value) || 1;
+            const pesoUnidad = parseFloat(document.getElementById('txtFaltantePeso').value);
+            const consumoPorComida = parseFloat(document.getElementById('txtFaltanteConsumo').value);
+            const comidasPorDia = parseInt(document.getElementById('selFaltanteComidasDia').value) || 3;
+
+            const resultado = calcularFaltanteValores(pesoUnidad, cantidad, consumoPorComida, comidasPorDia);
+            if (!resultado) return;
+
+            const pesoTotal = pesoUnidad * cantidad;
+            document.getElementById('calcFaltanteBody').innerText =
+`📦 ${nombre} — ${cantidad} unidad(es)
+━━━━━━━━━━━━━━━━━━━━
+Peso total:       ${pesoTotal} g
+Consumo/comida:   ${consumoPorComida} g
+Comidas totales:  ${resultado.comidasTotales.toFixed(1)}
+Comidas por día:  ${comidasPorDia}
+━━━━━━━━━━━━━━━━━━━━
+⏱️ Duración: ${resultado.comidasTotales.toFixed(1)} comidas ≈ ${resultado.diasDuracion.toFixed(2)} días`;
+
+            document.getElementById('modalCalculadoraFaltante').classList.add('active');
+        }
+
+        function cerrarModalCalculadora() {
+            document.getElementById('modalCalculadoraFaltante').classList.remove('active');
+        }
+
+        function agregarFaltante() {
+            const nombre = document.getElementById('txtFaltanteNombre').value.trim();
+            const cantidad = parseInt(document.getElementById('txtFaltanteCantidad').value) || 1;
+            const pesoUnidad = parseFloat(document.getElementById('txtFaltantePeso').value);
+            const consumoPorComida = parseFloat(document.getElementById('txtFaltanteConsumo').value);
+            const comidasPorDia = parseInt(document.getElementById('selFaltanteComidasDia').value) || 3;
+
+            if (nombre === "") {
+                alert("Ingresa el nombre del producto.");
+                return;
+            }
+            const resultado = calcularFaltanteValores(pesoUnidad, cantidad, consumoPorComida, comidasPorDia);
+            if (!resultado) return;
+
+            listaFaltantes.push({
+                id: Date.now(),
+                nombre, cantidad, pesoUnidad, consumoPorComida, comidasPorDia,
+                icono: obtenerIconoPorNombre(nombre),
+                adquirido: false,
+                movido: false,
+                comidasTotales: resultado.comidasTotales,
+                diasDuracion: resultado.diasDuracion
+            });
+
+            document.getElementById('txtFaltanteNombre').value = '';
+            document.getElementById('txtFaltanteCantidad').value = '1';
+            document.getElementById('txtFaltantePeso').value = '';
+            document.getElementById('txtFaltanteConsumo').value = '';
+
+            renderizarListaFaltantes();
+            guardarEstado();
+        }
+
+        function eliminarFaltante(id) {
+            listaFaltantes = listaFaltantes.filter(i => i.id !== id);
+            renderizarListaFaltantes();
+            guardarEstado();
+        }
+
+        let idFaltanteEnEdicion = null;
+
+        function abrirModalEditarFaltante(id) {
+            const item = listaFaltantes.find(i => i.id === id);
+            if (!item) return;
+            idFaltanteEnEdicion = id;
+            document.getElementById('txtEditFaltanteNombre').value = item.nombre;
+            document.getElementById('txtEditFaltanteCantidad').value = item.cantidad;
+            document.getElementById('txtEditFaltantePeso').value = item.pesoUnidad;
+            document.getElementById('txtEditFaltanteConsumo').value = item.consumoPorComida;
+            document.getElementById('selEditFaltanteComidasDia').value = item.comidasPorDia;
+            document.getElementById('modalEditarFaltante').classList.add('active');
+        }
+
+        function cerrarModalEditarFaltante() {
+            document.getElementById('modalEditarFaltante').classList.remove('active');
+            idFaltanteEnEdicion = null;
+        }
+
+        function guardarEdicionFaltante() {
+            if (idFaltanteEnEdicion === null) return;
+            const item = listaFaltantes.find(i => i.id === idFaltanteEnEdicion);
+            if (!item) { cerrarModalEditarFaltante(); return; }
+
+            const nombre = document.getElementById('txtEditFaltanteNombre').value.trim();
+            const cantidad = parseInt(document.getElementById('txtEditFaltanteCantidad').value) || 1;
+            const pesoUnidad = parseFloat(document.getElementById('txtEditFaltantePeso').value);
+            const consumoPorComida = parseFloat(document.getElementById('txtEditFaltanteConsumo').value);
+            const comidasPorDia = parseInt(document.getElementById('selEditFaltanteComidasDia').value) || 3;
+
+            if (nombre === "") {
+                alert("Ingresa el nombre del producto.");
+                return;
+            }
+            const resultado = calcularFaltanteValores(pesoUnidad, cantidad, consumoPorComida, comidasPorDia);
+            if (!resultado) return;
+
+            item.nombre = nombre;
+            item.cantidad = cantidad;
+            item.pesoUnidad = pesoUnidad;
+            item.consumoPorComida = consumoPorComida;
+            item.comidasPorDia = comidasPorDia;
+            item.icono = obtenerIconoPorNombre(nombre);
+            item.comidasTotales = resultado.comidasTotales;
+            item.diasDuracion = resultado.diasDuracion;
+
+            cerrarModalEditarFaltante();
+            renderizarListaFaltantes();
+            guardarEstado();
+        }
+
+        function moverFaltanteACompras(id) {
+            const item = listaFaltantes.find(i => i.id === id);
+            if (!item) return;
+
+            listaCompras.push({
+                id: Date.now(),
+                nombre: item.nombre,
+                precioUnitario: 0,
+                cantidad: item.cantidad,
+                moneda: formularioMoneda,
+                icono: item.icono
+            });
+            item.movido = true;
+
+            renderizarListaFaltantes();
+            renderizarLista();
+            calcularTodo(); // ya incluye guardarEstado()
+        }
+
+        function compartirListaFaltantes() {
+            if (listaFaltantes.length === 0) {
+                alert("No hay faltantes para compartir.");
+                return;
+            }
+            const lineas = listaFaltantes.map((item, i) =>
+                `${i + 1}. ${item.nombre} - ${item.cantidad}u ${item.adquirido ? '✅' : '⬜'}`
+            );
+            const texto =
+`📋 *LISTA DE FALTANTES*
+━━━━━━━━━━━━━━
+${lineas.join('\n')}
+━━━━━━━━━━━━━━
+_Generado con Registro de Compras_`;
+
+            if (navigator.share) {
+                navigator.share({ text: texto, title: 'Lista de Faltantes' }).catch(() => {});
+            } else {
+                const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+                const enlace = document.createElement('a');
+                enlace.href = urlWhatsApp;
+                enlace.target = '_blank';
+                enlace.rel = 'noopener noreferrer';
+                document.body.appendChild(enlace);
+                enlace.click();
+                document.body.removeChild(enlace);
+            }
+        }
+
+        function borrarTodoFaltantes() {
+            if (listaFaltantes.length === 0) return;
+            if (!confirm("¿Borrar toda la lista de faltantes? Esta acción no se puede deshacer.")) return;
+            listaFaltantes = [];
+            renderizarListaFaltantes();
+            guardarEstado();
+        }
+
+        // MEJORA 6: única función de render que sincroniza AMBAS vistas (drawer y modal rápido)
+        // porque ambas leen y escriben sobre la misma fuente de datos: listaFaltantes.
+        function renderizarListaFaltantes() {
+            const svgCarrito = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 2-1.58l1.65-7.39H5.12"/></svg>`;
+            const svgPapelera = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>`;
+
+            // --- Vista 1: drawer completo ---
+            const lblContador = document.getElementById('lblContadorFaltantes');
+            if (lblContador) lblContador.innerText = `${listaFaltantes.length} producto(s)`;
+
+            const contDrawer = document.getElementById('listaFaltantesDrawer');
+            if (contDrawer) {
+                contDrawer.innerHTML = '';
+                if (listaFaltantes.length === 0) {
+                    contDrawer.innerHTML = `<div class="faltante-empty">Aún no agregaste faltantes.<br>Usa el formulario de arriba para empezar.</div>`;
+                } else {
+                    listaFaltantes.forEach(item => {
+                        const svgInyectable = svgIconos[item.icono] || svgIconos['shopping-bag'];
+                        const div = document.createElement('div');
+                        div.className = 'faltante-card' + (item.movido ? ' movido' : '');
+                        div.innerHTML = `
+                            <div class="faltante-icon" onclick="abrirModalEditarFaltante(${item.id})" role="button" tabindex="0" aria-label="Editar ${item.nombre}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); abrirModalEditarFaltante(${item.id});}">${svgInyectable}</div>
+                            <div class="faltante-info" onclick="abrirModalEditarFaltante(${item.id})" role="button" tabindex="0" aria-label="Editar ${item.nombre}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); abrirModalEditarFaltante(${item.id});}">
+                                <h4>${item.nombre}${item.movido ? ' ✓' : ''}</h4>
+                                <span class="faltante-badge">${item.cantidad}u &bull; ${Math.round(item.comidasTotales)} comidas / ${item.diasDuracion.toFixed(1)} días</span>
+                            </div>
+                            <div class="faltante-actions">
+                                <button class="btn-mover-faltante" onclick="event.stopPropagation(); moverFaltanteACompras(${item.id})" title="Mover a compras" aria-label="Mover a lista de compras">${svgCarrito}</button>
+                                <button class="btn-borrar-faltante" onclick="event.stopPropagation(); eliminarFaltante(${item.id})" title="Eliminar" aria-label="Eliminar faltante">${svgPapelera}</button>
+                            </div>
+                        `;
+                        contDrawer.appendChild(div);
+                    });
+                }
+            }
+
+            // --- Vista 2: modal rápido (MEJORA 5) ---
+            const contRapido = document.getElementById('listaFaltantesRapido');
+            const lblRapido = document.getElementById('lblContadorRapido');
+            if (contRapido) {
+                const adquiridos = listaFaltantes.filter(i => i.adquirido).length;
+                if (lblRapido) lblRapido.innerText = `${adquiridos}/${listaFaltantes.length}`;
+
+                contRapido.innerHTML = '';
+                if (listaFaltantes.length === 0) {
+                    contRapido.innerHTML = `<div class="faltante-empty">No hay productos en tu lista de faltantes.<br>Agrégalos desde el módulo 📋.</div>`;
+                } else {
+                    listaFaltantes.forEach(item => {
+                        const row = document.createElement('div');
+                        row.className = 'faltante-rapido-row' + (item.adquirido ? ' adquirido' : '');
+                        const nombreEscapado = item.nombre.replace(/'/g, "\\'");
+                        row.innerHTML = `
+                            <input type="checkbox" ${item.adquirido ? 'checked' : ''} onchange="toggleAdquirido(${item.id})" aria-label="Marcar ${item.nombre} como adquirido">
+                            <span class="faltante-rapido-nombre" onclick="seleccionarFaltanteRapido('${nombreEscapado}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); seleccionarFaltanteRapido('${nombreEscapado}');}" tabindex="0" role="button">${item.nombre}</span>
+                        `;
+                        contRapido.appendChild(row);
+                    });
+                }
+            }
+        }
+
+        function abrirModalFaltantesRapido() {
+            renderizarListaFaltantes();
+            document.getElementById('modalFaltantesRapido').classList.add('active');
+        }
+
+        function cerrarModalFaltantesRapido() {
+            document.getElementById('modalFaltantesRapido').classList.remove('active');
+        }
+
+        function toggleAdquirido(id) {
+            const item = listaFaltantes.find(i => i.id === id);
+            if (!item) return;
+            item.adquirido = !item.adquirido;
+            renderizarListaFaltantes();
+            guardarEstado();
+        }
+
+        function seleccionarFaltanteRapido(nombre) {
+            document.getElementById('txtProducto').value = nombre;
+            cerrarModalFaltantesRapido();
         }
 
         function obtenerIconoPorNombre(nombre) {
@@ -1546,7 +2398,7 @@
 
                 divCard.innerHTML = `
                     <div class="item-main">
-                        <div class="${claseIcono}" onclick="abrirModalEditar(${item.id})" title="Editar producto">
+                        <div class="${claseIcono}" onclick="abrirModalEditar(${item.id})" title="Editar producto" role="button" tabindex="0" aria-label="Editar ${item.nombre}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); abrirModalEditar(${item.id});}">
                             ${svgInyectable}
                         </div>
                         <div class="item-details">
@@ -1557,7 +2409,7 @@
                     </div>
                     <div class="item-right">
                         <span class="${clasePrecio}">${prefijoMone}${totalItemFila.toFixed(2)}</span>
-                        <button class="btn-delete-item" onclick="eliminarProducto(${item.id})">
+                        <button class="btn-delete-item" onclick="eliminarProducto(${item.id})" aria-label="Eliminar ${item.nombre}">
                             <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>
                         </button>
                     </div>
@@ -1662,6 +2514,15 @@
             listaCompras = [];
             inputBal.value = '';
             cerrarModalNuevaCompra();
+
+            // MEJORA 4/6: ofrecer resetear los checks "adquirido" de la lista de faltantes
+            if (listaFaltantes.length > 0) {
+                if (confirm("¿Resetear los checks de la lista de faltantes?")) {
+                    listaFaltantes.forEach(item => item.adquirido = false);
+                    renderizarListaFaltantes();
+                }
+            }
+
             renderizarLista();
             calcularTodo();
         }
@@ -1956,9 +2817,16 @@ _Generado con Registro de Compras_`;
                     title: 'Mi Lista de Compras'
                 }).catch(err => console.log('Compartir cancelado o falló:', err));
             } else {
-                // Fallback universal: abre WhatsApp directamente con el texto ya cargado
+                // MEJORA 1.5: window.open() directo es bloqueado por el popup-blocker en Chrome Android.
+                // Se usa un <a target="_blank"> creado y clickeado programáticamente (no se considera popup).
                 const urlWhatsApp = `https://wa.me/?text=${encodeURIComponent(texto)}`;
-                window.open(urlWhatsApp, '_blank');
+                const enlace = document.createElement('a');
+                enlace.href = urlWhatsApp;
+                enlace.target = '_blank';
+                enlace.rel = 'noopener noreferrer';
+                document.body.appendChild(enlace);
+                enlace.click();
+                document.body.removeChild(enlace);
             }
         }
     </script>
