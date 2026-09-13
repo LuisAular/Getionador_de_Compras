@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Compras - Cyberpunk UI</title>
+
+    <!-- ===== PWA: manifest, color de tema e iconos ===== -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00d2ff">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Reg. Compras">
+
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
@@ -173,6 +183,23 @@
             background: transparent;
             color: var(--text-gray);
             border-color: rgba(125, 133, 178, 0.4);
+        }
+
+        /* PWA: indicador de sin conexión */
+        .offline-banner {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: rgba(125, 133, 178, 0.1);
+            border: 1px solid var(--text-gray);
+            color: var(--text-gray);
+            font-size: 10.5px;
+            padding: 7px 10px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+        }
+        .offline-banner.active {
+            display: flex;
         }
 
         /* MEJORA 5: botón interno dentro del input de nombre de producto */
@@ -1324,6 +1351,9 @@
                 </div>
             </div>
             <div class="header-actions">
+                <button class="settings-btn" id="btnInstalarPWA" onclick="instalarPWA()" title="Instalar app" aria-label="Instalar aplicación" style="display:none; color: var(--success); border-color: var(--success);">
+                    <i data-lucide="download" style="width: 18px; height: 18px;"></i>
+                </button>
                 <button class="settings-btn" id="btnHistorial" onclick="toggleHistorial()" title="Historial" aria-label="Abrir historial de compras">
                     <i data-lucide="history" style="width: 18px; height: 18px;"></i>
                 </button>
@@ -1336,13 +1366,18 @@
         <!-- MEJORA 2: Banner de compatibilidad NO bloqueante para Chrome Android -->
         <div class="compat-banner" id="compatBanner">
             <div class="compat-banner-text">
-                ⚠️ Detectamos posibles fallos en Chrome Android. Para mejor experiencia, abre en Firefox.
+                ⚠️ Detectamos posibles fallos en Chrome Android. Para mejor experiencia (incluyendo instalar esta app), abre en Firefox.
             </div>
             <div class="compat-banner-actions">
                 <button class="compat-btn" onclick="copiarEnlaceCompat()" aria-label="Copiar enlace de la aplicación">COPIAR ENLACE</button>
                 <button class="compat-btn" onclick="continuarCompat()" aria-label="Continuar de todas formas">CONTINUAR</button>
                 <button class="compat-btn compat-btn-ghost" onclick="noMostrarCompat()" aria-label="No mostrar este aviso de nuevo">NO MOSTRAR DE NUEVO</button>
             </div>
+        </div>
+
+        <!-- PWA: indicador no intrusivo de modo sin conexión -->
+        <div class="offline-banner" id="offlineBanner">
+            <i data-lucide="wifi-off" style="width:13px; height:13px;"></i> Estás sin conexión — usando datos guardados en el dispositivo.
         </div>
 
         <div class="dollar-card">
@@ -1852,8 +1887,56 @@
             renderizarListaFaltantes();
             calcularTodo();
             inicializarBannerCompat();
+            inicializarIndicadorConexion();
+            registrarServiceWorker();
             lucide.createIcons(); // Solo para los del header inmóviles
         };
+
+        // ===== PWA: registro del Service Worker =====
+        function registrarServiceWorker() {
+            if (!('serviceWorker' in navigator)) return;
+            navigator.serviceWorker.register('./service-worker.js')
+                .then((registro) => console.log('[PWA] Service Worker registrado:', registro.scope))
+                .catch((err) => console.warn('[PWA] Error registrando Service Worker:', err));
+        }
+
+        // ===== PWA (mejora opcional): botón "Instalar app" cuando el navegador lo permite =====
+        let eventoInstalacionPWA = null;
+
+        window.addEventListener('beforeinstallprompt', (event) => {
+            event.preventDefault();
+            eventoInstalacionPWA = event;
+            const btn = document.getElementById('btnInstalarPWA');
+            if (btn) btn.style.display = 'flex';
+        });
+
+        function instalarPWA() {
+            if (!eventoInstalacionPWA) return;
+            eventoInstalacionPWA.prompt();
+            eventoInstalacionPWA.userChoice.finally(() => {
+                eventoInstalacionPWA = null;
+                document.getElementById('btnInstalarPWA').style.display = 'none';
+            });
+        }
+
+        window.addEventListener('appinstalled', () => {
+            const btn = document.getElementById('btnInstalarPWA');
+            if (btn) btn.style.display = 'none';
+        });
+
+        // ===== PWA: indicador no intrusivo de sin conexión =====
+        function inicializarIndicadorConexion() {
+            actualizarIndicadorConexion();
+            window.addEventListener('online', actualizarIndicadorConexion);
+            window.addEventListener('offline', actualizarIndicadorConexion);
+        }
+
+        function actualizarIndicadorConexion() {
+            const banner = document.getElementById('offlineBanner');
+            if (!banner) return;
+            banner.classList.toggle('active', !navigator.onLine);
+            if (!navigator.onLine) lucide.createIcons();
+        }
 
         // ===== MEJORA 2: BANNER DE COMPATIBILIDAD (no bloqueante) =====
         function inicializarBannerCompat() {
