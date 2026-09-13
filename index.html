@@ -177,12 +177,28 @@
             padding: 7px 6px;
             border-radius: 8px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            text-decoration: none;
+            text-align: center;
         }
 
         .compat-btn-ghost {
             background: transparent;
             color: var(--text-gray);
             border-color: rgba(125, 133, 178, 0.4);
+        }
+
+        .compat-btn-primary {
+            flex-basis: 100%;
+            background: linear-gradient(90deg, rgba(0,210,255,0.15), rgba(195,0,255,0.15));
+            border: 1.5px solid var(--border-cyan);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.25);
+            font-size: 10px;
+            padding: 9px 6px;
         }
 
         /* PWA: indicador de sin conexión */
@@ -288,6 +304,11 @@
             font-size: 20px;
             font-weight: 700;
             color: var(--text-cyan);
+            white-space: nowrap;
+            overflow: hidden;
+            display: inline-block;
+            max-width: 100%;
+            vertical-align: bottom;
         }
 
         .update-btn-container {
@@ -692,6 +713,10 @@
         .total-amount {
             font-size: 18px;
             font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            display: block;
+            max-width: 100%;
         }
 
         .total-amount.cyan { color: var(--text-cyan); }
@@ -843,6 +868,63 @@
         .modal-overlay.active .modal-content {
             transform: scale(1);
         }
+
+        /* PUNTO 3: MODAL CASHEA */
+        .modal-content-cashea {
+            max-height: 88vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .cashea-breakdown {
+            background: var(--bg-input);
+            border: 1px solid rgba(255, 204, 0, 0.35);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-top: 14px;
+            margin-bottom: 4px;
+        }
+
+        .cashea-breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            font-size: 12px;
+            color: var(--text-gray);
+            border-bottom: 1px dashed rgba(125, 133, 178, 0.2);
+        }
+        .cashea-breakdown-row:last-child { border-bottom: none; }
+
+        .cashea-breakdown-row strong {
+            color: #ffffff;
+            font-size: 13px;
+        }
+        .cashea-breakdown-row .valor-usd { color: var(--text-cyan); }
+        .cashea-breakdown-row .valor-bs { color: var(--text-orange); font-size: 10.5px; display:block; }
+
+        .cashea-cronograma {
+            max-height: 180px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            border-radius: 10px;
+            margin-top: 8px;
+            margin-bottom: 6px;
+        }
+
+        .cashea-cuota-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            font-size: 11.5px;
+            border-bottom: 1px solid rgba(125, 133, 178, 0.12);
+        }
+        .cashea-cuota-row:last-child { border-bottom: none; }
+        .cashea-cuota-row .etiqueta { color: #ffffff; font-weight: 600; }
+        .cashea-cuota-row .fecha { color: var(--text-gray); font-size: 10px; display:block; }
+        .cashea-cuota-row .monto { color: var(--text-orange); font-weight: 700; white-space: nowrap; }
 
         .modal-title {
             font-family: 'Orbitron', sans-serif;
@@ -1366,10 +1448,12 @@
         <!-- MEJORA 2: Banner de compatibilidad NO bloqueante para Chrome Android -->
         <div class="compat-banner" id="compatBanner">
             <div class="compat-banner-text">
-                ⚠️ Detectamos posibles fallos en Chrome Android. Para mejor experiencia (incluyendo instalar esta app), abre en Firefox.
+                ⚠️ Tu navegador Google Chrome requiere una actualización para garantizar el correcto funcionamiento de la aplicación. Por favor, actualiza a la versión más reciente desde Google Play Store.
             </div>
             <div class="compat-banner-actions">
-                <button class="compat-btn" onclick="copiarEnlaceCompat()" aria-label="Copiar enlace de la aplicación">COPIAR ENLACE</button>
+                <a class="compat-btn compat-btn-primary" href="https://play.google.com/store/apps/details?id=com.android.chrome" target="_blank" rel="noopener noreferrer" aria-label="Actualizar Google Chrome en Play Store">
+                    <i data-lucide="download" style="width:12px; height:12px;"></i> ACTUALIZAR EN PLAY STORE
+                </a>
                 <button class="compat-btn" onclick="continuarCompat()" aria-label="Continuar de todas formas">CONTINUAR</button>
                 <button class="compat-btn compat-btn-ghost" onclick="noMostrarCompat()" aria-label="No mostrar este aviso de nuevo">NO MOSTRAR DE NUEVO</button>
             </div>
@@ -1478,8 +1562,16 @@
         </div>
 
         <div class="panel-balance">
-            <div class="section-title" style="margin:0 0 12px 0;">
-                <i data-lucide="wallet" style="width:16px; height:16px;"></i> SALDO / BALANCE
+            <div class="section-title" style="margin:0 0 12px 0; justify-content:space-between;">
+                <span style="display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="wallet" style="width:16px; height:16px;"></i> SALDO / BALANCE
+                </span>
+                <button class="settings-btn" id="btnCashea" onclick="abrirModalCashea()" title="Calculadora Cashea" aria-label="Abrir calculadora Cashea" style="width:32px; height:32px; border-color: var(--border-cyan); color: var(--text-cyan);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;" class="lucide lucide-credit-card">
+                        <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+                        <line x1="2" x2="22" y1="10" y2="10"></line>
+                    </svg>
+                </button>
             </div>
             <div class="row-inputs">
                 <div class="col-half">
@@ -1800,6 +1892,60 @@
         </div>
     </div>
 
+    <!-- ===== PUNTO 3: MODAL CALCULADORA CASHEA (BNPL Venezuela) ===== -->
+    <div class="modal-overlay" id="modalCashea">
+        <div class="modal-content modal-content-cashea">
+            <div class="modal-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; color:#ffcc00;"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>
+                CALCULADORA CASHEA
+            </div>
+
+            <div class="label-small" style="color: var(--text-cyan);">Monto a financiar ($)</div>
+            <div class="input-group cyan-icon">
+                <i data-lucide="dollar-sign" style="width: 18px; height: 18px;"></i>
+                <input type="number" id="txtCasheaMonto" placeholder="0.00" step="0.01" oninput="calcularCashea()">
+            </div>
+
+            <div class="row-inputs">
+                <div class="col-half">
+                    <span class="label-small" style="color: var(--text-purple);">Nivel Cashea</span>
+                    <select class="select-custom" id="selCasheaNivel" style="margin:0;" onchange="calcularCashea()">
+                        <option value="60">Nivel 1 (60% inicial)</option>
+                        <option value="50">Nivel 2 (50% inicial)</option>
+                        <option value="40">Nivel 3 (40% inicial)</option>
+                        <option value="30">Nivel 4 (30% inicial)</option>
+                        <option value="20">Nivel 5 (20% inicial)</option>
+                        <option value="15">Nivel 6 (15% inicial / VIP)</option>
+                    </select>
+                </div>
+                <div class="col-half">
+                    <span class="label-small" style="color: var(--text-orange);">Línea de compra</span>
+                    <select class="select-custom" id="selCasheaLinea" style="margin:0;" onchange="actualizarCuotasCashea()">
+                        <option value="principal">Línea Principal</option>
+                        <option value="cotidiana">Línea Cotidiana</option>
+                    </select>
+                </div>
+            </div>
+
+            <span class="label-small">Número de cuotas</span>
+            <select class="select-custom" id="selCasheaCuotas" onchange="calcularCashea()"></select>
+
+            <div class="cashea-breakdown" id="casheaBreakdown"></div>
+
+            <div class="label-small" style="margin-top:10px; color: var(--text-cyan);">
+                <i data-lucide="calendar-clock" style="width:12px; height:12px;"></i> Cronograma de pagos (cada 14 días)
+            </div>
+            <div class="cashea-cronograma" id="casheaCronograma"></div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" onclick="cerrarModalCashea()">CERRAR</button>
+                <button class="modal-btn btn-accept" onclick="compartirCalculoCashea()">
+                    <i data-lucide="share-2" style="width:14px; height:14px;"></i> COMPARTIR
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="history-overlay" id="historyOverlay" onclick="toggleHistorial()"></div>
     <aside class="history-drawer" id="historyDrawer">
         <div class="history-header">
@@ -1821,9 +1967,50 @@
         if (!soportaBackdrop) document.body.classList.add('no-backdrop');
         if (!soportaClipPath) document.body.classList.add('no-clippath');
 
-        // Detección de Chrome en Android (UA) combinada con ausencia de alguna feature, usada en MEJORA 2
+        // Detección de Chrome en Android (UA) — se mantiene para las clases de fallback CSS (no-backdrop, etc.)
         const uaEsChromeAndroid = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent) && !/Firefox|FxiOS|EdgA|OPR/i.test(navigator.userAgent);
         const esChromeAndroid = uaEsChromeAndroid;
+
+        // ===== PUNTO 1: VERSIÓN MÍNIMA DE CHROME REQUERIDA =====
+        // NOTA (full-stack): el "build" exacto (153.0.8010.36) no es fiable vía UA — Chrome moderno
+        // recorta/congela el User-Agent. Solo comparamos la versión MAYOR, que es lo único estable.
+        const VERSION_CHROME_MINIMA = 153;
+
+        function extraerVersionChromeUA(uaString) {
+            const match = uaString.match(/Chrome\/(\d+)/i);
+            return match ? parseInt(match[1], 10) : null;
+        }
+
+        // Mejor estimación disponible de inmediato (síncrona, vía regex sobre el UA string clásico)
+        let chromeVersionDetectada = extraerVersionChromeUA(navigator.userAgent);
+
+        // Si es Chrome Android y no podemos determinar la versión, asumimos que SÍ requiere
+        // actualización (más seguro mostrar el aviso de más que dejar pasar un navegador viejo).
+        function chromeRequiereActualizacion() {
+            if (!uaEsChromeAndroid) return false;
+            if (chromeVersionDetectada === null) return true;
+            return chromeVersionDetectada < VERSION_CHROME_MINIMA;
+        }
+
+        // Refinamiento asíncrono con User-Agent Client Hints (más preciso que el regex clásico,
+        // ya que expone la versión completa aunque el UA string esté reducido/congelado).
+        async function refinarDeteccionVersionChrome() {
+            if (!uaEsChromeAndroid) return;
+            if (!(navigator.userAgentData && navigator.userAgentData.getHighEntropyValues)) return;
+            try {
+                const datos = await navigator.userAgentData.getHighEntropyValues(['fullVersionList']);
+                const entradaChrome = (datos.fullVersionList || []).find(
+                    (b) => b.brand === 'Google Chrome' || b.brand === 'Chromium'
+                );
+                if (entradaChrome && entradaChrome.version) {
+                    const versionMayor = parseInt(entradaChrome.version.split('.')[0], 10);
+                    if (!isNaN(versionMayor)) chromeVersionDetectada = versionMayor;
+                }
+            } catch (e) {
+                console.warn('[Compat] No se pudo leer userAgentData:', e);
+            }
+            inicializarBannerCompat(); // re-evalúa el banner con el dato más preciso
+        }
 
         let tasaDolar = 36.85;
         let formularioMoneda = 'Bs';
@@ -1887,6 +2074,7 @@
             renderizarListaFaltantes();
             calcularTodo();
             inicializarBannerCompat();
+            refinarDeteccionVersionChrome();
             inicializarIndicadorConexion();
             registrarServiceWorker();
             lucide.createIcons(); // Solo para los del header inmóviles
@@ -1938,23 +2126,12 @@
             if (!navigator.onLine) lucide.createIcons();
         }
 
-        // ===== MEJORA 2: BANNER DE COMPATIBILIDAD (no bloqueante) =====
+        // ===== BANNER DE COMPATIBILIDAD (no bloqueante) — ahora por versión mínima de Chrome =====
         function inicializarBannerCompat() {
             const estadoBanner = localStorage.getItem('bannerChromeIgnorado');
             if (estadoBanner === 'siempre') return; // el usuario pidió no verlo nunca más
-            if (esChromeAndroid) {
-                document.getElementById('compatBanner').classList.add('active');
-            }
-        }
-
-        function copiarEnlaceCompat() {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(window.location.href)
-                    .then(() => alert('Enlace copiado. Pégalo en Firefox para abrir la app.'))
-                    .catch(() => alert('No se pudo copiar el enlace automáticamente.'));
-            } else {
-                alert('Tu navegador no permite copiar automáticamente. Copia la URL manualmente.');
-            }
+            const banner = document.getElementById('compatBanner');
+            banner.classList.toggle('active', chromeRequiereActualizacion());
         }
 
         function continuarCompat() {
@@ -2072,9 +2249,37 @@
             }
         }
 
+        // ===== PUNTO 2: AUTO-FIT TEXT (evita que montos grandes rompan la maqueta a 2 líneas) =====
+        // maxFontSizeRem = tamaño para textos cortos (≤8 caracteres); a partir de ahí se reduce
+        // proporcionalmente (misma proporción que la tabla de ejemplo: 1.8/1.4/1.1/0.9rem).
+        function ajustarTamanoTexto(elementId, maxFontSizeRem) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+
+            const texto = (el.innerText || el.textContent || '').trim();
+            const longitud = texto.length;
+
+            let tamano;
+            if (longitud <= 8) tamano = maxFontSizeRem;
+            else if (longitud <= 12) tamano = maxFontSizeRem * 0.78;   // ej. 1.8 -> 1.4rem
+            else if (longitud <= 16) tamano = maxFontSizeRem * 0.61;   // ej. 1.8 -> 1.1rem
+            else tamano = maxFontSizeRem * 0.5;                        // ej. 1.8 -> 0.9rem
+
+            el.style.fontSize = tamano.toFixed(3) + 'rem';
+
+            // Red de seguridad: si con la fuente/dispositivo real igual desborda, se sigue reduciendo
+            let intentos = 0;
+            while (el.scrollWidth > el.clientWidth && tamano > 0.55 && intentos < 20) {
+                tamano -= 0.04;
+                el.style.fontSize = tamano.toFixed(3) + 'rem';
+                intentos++;
+            }
+        }
+
         function actualizarPantallaTasa() {
             document.getElementById('lblTasaDolar').innerText = `Bs. ${tasaDolar.toFixed(2)}`;
             document.getElementById('lblSubtextTasa').innerText = `Bs. ${tasaDolar.toFixed(2)}`;
+            ajustarTamanoTexto('lblTasaDolar', 1.25); // 20px base
         }
 
         function cambiarMonedaFormulario(moneda) {
@@ -2398,6 +2603,154 @@ _Generado con Registro de Compras_`;
             cerrarModalFaltantesRapido();
         }
 
+        // ============================================================
+        // PUNTO 3: CALCULADORA CASHEA (BNPL Venezuela)
+        // ============================================================
+        function abrirModalCashea() {
+            const totalUsdTexto = document.getElementById('lblTotalUsd').innerText.replace('$', '').trim();
+            const montoActual = parseFloat(totalUsdTexto) || 0;
+
+            document.getElementById('txtCasheaMonto').value = montoActual.toFixed(2);
+            document.getElementById('selCasheaNivel').value = '60';
+            document.getElementById('selCasheaLinea').value = 'principal';
+            actualizarCuotasCashea(); // repuebla el select de cuotas y llama a calcularCashea()
+
+            document.getElementById('modalCashea').classList.add('active');
+        }
+
+        function cerrarModalCashea() {
+            document.getElementById('modalCashea').classList.remove('active');
+        }
+
+        // Línea Principal: 3/6/9/12 cuotas. Línea Cotidiana: 1/2 cuotas.
+        function actualizarCuotasCashea() {
+            const linea = document.getElementById('selCasheaLinea').value;
+            const select = document.getElementById('selCasheaCuotas');
+            select.innerHTML = '';
+
+            const opciones = linea === 'cotidiana' ? [1, 2] : [3, 6, 9, 12];
+            opciones.forEach((n) => {
+                const opt = document.createElement('option');
+                opt.value = n;
+                opt.innerText = `${n} cuota${n > 1 ? 's' : ''}`;
+                select.appendChild(opt);
+            });
+
+            calcularCashea();
+        }
+
+        // NOTA (tester): el % de inicial del nivel seleccionado se aplica igual a
+        // ambas líneas (Principal y Cotidiana) — la regla de negocio del prompt original
+        // era ambigua en este punto; se deja documentado para validación del equipo.
+        function calcularDesgloseCashea() {
+            const monto = parseFloat(document.getElementById('txtCasheaMonto').value) || 0;
+            const porcentajeInicial = parseInt(document.getElementById('selCasheaNivel').value) || 60;
+            const linea = document.getElementById('selCasheaLinea').value;
+            const numCuotas = parseInt(document.getElementById('selCasheaCuotas').value) || 1;
+            const nivelTexto = document.getElementById('selCasheaNivel').selectedOptions[0].innerText;
+
+            const inicialUsd = monto * (porcentajeInicial / 100);
+            const financiarUsd = monto - inicialUsd;
+            const cuotaUsd = numCuotas > 0 ? financiarUsd / numCuotas : 0;
+
+            const hoy = new Date();
+            const cronograma = [{ numero: 0, etiqueta: 'Inicial (Hoy)', fecha: new Date(hoy), montoUsd: inicialUsd }];
+            for (let i = 1; i <= numCuotas; i++) {
+                const fecha = new Date(hoy);
+                fecha.setDate(fecha.getDate() + (14 * i));
+                cronograma.push({ numero: i, etiqueta: `Cuota ${i} (${14 * i} días)`, fecha, montoUsd: cuotaUsd });
+            }
+
+            return { monto, porcentajeInicial, linea, numCuotas, nivelTexto, inicialUsd, financiarUsd, cuotaUsd, cronograma };
+        }
+
+        function formatearFechaDDMMYYYY(fecha) {
+            const dd = String(fecha.getDate()).padStart(2, '0');
+            const mm = String(fecha.getMonth() + 1).padStart(2, '0');
+            const yyyy = fecha.getFullYear();
+            return `${dd}/${mm}/${yyyy}`;
+        }
+
+        function calcularCashea() {
+            const d = calcularDesgloseCashea();
+
+            document.getElementById('casheaBreakdown').innerHTML = `
+                <div class="cashea-breakdown-row">
+                    <span>Inicial (${d.porcentajeInicial}%)</span>
+                    <strong>
+                        <span class="valor-usd">$${d.inicialUsd.toFixed(2)}</span>
+                        <span class="valor-bs">Bs ${(d.inicialUsd * tasaDolar).toFixed(2)}</span>
+                    </strong>
+                </div>
+                <div class="cashea-breakdown-row">
+                    <span>Restante a financiar</span>
+                    <strong>
+                        <span class="valor-usd">$${d.financiarUsd.toFixed(2)}</span>
+                        <span class="valor-bs">Bs ${(d.financiarUsd * tasaDolar).toFixed(2)}</span>
+                    </strong>
+                </div>
+                <div class="cashea-breakdown-row">
+                    <span>${d.numCuotas} cuota(s) de</span>
+                    <strong>
+                        <span class="valor-usd">$${d.cuotaUsd.toFixed(2)}</span>
+                        <span class="valor-bs">Bs ${(d.cuotaUsd * tasaDolar).toFixed(2)}</span>
+                    </strong>
+                </div>
+            `;
+
+            const contCronograma = document.getElementById('casheaCronograma');
+            contCronograma.innerHTML = '';
+            d.cronograma.forEach((cuota) => {
+                const fila = document.createElement('div');
+                fila.className = 'cashea-cuota-row';
+                fila.innerHTML = `
+                    <div>
+                        <span class="etiqueta">${cuota.etiqueta}</span>
+                        <span class="fecha">${formatearFechaDDMMYYYY(cuota.fecha)}</span>
+                    </div>
+                    <span class="monto">$${cuota.montoUsd.toFixed(2)}</span>
+                `;
+                contCronograma.appendChild(fila);
+            });
+        }
+
+        function compartirCalculoCashea() {
+            const d = calcularDesgloseCashea();
+            if (d.monto <= 0) {
+                alert("Ingresa un monto válido antes de compartir.");
+                return;
+            }
+
+            const lineaTexto = d.linea === 'cotidiana' ? 'Cotidiana' : 'Principal';
+            const lineasCronograma = d.cronograma
+                .map((c) => `• ${c.etiqueta}: ${formatearFechaDDMMYYYY(c.fecha)} - $${c.montoUsd.toFixed(2)}`)
+                .join('\n');
+
+            const texto =
+`🟡 *FINANCIAMIENTO CASHEA* 🟡
+📌 *Nivel:* ${d.nivelTexto}
+📌 *Línea:* ${lineaTexto}
+💵 *Monto Total:* $${d.monto.toFixed(2)} (Bs. ${(d.monto * tasaDolar).toFixed(2)})
+---
+▶ *INICIAL (Hoy):* $${d.inicialUsd.toFixed(2)} / Bs. ${(d.inicialUsd * tasaDolar).toFixed(2)}
+▶ *FINANCIADO:* $${d.financiarUsd.toFixed(2)} en ${d.numCuotas} cuota(s) de $${d.cuotaUsd.toFixed(2)} (Bs. ${(d.cuotaUsd * tasaDolar).toFixed(2)}) c/u
+---
+📅 *CRONOGRAMA DE PAGOS:*
+${lineasCronograma}
+---
+🔣 *Tasa BCV aplicada:* Bs. ${tasaDolar.toFixed(2)}/$`;
+
+            if (navigator.share) {
+                navigator.share({ text: texto, title: 'Financiamiento Cashea' }).catch(() => {});
+            } else if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(texto)
+                    .then(() => alert('Resumen copiado al portapapeles. ¡Ya puedes pegarlo en WhatsApp!'))
+                    .catch(() => alert('No se pudo copiar el resumen automáticamente.'));
+            } else {
+                alert('Tu navegador no permite compartir ni copiar automáticamente.');
+            }
+        }
+
         function obtenerIconoPorNombre(nombre) {
             const nombreMin = nombre.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             for (const clave in diccionarioIconos) {
@@ -2518,6 +2871,8 @@ _Generado con Registro de Compras_`;
 
             document.getElementById('lblTotalUsd').innerText = `$${acumuladoUsd.toFixed(2)}`;
             document.getElementById('lblTotalBs').innerText = `Bs ${acumuladoBs.toFixed(2)}`;
+            ajustarTamanoTexto('lblTotalUsd', 1.125); // 18px base
+            ajustarTamanoTexto('lblTotalBs', 1.125);
 
             const inputBal = document.getElementById('inputBalance');
             let saldoActual = parseFloat(inputBal.value);
