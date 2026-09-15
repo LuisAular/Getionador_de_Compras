@@ -56,6 +56,10 @@ self.addEventListener('fetch', (event) => {
     // Solo interceptamos peticiones GET (las de escritura no se cachean).
     if (event.request.method !== 'GET') return;
 
+    // La API de tasas NUNCA se cachea: con cache-first quedaría congelada
+    // y la app mostraría siempre la tasa del primer día consultado.
+    if (event.request.url.includes('rates.dolarvzla.com')) return;
+
     event.respondWith(
         caches.match(event.request).then((respuestaEnCache) => {
             if (respuestaEnCache) {

@@ -869,6 +869,118 @@
             transform: scale(1);
         }
 
+        /* MODAL TASA: tabs de modo (Manual / Automático / Calculado) */
+        .tasa-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .tasa-tab {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid rgba(125, 133, 178, 0.3);
+            color: var(--text-gray);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            padding: 8px 4px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .tasa-tab.active {
+            background: rgba(0, 210, 255, 0.12);
+            border-color: var(--border-cyan);
+            color: var(--text-cyan);
+            box-shadow: 0 0 8px rgba(0, 210, 255, 0.15);
+        }
+
+        .tasa-hint {
+            font-size: 10px;
+            color: var(--text-gray);
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .tasa-status {
+            font-size: 10.5px;
+            line-height: 1.4;
+            margin-bottom: 10px;
+            min-height: 14px;
+        }
+        .tasa-status.cargando { color: var(--text-cyan); }
+        .tasa-status.exito { color: var(--success); }
+        .tasa-status.error { color: var(--danger); }
+
+        /* MODAL CONVERTIDOR DE MONEDA */
+        .conv-tasa {
+            font-size: 10.5px;
+            color: var(--text-gray);
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(125, 133, 178, 0.2);
+        }
+
+        .conv-readonly {
+            background: #04060f;
+            opacity: 0.92;
+        }
+        .conv-readonly input {
+            color: var(--text-cyan);
+            font-weight: 700;
+        }
+
+        .conv-swap-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: -4px 0 8px 0;
+        }
+
+        .conv-swap-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #0d1130;
+            border: 1.5px solid var(--border-purple);
+            color: var(--text-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(195, 0, 255, 0.25);
+        }
+        .conv-swap-btn:active {
+            background: rgba(195, 0, 255, 0.15);
+        }
+
+        .conv-resultado {
+            background: var(--bg-input);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-top: 6px;
+        }
+
+        .conv-resultado-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+        .conv-resultado-row strong {
+            color: #ffffff;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .conv-resultado-row strong.destacado {
+            color: var(--text-orange);
+            font-size: 16px;
+        }
+
         /* PUNTO 3: MODAL CASHEA */
         .modal-content-cashea {
             max-height: 88vh;
@@ -1566,12 +1678,20 @@
                 <span style="display:flex; align-items:center; gap:8px;">
                     <i data-lucide="wallet" style="width:16px; height:16px;"></i> SALDO / BALANCE
                 </span>
-                <button class="settings-btn" id="btnCashea" onclick="abrirModalCashea()" title="Calculadora Cashea" aria-label="Abrir calculadora Cashea" style="width:32px; height:32px; border-color: var(--border-cyan); color: var(--text-cyan);">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;" class="lucide lucide-credit-card">
-                        <rect width="20" height="14" x="2" y="5" rx="2"></rect>
-                        <line x1="2" x2="22" y1="10" y2="10"></line>
-                    </svg>
-                </button>
+                <span style="display:flex; align-items:center; gap:6px;">
+                    <button class="settings-btn" id="btnConvertidor" onclick="abrirModalConvertidor()" title="Convertidor de moneda" aria-label="Abrir convertidor de moneda" style="width:32px; height:32px; border-color: var(--border-purple); color: var(--text-purple);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;" class="lucide lucide-arrow-down-up">
+                            <path d="m3 16 4 4 4-4"></path><path d="M7 20V4"></path>
+                            <path d="m21 8-4-4-4 4"></path><path d="M17 4v16"></path>
+                        </svg>
+                    </button>
+                    <button class="settings-btn" id="btnCashea" onclick="abrirModalCashea()" title="Calculadora Cashea" aria-label="Abrir calculadora Cashea" style="width:32px; height:32px; border-color: var(--border-cyan); color: var(--text-cyan);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;" class="lucide lucide-credit-card">
+                            <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+                            <line x1="2" x2="22" y1="10" y2="10"></line>
+                        </svg>
+                    </button>
+                </span>
             </div>
             <div class="row-inputs">
                 <div class="col-half">
@@ -1624,6 +1744,40 @@
             <div class="modal-title">
                 <i data-lucide="refresh-cw" style="width:16px; height:16px; color:var(--text-cyan);"></i> ACTUALIZAR TASA
             </div>
+
+            <!-- Tabs de modo: Manual (default) / Automático / Calculado -->
+            <div class="tasa-tabs">
+                <button class="tasa-tab active" id="tabTasaManual" onclick="cambiarModoTasa('manual')" aria-label="Modo manual">MANUAL</button>
+                <button class="tasa-tab" id="tabTasaAuto" onclick="cambiarModoTasa('auto')" aria-label="Modo automático">AUTOMÁTICO</button>
+                <button class="tasa-tab" id="tabTasaCalc" onclick="cambiarModoTasa('calc')" aria-label="Modo calculado">CALCULADO</button>
+            </div>
+
+            <!-- MODO CALCULADO: sección extra (oculta por defecto) -->
+            <div id="seccionTasaCalculada" style="display:none;">
+                <div class="label-small" style="color: var(--text-purple); margin-bottom:4px;">CALCULAR TASA</div>
+                <div class="tasa-hint">Introduce el precio de un mismo producto en bolívares y dólares para calcular la tasa implícita.</div>
+                <div class="row-inputs">
+                    <div class="col-half">
+                        <span class="label-small" style="color: var(--text-orange);">Precio en Bs</span>
+                        <div class="input-group" style="margin:0;">
+                            <i data-lucide="banknote" style="width:16px; height:16px;"></i>
+                            <input type="number" id="txtCalcPrecioBs" placeholder="0.00" step="0.01" oninput="calcularTasaImplicita()">
+                        </div>
+                    </div>
+                    <div class="col-half">
+                        <span class="label-small" style="color: var(--text-cyan);">Precio en $</span>
+                        <div class="input-group cyan-icon" style="margin:0;">
+                            <i data-lucide="dollar-sign" style="width:16px; height:16px;"></i>
+                            <input type="number" id="txtCalcPrecioUsd" placeholder="0.00" step="0.01" oninput="calcularTasaImplicita()">
+                        </div>
+                    </div>
+                </div>
+                <div class="tasa-status" id="statusTasaCalc"></div>
+            </div>
+
+            <!-- MODO AUTOMÁTICO: indicador de estado -->
+            <div class="tasa-status" id="statusTasaAuto" style="display:none;"></div>
+
             <div class="label-small" style="color: var(--text-cyan); margin-bottom:8px;">Nueva tasa del Dólar (Bs)</div>
             <div class="input-group cyan-icon" style="border-color: rgba(0, 210, 255, 0.4);">
                 <i data-lucide="dollar-sign" style="width:18px; height:18px;"></i>
@@ -1631,7 +1785,7 @@
             </div>
             <div class="modal-buttons">
                 <button class="modal-btn btn-cancel" onclick="cerrarModalTasa()">CANCELAR</button>
-                <button class="modal-btn btn-accept" onclick="aceptarNuevaTasa()">ACEPTAR</button>
+                <button class="modal-btn btn-accept" onclick="aceptarNuevaTasa()">GUARDAR</button>
             </div>
         </div>
     </div>
@@ -1888,6 +2042,59 @@
             <div id="listaFaltantesRapido" class="faltantes-rapido-list"></div>
             <div class="modal-buttons">
                 <button class="modal-btn btn-accept" style="width:100%;" onclick="cerrarModalFaltantesRapido()">CERRAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL CONVERTIDOR DE MONEDA ===== -->
+    <div class="modal-overlay" id="modalConvertidor">
+        <div class="modal-content">
+            <div class="modal-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; color:var(--text-purple);"><path d="m3 16 4 4 4-4"></path><path d="M7 20V4"></path><path d="m21 8-4-4-4 4"></path><path d="M17 4v16"></path></svg>
+                CONVERTIDOR DE MONEDA
+            </div>
+            <div class="conv-tasa" id="lblConvTasa">Tasa aplicada: Bs 0.0 / $</div>
+
+            <!-- Campo de ENTRADA (editable) -->
+            <span class="label-small" id="lblConvOrigen" style="color: var(--text-orange);">Precio unitario (Bs)</span>
+            <div class="input-group" id="grupoConvOrigen" style="border-color: rgba(255,153,0,0.4);">
+                <i data-lucide="banknote" style="width:18px; height:18px; color:var(--text-orange);"></i>
+                <input type="number" id="txtConvOrigen" placeholder="0.00" step="0.01" oninput="calcularConversion()">
+            </div>
+
+            <!-- Botón de intercambio de dirección -->
+            <div class="conv-swap-wrapper">
+                <button class="conv-swap-btn" onclick="invertirConversion()" title="Invertir conversión" aria-label="Invertir dirección de conversión">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px; height:18px;"><path d="m3 16 4 4 4-4"></path><path d="M7 20V4"></path><path d="m21 8-4-4-4 4"></path><path d="M17 4v16"></path></svg>
+                </button>
+            </div>
+
+            <!-- Campo de SALIDA (solo lectura, calculado) -->
+            <span class="label-small" id="lblConvDestino" style="color: var(--text-cyan);">Equivalente unitario ($)</span>
+            <div class="input-group cyan-icon conv-readonly" id="grupoConvDestino">
+                <i data-lucide="dollar-sign" style="width:18px; height:18px;"></i>
+                <input type="text" id="txtConvDestino" value="0.00" readonly tabindex="-1" aria-label="Resultado de la conversión">
+            </div>
+
+            <span class="label-small" style="color: var(--text-purple);">Cantidad ×</span>
+            <div class="input-group">
+                <i data-lucide="hash" style="width:18px; height:18px;"></i>
+                <input type="number" id="txtConvCantidad" value="1" min="0" step="1" oninput="calcularConversion()">
+            </div>
+
+            <div class="conv-resultado">
+                <div class="conv-resultado-row">
+                    <span>Subtotal</span>
+                    <strong id="lblConvSubtotal">Bs 0.00</strong>
+                </div>
+                <div class="conv-resultado-row">
+                    <span>Equivalente</span>
+                    <strong class="destacado" id="lblConvEquivalente">$0.00</strong>
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn btn-accept" style="width:100%;" onclick="cerrarModalConvertidor()">CERRAR</button>
             </div>
         </div>
     </div>
@@ -2218,7 +2425,103 @@
 
         function abrirModalTasa() {
             document.getElementById('txtNuevaTasa').value = tasaDolar;
+            cambiarModoTasa('manual'); // Manual es el modo predeterminado
             document.getElementById('modalTasa').classList.add('active');
+        }
+
+        // ===== MODOS DEL MODAL DE TASA (manual / automático / calculado) =====
+        // El guardado SIEMPRE termina en aceptarNuevaTasa(), la lógica que ya existía.
+        // No se crea una segunda variable de tasa ni un segundo mecanismo de persistencia.
+        function cambiarModoTasa(modo) {
+            const tabs = { manual: 'tabTasaManual', auto: 'tabTasaAuto', calc: 'tabTasaCalc' };
+            Object.keys(tabs).forEach((k) => {
+                document.getElementById(tabs[k]).classList.toggle('active', k === modo);
+            });
+
+            const seccionCalc = document.getElementById('seccionTasaCalculada');
+            const statusAuto = document.getElementById('statusTasaAuto');
+
+            seccionCalc.style.display = (modo === 'calc') ? 'block' : 'none';
+            statusAuto.style.display = (modo === 'auto') ? 'block' : 'none';
+
+            if (modo === 'manual') {
+                statusAuto.innerText = '';
+                document.getElementById('statusTasaCalc').innerText = '';
+            }
+
+            if (modo === 'auto') {
+                obtenerTasaAutomatica();
+            }
+        }
+
+        // Formatea a UN solo decimal, como exige la especificación
+        function formatearTasaUnDecimal(valor) {
+            return Number(Number(valor).toFixed(1));
+        }
+
+        // Fecha local del navegador en formato YYYY-MM-DD (nunca una fecha fija)
+        function fechaHoyISO() {
+            const hoy = new Date();
+            const yyyy = hoy.getFullYear();
+            const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+            const dd = String(hoy.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        async function obtenerTasaAutomatica() {
+            const status = document.getElementById('statusTasaAuto');
+            status.className = 'tasa-status cargando';
+            status.innerText = 'Consultando tasa BCV...';
+
+            const MENSAJE_ERROR = 'No fue posible obtener la tasa automática del día. Puedes introducirla manualmente.';
+
+            try {
+                // cache: 'no-store' evita que el Service Worker (cache-first) sirva una tasa vieja
+                const respuesta = await fetch('https://rates.dolarvzla.com/bcv/previous.json', { cache: 'no-store' });
+                if (!respuesta.ok) throw new Error('Respuesta HTTP no válida');
+
+                const datos = await respuesta.json();
+
+                // Validaciones estrictas: si algo no cuadra, NO se sobrescribe la tasa actual
+                if (!datos || !datos.current) throw new Error('Falta el objeto current');
+                if (datos.current.date !== fechaHoyISO()) throw new Error('La fecha de la tasa no es la de hoy');
+
+                const usd = Number(datos.current.usd);
+                if (!isFinite(usd) || usd <= 0) throw new Error('Valor de USD no numérico');
+
+                // Solo se rellena el input: el usuario decide y pulsa GUARDAR
+                document.getElementById('txtNuevaTasa').value = formatearTasaUnDecimal(usd);
+                status.className = 'tasa-status exito';
+                status.innerText = '✓ Tasa obtenida automáticamente';
+            } catch (error) {
+                console.warn('[Tasa automática]', error);
+                status.className = 'tasa-status error';
+                status.innerText = MENSAJE_ERROR;
+            }
+        }
+
+        // MODO CALCULADO: tasa implícita = Precio Bs / Precio $
+        function calcularTasaImplicita() {
+            const status = document.getElementById('statusTasaCalc');
+            const bs = parseFloat(document.getElementById('txtCalcPrecioBs').value);
+            const usd = parseFloat(document.getElementById('txtCalcPrecioUsd').value);
+
+            if (!isFinite(bs) || !isFinite(usd) || bs < 0 || usd <= 0) {
+                status.className = 'tasa-status error';
+                status.innerText = 'Introduce valores válidos en ambos campos.';
+                return;
+            }
+
+            const tasaCalculada = formatearTasaUnDecimal(bs / usd);
+            if (!isFinite(tasaCalculada) || tasaCalculada <= 0) {
+                status.className = 'tasa-status error';
+                status.innerText = 'Introduce valores válidos en ambos campos.';
+                return;
+            }
+
+            document.getElementById('txtNuevaTasa').value = tasaCalculada;
+            status.className = 'tasa-status exito';
+            status.innerText = `✓ Tasa calculada: Bs ${tasaCalculada.toFixed(1)} / $`;
         }
 
         function cerrarModalTasa() {
@@ -2601,6 +2904,87 @@ _Generado con Registro de Compras_`;
         function seleccionarFaltanteRapido(nombre) {
             document.getElementById('txtProducto').value = nombre;
             cerrarModalFaltantesRapido();
+        }
+
+        // ============================================================
+        // CONVERTIDOR DE MONEDA (Bs <-> $) con multiplicador de cantidad
+        // Lee SIEMPRE la variable global tasaDolar: no guarda copia propia,
+        // por lo que cualquier cambio desde "Actualizar" se refleja al reabrir.
+        // ============================================================
+        let convDireccion = 'bs_usd'; // por defecto Bs -> $
+
+        function abrirModalConvertidor() {
+            document.getElementById('txtConvOrigen').value = '';
+            document.getElementById('txtConvCantidad').value = '1';
+            convDireccion = 'bs_usd';
+            actualizarEtiquetasConversion();
+            calcularConversion();
+            document.getElementById('modalConvertidor').classList.add('active');
+        }
+
+        function cerrarModalConvertidor() {
+            document.getElementById('modalConvertidor').classList.remove('active');
+        }
+
+        function actualizarEtiquetasConversion() {
+            const esBsAUsd = convDireccion === 'bs_usd';
+
+            document.getElementById('lblConvTasa').innerText = `Tasa aplicada: Bs ${Number(tasaDolar).toFixed(1)} / $`;
+            document.getElementById('lblConvOrigen').innerText = esBsAUsd ? 'Precio unitario (Bs)' : 'Precio unitario ($)';
+            document.getElementById('lblConvDestino').innerText = esBsAUsd ? 'Equivalente unitario ($)' : 'Equivalente unitario (Bs)';
+
+            // El color del campo editable indica la moneda activa
+            document.getElementById('lblConvOrigen').style.color = esBsAUsd ? 'var(--text-orange)' : 'var(--text-cyan)';
+            document.getElementById('lblConvDestino').style.color = esBsAUsd ? 'var(--text-cyan)' : 'var(--text-orange)';
+            document.getElementById('grupoConvOrigen').style.borderColor = esBsAUsd ? 'rgba(255,153,0,0.4)' : 'rgba(0,210,255,0.4)';
+        }
+
+        function invertirConversion() {
+            // Se traslada el valor calculado al campo editable para no perder el contexto
+            const destinoActual = parseFloat(document.getElementById('txtConvDestino').value);
+            convDireccion = (convDireccion === 'bs_usd') ? 'usd_bs' : 'bs_usd';
+
+            if (isFinite(destinoActual) && destinoActual > 0) {
+                document.getElementById('txtConvOrigen').value = destinoActual.toFixed(2);
+            }
+
+            actualizarEtiquetasConversion();
+            calcularConversion();
+        }
+
+        function calcularConversion() {
+            const esBsAUsd = convDireccion === 'bs_usd';
+            const montoUnitario = parseFloat(document.getElementById('txtConvOrigen').value);
+            let cantidad = parseFloat(document.getElementById('txtConvCantidad').value);
+
+            if (!isFinite(cantidad) || cantidad < 0) cantidad = 1;
+
+            const lblDestino = document.getElementById('txtConvDestino');
+            const lblSubtotal = document.getElementById('lblConvSubtotal');
+            const lblEquivalente = document.getElementById('lblConvEquivalente');
+
+            if (!isFinite(montoUnitario) || montoUnitario < 0 || !isFinite(tasaDolar) || tasaDolar <= 0) {
+                lblDestino.value = '0.00';
+                lblSubtotal.innerText = esBsAUsd ? 'Bs 0.00' : '$0.00';
+                lblEquivalente.innerText = esBsAUsd ? '$0.00' : 'Bs 0.00';
+                return;
+            }
+
+            // Conversión unitaria (sin truncar el valor interno)
+            const equivalenteUnitario = esBsAUsd ? (montoUnitario / tasaDolar) : (montoUnitario * tasaDolar);
+            lblDestino.value = equivalenteUnitario.toFixed(2);
+
+            // Multiplicación por cantidad
+            const subtotalOrigen = montoUnitario * cantidad;
+            const subtotalDestino = equivalenteUnitario * cantidad;
+
+            if (esBsAUsd) {
+                lblSubtotal.innerText = `Bs ${subtotalOrigen.toFixed(2)}`;
+                lblEquivalente.innerText = `$${subtotalDestino.toFixed(2)}`;
+            } else {
+                lblSubtotal.innerText = `$${subtotalOrigen.toFixed(2)}`;
+                lblEquivalente.innerText = `Bs ${subtotalDestino.toFixed(2)}`;
+            }
         }
 
         // ============================================================
