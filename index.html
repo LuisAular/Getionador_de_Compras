@@ -1131,6 +1131,12 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-list {
+            flex: 1;
         }
 
         .history-drawer.active {
@@ -2164,7 +2170,44 @@
             </button>
         </div>
         <div id="listaHistorial" class="history-list"></div>
+
+        <div class="faltantes-footer">
+            <button class="btn-bottom btn-share" onclick="abrirModalRespaldo()" aria-label="Abrir respaldo del historial">
+                <i data-lucide="database" style="width:16px; height:16px;"></i> RESPALDO
+            </button>
+            <button class="btn-bottom btn-clear" onclick="borrarTodoHistorial()" aria-label="Borrar todo el historial">
+                <i data-lucide="trash-2" style="width:16px; height:16px;"></i> BORRAR TODO
+            </button>
+        </div>
     </aside>
+
+    <!-- ===== MODAL DE RESPALDO DEL HISTORIAL (exportar / importar) ===== -->
+    <div class="modal-overlay" id="modalRespaldo">
+        <div class="modal-content">
+            <div class="modal-title">
+                <i data-lucide="database" style="width:16px; height:16px; color:var(--text-cyan);"></i> RESPALDO DEL HISTORIAL
+            </div>
+
+            <div class="tasa-hint" id="lblRespaldoResumen">Sin compras archivadas.</div>
+
+            <button class="modal-btn btn-accept" style="width:100%; margin-bottom:10px;" onclick="exportarHistorial()">
+                <i data-lucide="download" style="width:14px; height:14px;"></i> EXPORTAR A .TXT
+            </button>
+
+            <div class="tasa-hint">Genera un archivo con la fecha y hora en el nombre para evitar duplicados.</div>
+
+            <button class="modal-btn btn-accept" style="width:100%; margin-bottom:10px; border-color: var(--border-purple); background: rgba(195,0,255,0.1);" onclick="document.getElementById('inputArchivoRespaldo').click()">
+                <i data-lucide="upload" style="width:14px; height:14px;"></i> IMPORTAR DESDE .TXT
+            </button>
+            <input type="file" id="inputArchivoRespaldo" accept=".txt,.json,text/plain,application/json" style="display:none;" onchange="importarHistorial(event)">
+
+            <div class="tasa-status" id="statusRespaldo"></div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" style="width:100%;" onclick="cerrarModalRespaldo()">CERRAR</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // ===== MEJORA 1: DETECCIÓN DE FEATURES (Chrome Android compat) =====
@@ -2455,8 +2498,12 @@
         }
 
         // Formatea a UN solo decimal, como exige la especificación
+        // Trunca (NO redondea) a un solo decimal.
+        // Según la especificación: 849.564 -> 849.5 (redondear daría 849.6).
         function formatearTasaUnDecimal(valor) {
-            return Number(Number(valor).toFixed(1));
+            const n = Number(valor);
+            if (!isFinite(n)) return 0;
+            return Math.trunc(n * 10) / 10;
         }
 
         // Fecha local del navegador en formato YYYY-MM-DD (nunca una fecha fija)
@@ -2470,33 +2517,133 @@
 
         async function obtenerTasaAutomatica() {
             const status = document.getElementById('statusTasaAuto');
-            status.className = 'tasa-status cargando';
-            status.innerText = 'Consultando tasa BCV...';
+            const MENSAJE_ERROR = 'No fue posible obtener la tasa automática. Intenta más tarde o usa el modo Manual o Calculado.';
+            const TIMEOUT_MS = 8000; // 8s por API (16s peor caso); fetch no tiene timeout nativo
 
-            const MENSAJE_ERROR = 'No fue posible obtener la tasa automática del día. Puedes introducirla manualmente.';
+            // Descarga con límite de tiempo real usando AbortController
+            async function fetchConTimeout(url) {
+                const controlador = new AbortController();
+                const temporizador = setTimeout(() => controlador.abort(), TIMEOUT_MS);
+                try {
+                    // cache: 'no-store' evita que el Service Worker (cache-first) sirva una tasa vieja
+                    const respuesta = await fetch(url, { cache: 'no-store', signal: controlador.signal });
+                    if (!respuesta.ok) throw new Error('Respuesta HTTP no válida');
+                    return await respuesta.json();
+                } finally {
+                    clearTimeout(temporizador);
+                }
+            }
 
-            try {
-                // cache: 'no-store' evita que el Service Worker (cache-first) sirva una tasa vieja
-                const respuesta = await fetch('https://rates.dolarvzla.com/bcv/previous.json', { cache: 'no-store' });
-                if (!respuesta.ok) throw new Error('Respuesta HTTP no válida');
+            // Antigüedad máxima aceptada de una tasa publicada (días).
+            // El BCV no publica fines de semana ni feriados, y además publica con
+            // retraso: exigir "exactamente hoy" hace que la consulta falle siempre.
+            const MAX_DIAS_ANTIGUEDAD = 7;
 
-                const datos = await respuesta.json();
+            function diasDesdeFechaISO(fechaISO) {
+                const [y, m, d] = fechaISO.split('-').map(Number);
+                const fecha = new Date(y, m - 1, d);
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                return Math.round((hoy - fecha) / (1000 * 60 * 60 * 24));
+            }
 
-                // Validaciones estrictas: si algo no cuadra, NO se sobrescribe la tasa actual
+            // --- API 1 (principal): { current: { date: "YYYY-MM-DD", usd }, previous: {...} } ---
+            // "current" es la ÚLTIMA tasa publicada por el BCV, no necesariamente la de hoy.
+            async function consultarApiPrincipal() {
+                const datos = await fetchConTimeout('https://rates.dolarvzla.com/bcv/previous.json');
                 if (!datos || !datos.current) throw new Error('Falta el objeto current');
-                if (datos.current.date !== fechaHoyISO()) throw new Error('La fecha de la tasa no es la de hoy');
+
+                const fecha = String(datos.current.date || '');
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha)) throw new Error('Fecha con formato no válido');
+
+                const dias = diasDesdeFechaISO(fecha);
+                if (isNaN(dias)) throw new Error('Fecha no interpretable');
+                if (dias < 0) throw new Error('La fecha de la tasa está en el futuro');
+                if (dias > MAX_DIAS_ANTIGUEDAD) throw new Error('La tasa publicada es demasiado antigua');
 
                 const usd = Number(datos.current.usd);
                 if (!isFinite(usd) || usd <= 0) throw new Error('Valor de USD no numérico');
 
-                // Solo se rellena el input: el usuario decide y pulsa GUARDAR
-                document.getElementById('txtNuevaTasa').value = formatearTasaUnDecimal(usd);
-                status.className = 'tasa-status exito';
-                status.innerText = '✓ Tasa obtenida automáticamente';
-            } catch (error) {
-                console.warn('[Tasa automática]', error);
+                return { usd, fecha, diasAntiguedad: dias, fechaConocida: true };
+            }
+
+            // --- API 2 (respaldo): { rates: { usd, eur, ... }, updatedAt: <ms> } ---
+            // IMPORTANTE: "updatedAt" es la hora en que ESTE servicio refrescó sus datos
+            // (cambia cada pocos minutos), NO la fecha en que el BCV publicó la tasa.
+            // Por eso solo sirve para detectar que el servicio sigue vivo, no para
+            // saber a qué día corresponde la tasa.
+            async function consultarApiRespaldo() {
+                const datos = await fetchConTimeout('https://bcv.justcarlux.dev/api/v1/rates');
+                if (!datos || !datos.rates) throw new Error('Falta el objeto rates');
+
+                const usd = Number(datos.rates.usd);
+                if (!isFinite(usd) || usd <= 0) throw new Error('Valor de USD no numérico');
+
+                const marca = Number(datos.updatedAt);
+                if (!isFinite(marca) || marca <= 0) throw new Error('updatedAt no válido');
+
+                const fechaRefresco = new Date(marca);
+                if (isNaN(fechaRefresco.getTime())) throw new Error('updatedAt no convertible a fecha');
+
+                // Si el servicio lleva más de una semana sin refrescar, se considera caído
+                const diasSinRefrescar = (Date.now() - marca) / (1000 * 60 * 60 * 24);
+                if (diasSinRefrescar > MAX_DIAS_ANTIGUEDAD) throw new Error('El servicio de respaldo no se actualiza');
+
+                const yyyy = fechaRefresco.getFullYear();
+                const mm = String(fechaRefresco.getMonth() + 1).padStart(2, '0');
+                const dd = String(fechaRefresco.getDate()).padStart(2, '0');
+
+                // fechaConocida: false -> es la fecha de consulta, no la de publicación del BCV
+                return { usd, fecha: `${yyyy}-${mm}-${dd}`, diasAntiguedad: null, fechaConocida: false };
+            }
+
+            // --- Cascada: principal -> respaldo ---
+            let resultado = null;
+            let origen = '';
+
+            status.className = 'tasa-status cargando';
+            status.innerText = 'Consultando tasa BCV...';
+            try {
+                resultado = await consultarApiPrincipal();
+                origen = 'principal';
+            } catch (errorPrincipal) {
+                console.warn('[Tasa automática] API principal falló:', errorPrincipal);
+
+                status.className = 'tasa-status cargando';
+                status.innerText = 'Intentando con servidor de respaldo...';
+                try {
+                    resultado = await consultarApiRespaldo();
+                    origen = 'respaldo';
+                } catch (errorRespaldo) {
+                    console.warn('[Tasa automática] API de respaldo falló:', errorRespaldo);
+                }
+            }
+
+            // Si ambas fallan NO se sobrescribe la tasa actual
+            if (!resultado) {
                 status.className = 'tasa-status error';
                 status.innerText = MENSAJE_ERROR;
+                return;
+            }
+
+            // Solo se rellena el input: el usuario decide y pulsa GUARDAR
+            document.getElementById('txtNuevaTasa').value = formatearTasaUnDecimal(resultado.usd);
+            status.className = 'tasa-status exito';
+
+            const [ay, am, ad] = resultado.fecha.split('-');
+            const fechaLegible = `${ad}/${am}/${ay}`;
+
+            if (origen === 'principal') {
+                // Aquí la fecha SÍ es la de publicación del BCV
+                if (resultado.diasAntiguedad === 0) {
+                    status.innerText = `✓ Tasa del BCV publicada hoy (${fechaLegible})`;
+                } else {
+                    const etiqueta = resultado.diasAntiguedad === 1 ? 'ayer' : `hace ${resultado.diasAntiguedad} días`;
+                    status.innerText = `✓ Última tasa publicada por el BCV: ${fechaLegible} (${etiqueta})`;
+                }
+            } else {
+                // Aquí solo sabemos cuándo consultamos, no de qué día es la tasa
+                status.innerText = `✓ Tasa del servidor de respaldo (consultada ${fechaLegible}). Verifica que corresponda al día.`;
             }
         }
 
@@ -3506,6 +3653,236 @@ ${lineasCronograma}
 
         function toggleDiaHistorial(idElemento) {
             document.getElementById(idElemento).classList.toggle('open');
+        }
+
+        // ============================================================
+        // RESPALDO DEL HISTORIAL (exportar / importar .txt) + BORRAR TODO
+        // ============================================================
+        const RESPALDO_FORMATO = 'registro-compras-historial';
+        const RESPALDO_VERSION = 1;
+        const RESPALDO_MAX_BYTES = 5 * 1024 * 1024; // 5 MB: evita archivos absurdos
+
+        function abrirModalRespaldo() {
+            // Cierra el desplegable de historial, como se pidió
+            const drawer = document.getElementById('historyDrawer');
+            if (drawer.classList.contains('active')) toggleHistorial();
+
+            const resumen = document.getElementById('lblRespaldoResumen');
+            resumen.innerText = historial.length === 0
+                ? 'Sin compras archivadas.'
+                : `${historial.length} compra(s) archivada(s) listas para respaldar.`;
+
+            document.getElementById('statusRespaldo').innerText = '';
+            document.getElementById('statusRespaldo').className = 'tasa-status';
+            document.getElementById('modalRespaldo').classList.add('active');
+        }
+
+        function cerrarModalRespaldo() {
+            document.getElementById('modalRespaldo').classList.remove('active');
+        }
+
+        function mostrarStatusRespaldo(mensaje, tipo) {
+            const el = document.getElementById('statusRespaldo');
+            el.className = 'tasa-status ' + (tipo || '');
+            el.innerText = mensaje;
+        }
+
+        // ---------- SANITIZACIÓN ----------
+        // Texto: fuerza String, quita caracteres de control y etiquetas HTML, recorta longitud.
+        function limpiarTexto(valor, maxLongitud) {
+            if (valor === null || valor === undefined) return '';
+            return String(valor)
+                .replace(/[<>]/g, '')                  // evita inyección de HTML al renderizar
+                .replace(/[\u0000-\u001F\u007F]/g, '') // caracteres de control
+                .trim()
+                .slice(0, maxLongitud || 80);
+        }
+
+        // Número: fuerza Number finito y no negativo, con valor por defecto
+        function limpiarNumero(valor, porDefecto) {
+            const n = Number(valor);
+            return (isFinite(n) && n >= 0) ? n : (porDefecto || 0);
+        }
+
+        // Valida y normaliza UNA compra. Devuelve null si es irrecuperable
+        // (así un registro corrupto no invalida todo el archivo).
+        function sanearCompraImportada(compra) {
+            if (!compra || typeof compra !== 'object') return null;
+            if (!Array.isArray(compra.productos)) return null;
+
+            const productos = compra.productos.map((p) => {
+                if (!p || typeof p !== 'object') return null;
+                const nombre = limpiarTexto(p.nombre, 60);
+                if (!nombre) return null;
+                const moneda = (p.moneda === '$') ? '$' : 'Bs';
+                const limpio = {
+                    id: limpiarNumero(p.id, Date.now()),
+                    nombre,
+                    precioUnitario: limpiarNumero(p.precioUnitario, 0),
+                    cantidad: Math.max(1, Math.round(limpiarNumero(p.cantidad, 1))),
+                    moneda,
+                    icono: limpiarTexto(p.icono, 30) || 'shopping-bag'
+                };
+                // Campos opcionales del modo "por peso"
+                if (p.pesoGramos !== undefined) limpio.pesoGramos = limpiarNumero(p.pesoGramos, 0);
+                if (p.precioPorKg !== undefined) limpio.precioPorKg = limpiarNumero(p.precioPorKg, 0);
+                return limpio;
+            }).filter(Boolean);
+
+            if (productos.length === 0) return null;
+
+            // La fecha debe cumplir YYYY-MM-DD; si no, se descarta el registro
+            const fechaKey = limpiarTexto(compra.fechaKey, 10);
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaKey)) return null;
+
+            const [yyyy, mm, dd] = fechaKey.split('-');
+
+            return {
+                id: limpiarNumero(compra.id, Date.now()),
+                fechaKey,
+                fechaDisplay: limpiarTexto(compra.fechaDisplay, 12) || `${dd}/${mm}/${yyyy}`,
+                horaDisplay: limpiarTexto(compra.horaDisplay, 12) || '--:--',
+                local: limpiarTexto(compra.local, 60) || 'Local no especificado',
+                tasa: limpiarNumero(compra.tasa, 0),
+                productos,
+                totalUsd: limpiarNumero(compra.totalUsd, 0),
+                totalBs: limpiarNumero(compra.totalBs, 0),
+                pagado: limpiarNumero(compra.pagado, 0),
+                pagadoMoneda: (compra.pagadoMoneda === '$') ? '$' : 'Bs'
+            };
+        }
+
+        // ---------- EXPORTAR ----------
+        function exportarHistorial() {
+            if (historial.length === 0) {
+                mostrarStatusRespaldo('No hay compras archivadas para exportar.', 'error');
+                return;
+            }
+
+            // Se saneen también al exportar, para garantizar que el archivo
+            // generado siempre tenga la estructura que el importador espera.
+            const registrosLimpios = historial.map(sanearCompraImportada).filter(Boolean);
+            if (registrosLimpios.length === 0) {
+                mostrarStatusRespaldo('El historial no contiene registros válidos para exportar.', 'error');
+                return;
+            }
+
+            const ahora = new Date();
+            const yyyy = ahora.getFullYear();
+            const mm = String(ahora.getMonth() + 1).padStart(2, '0');
+            const dd = String(ahora.getDate()).padStart(2, '0');
+            const hh = String(ahora.getHours()).padStart(2, '0');
+            const mi = String(ahora.getMinutes()).padStart(2, '0');
+            const ss = String(ahora.getSeconds()).padStart(2, '0');
+
+            const contenido = {
+                formato: RESPALDO_FORMATO,
+                version: RESPALDO_VERSION,
+                exportadoEn: ahora.toISOString(),
+                totalCompras: registrosLimpios.length,
+                historial: registrosLimpios
+            };
+
+            // El archivo lleva extensión .txt (como se pidió) y su contenido es JSON,
+            // lo que permite reimportarlo de forma segura y verificable.
+            const blob = new Blob([JSON.stringify(contenido, null, 2)], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const enlace = document.createElement('a');
+            enlace.href = url;
+            enlace.download = `historial-compras_${yyyy}-${mm}-${dd}_${hh}-${mi}-${ss}.txt`;
+            document.body.appendChild(enlace);
+            enlace.click();
+            document.body.removeChild(enlace);
+            URL.revokeObjectURL(url);
+
+            mostrarStatusRespaldo(`✓ Exportadas ${registrosLimpios.length} compra(s).`, 'exito');
+        }
+
+        // ---------- IMPORTAR ----------
+        function importarHistorial(evento) {
+            const archivo = evento.target.files && evento.target.files[0];
+            evento.target.value = ''; // permite reimportar el mismo archivo después
+            if (!archivo) return;
+
+            if (archivo.size > RESPALDO_MAX_BYTES) {
+                mostrarStatusRespaldo('El archivo es demasiado grande (máx. 5 MB).', 'error');
+                return;
+            }
+
+            const lector = new FileReader();
+
+            lector.onerror = () => mostrarStatusRespaldo('No se pudo leer el archivo.', 'error');
+
+            lector.onload = function (e) {
+                let datos;
+                try {
+                    datos = JSON.parse(e.target.result);
+                } catch (err) {
+                    mostrarStatusRespaldo('El archivo no tiene un formato válido de respaldo.', 'error');
+                    return;
+                }
+
+                // Verificación de estructura antes de tocar nada
+                if (!datos || typeof datos !== 'object' || datos.formato !== RESPALDO_FORMATO || !Array.isArray(datos.historial)) {
+                    mostrarStatusRespaldo('El archivo no corresponde a un respaldo de este historial.', 'error');
+                    return;
+                }
+
+                const registrosLimpios = datos.historial.map(sanearCompraImportada).filter(Boolean);
+                const descartados = datos.historial.length - registrosLimpios.length;
+
+                if (registrosLimpios.length === 0) {
+                    mostrarStatusRespaldo('El archivo no contiene compras válidas.', 'error');
+                    return;
+                }
+
+                // El usuario decide: fusionar (seguro) o reemplazar (destructivo)
+                const fusionar = confirm(
+                    `Se encontraron ${registrosLimpios.length} compra(s) válida(s).\n\n` +
+                    `Aceptar = FUSIONAR con tu historial actual (${historial.length}).\n` +
+                    `Cancelar = REEMPLAZAR todo tu historial actual.`
+                );
+
+                if (fusionar) {
+                    const idsExistentes = new Set(historial.map((c) => c.id));
+                    const nuevos = registrosLimpios.filter((c) => !idsExistentes.has(c.id));
+                    historial = historial.concat(nuevos);
+                } else {
+                    if (!confirm('Esto BORRARÁ tu historial actual y lo sustituirá por el del archivo. ¿Continuar?')) {
+                        mostrarStatusRespaldo('Importación cancelada.', '');
+                        return;
+                    }
+                    historial = registrosLimpios;
+                }
+
+                // Se reordena por fecha (más reciente primero), igual que el resto de la app
+                historial.sort((a, b) => (a.fechaKey < b.fechaKey ? 1 : a.fechaKey > b.fechaKey ? -1 : 0));
+
+                guardarEstado();
+                renderizarHistorial();
+
+                mostrarStatusRespaldo(
+                    `✓ Importación completada. ${historial.length} compra(s) en total.` +
+                    (descartados > 0 ? ` Se omitieron ${descartados} registro(s) dañado(s).` : ''),
+                    'exito'
+                );
+            };
+
+            lector.readAsText(archivo);
+        }
+
+        // ---------- BORRAR TODO ----------
+        function borrarTodoHistorial() {
+            if (historial.length === 0) {
+                alert('No hay compras archivadas para borrar.');
+                return;
+            }
+            if (!confirm(`¿Borrar las ${historial.length} compra(s) del historial? Esta acción no se puede deshacer.`)) return;
+            if (!confirm('Confirmación final: se perderá todo el historial. ¿Continuar?\n\nSugerencia: exporta un respaldo antes.')) return;
+
+            historial = [];
+            guardarEstado();
+            renderizarHistorial();
         }
 
         // ===== MODAL: CALCULAR POR PESO =====
