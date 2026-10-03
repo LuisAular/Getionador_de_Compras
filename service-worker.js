@@ -7,7 +7,7 @@
  * a medida que se usa, incluyendo las fuentes que Google sirve dinámicamente).
  */
 
-const CACHE_NAME = 'registro-compras-cache-v1';
+const CACHE_NAME = 'registro-compras-cache-v2';
 
 // Recursos que se guardan de una vez al instalar el Service Worker.
 const ARCHIVOS_CORE = [
@@ -56,9 +56,10 @@ self.addEventListener('fetch', (event) => {
     // Solo interceptamos peticiones GET (las de escritura no se cachean).
     if (event.request.method !== 'GET') return;
 
-    // La API de tasas NUNCA se cachea: con cache-first quedaría congelada
+    // Las APIs de tasas NUNCA se cachean: con cache-first quedarían congeladas
     // y la app mostraría siempre la tasa del primer día consultado.
-    if (event.request.url.includes('rates.dolarvzla.com')) return;
+    if (event.request.url.includes('rates.dolarvzla.com') ||
+        event.request.url.includes('bcv.justcarlux.dev')) return;
 
     event.respondWith(
         caches.match(event.request).then((respuestaEnCache) => {

@@ -8,6 +8,15 @@
     <!-- ===== PWA: manifest, color de tema e iconos ===== -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#00d2ff">
+    <script>
+        /* Aplica el tema guardado antes de pintar: evita el "flash" de modo noche al abrir en modo día */
+        (function () {
+            try {
+                var t = localStorage.getItem('registroComprasTema');
+                if (t === 'day' || t === 'night') document.documentElement.setAttribute('data-theme', t);
+            } catch (e) {}
+        })();
+    </script>
     <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -30,6 +39,95 @@
             --text-gray: #7d85b2;
             --danger: #ff1a40;
             --success: #00ffaa;
+
+            /* ===== Variables semánticas (tema NOCHE = valores originales) ===== */
+            --text-main: #ffffff;
+            --text-on-accent: #ffffff;
+            --text-soft: #d7daf0;
+            --text-placeholder: #3e456d;
+            --text-muted: #4a527a;
+            --text-banner: #ffd9a3;
+            --text-purple-soft: #ea70ff;
+            --bg-surface: #060a1f;
+            --bg-surface-2: #0d1130;
+            --bg-deep: #050714;
+            --bg-item: #090e2b;
+            --bg-totals: #060a24;
+            --bg-balance: #08071a;
+            --bg-readonly: #04060f;
+            --badge-bg: #0d1438;
+            --badge-text: #5580ff;
+            --border-item: #151d4a;
+            --border-app: #0f1642;
+            --accent-gold: #ffcc00;
+            --title-gradient: linear-gradient(90deg, #9d4edd, #00f0ff);
+            --title-fallback: #00f0ff;
+            --btn-add-bg: linear-gradient(90deg, #1f0647 0%, #3d005e 50%, #1f0647 100%);
+            --overlay-solid: rgba(2, 2, 8, 0.97);
+            --overlay-soft: rgba(2, 2, 8, 0.9);
+            --overlay-drawer: rgba(2, 2, 8, 0.75);
+            --shadow-app: 0 0 30px rgba(0, 210, 255, 0.05);
+            --ts-thumb: linear-gradient(135deg, #c300ff, #00d2ff);
+            --ts-thumb-glow: rgba(0, 210, 255, 0.55);
+            --ts-glow: rgba(0, 210, 255, 0.25);
+            color-scheme: dark;
+        }
+
+        /* ============================================================
+           TEMA DÍA — "Cyberpunk diurno"
+           Fondo lavanda-hielo, tarjetas blancas con borde tintado y los
+           neones convertidos en tonos profundos (todos con contraste AA).
+           Se activa con <html data-theme="day">. Noche = valores de :root.
+           ============================================================ */
+        html[data-theme="day"] {
+            --bg-main: #e3e8fb;
+            --bg-card: #f4f6ff;
+            --bg-input: #edf0fd;
+            --border-cyan: #00a8d8;
+            --border-purple: #a31fd8;
+            --text-cyan: #006d8f;
+            --text-purple: #9200c2;
+            --text-orange: #a94c00;
+            --text-gray: #586390;
+            --danger: #d0103a;
+            --success: #007a52;
+
+            --text-main: #0c1233;
+            --text-on-accent: #ffffff;
+            --text-soft: #2a3260;
+            --text-placeholder: #8790bd;
+            --text-muted: #8a93bd;
+            --text-banner: #7a4300;
+            --text-purple-soft: #a000c8;
+            --bg-surface: #ffffff;
+            --bg-surface-2: #e9edfd;
+            --bg-deep: #ffffff;
+            --bg-item: #ffffff;
+            --bg-totals: #eaf6ff;
+            --bg-balance: #f5eeff;
+            --bg-readonly: #e1e6f9;
+            --badge-bg: #e1e8ff;
+            --badge-text: #2c52d0;
+            --border-item: #d3dbf6;
+            --border-app: #cbd5f4;
+            --accent-gold: #a87b00;
+            --title-gradient: linear-gradient(90deg, #7b2cbf, #0091c2);
+            --title-fallback: #0091c2;
+            --btn-add-bg: linear-gradient(90deg, #7a1fd1 0%, #b300f0 50%, #7a1fd1 100%);
+            --overlay-solid: rgba(228, 233, 251, 0.97);
+            --overlay-soft: rgba(24, 32, 84, 0.5);
+            --overlay-drawer: rgba(24, 32, 84, 0.42);
+            --shadow-app: 0 18px 60px rgba(70, 90, 200, 0.22);
+            --ts-thumb: linear-gradient(135deg, #ffb300, #ff7a00);
+            --ts-thumb-glow: rgba(255, 140, 0, 0.55);
+            --ts-glow: rgba(0, 168, 216, 0.25);
+            color-scheme: light;
+        }
+
+        html[data-theme="day"] body {
+            background-image:
+                radial-gradient(circle at 12% 0%, rgba(0, 210, 255, 0.22), transparent 42%),
+                radial-gradient(circle at 92% 100%, rgba(195, 0, 255, 0.16), transparent 45%);
         }
 
         * {
@@ -43,7 +141,7 @@
 
         body {
             background-color: var(--bg-main);
-            color: #ffffff;
+            color: var(--text-main);
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -55,10 +153,10 @@
             width: 100%;
             max-width: 412px;
             background-color: var(--bg-card);
-            border: 2px solid #0f1642;
+            border: 2px solid var(--border-app);
             border-radius: 28px;
             padding: 20px;
-            box-shadow: 0 0 30px rgba(0, 210, 255, 0.05);
+            box-shadow: var(--shadow-app);
             position: relative;
             overflow: hidden;
         }
@@ -74,6 +172,86 @@
             background: linear-gradient(90deg, var(--border-purple), var(--border-cyan));
             border-bottom-left-radius: 4px;
             border-bottom-right-radius: 4px;
+        }
+
+
+        /* ===== INTERRUPTOR NOCHE / DÍA =====
+           Vive en la barra de neón decorativa del borde superior: no ocupa
+           espacio del header ni añade elementos nuevos a la composición. */
+        .theme-switch {
+            position: absolute;
+            top: 0;
+            left: calc(50% - 34px);
+            width: 68px;
+            height: 26px;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+            z-index: 6;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Área táctil ampliada (~44px) sin cambiar el tamaño visual */
+        .theme-switch::after {
+            content: '';
+            position: absolute;
+            inset: 0 -12px -14px -12px;
+        }
+        .ts-track {
+            position: absolute;
+            inset: 0;
+            border-radius: 0 0 16px 16px;
+            background: var(--bg-surface-2);
+            border: 1.5px solid var(--border-cyan);
+            border-top: 0;
+            box-shadow: 0 5px 14px var(--ts-glow);
+        }
+        .ts-icon {
+            position: absolute;
+            top: 50%;
+            width: 13px;
+            height: 13px;
+            margin-top: -6px;
+            color: var(--text-gray);
+            opacity: 0.75;
+        }
+        .ts-icon.moon { left: 9px; }
+        .ts-icon.sun  { right: 9px; }
+        .ts-thumb {
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--ts-thumb);
+            box-shadow: 0 0 10px var(--ts-thumb-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            transition: left 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .ts-thumb svg { width: 13px; height: 13px; }
+        .ts-thumb .i-sun { display: none; }
+        html[data-theme="day"] .ts-thumb { left: 43px; }
+        html[data-theme="day"] .ts-thumb .i-sun { display: block; }
+        html[data-theme="day"] .ts-thumb .i-moon { display: none; }
+        .theme-switch:focus-visible .ts-track { outline: 2px solid var(--text-purple); outline-offset: 2px; }
+
+        /* Transición suave SOLO durante el cambio de tema (no afecta al uso normal) */
+        html.theme-transition *,
+        html.theme-transition *::before,
+        html.theme-transition *::after {
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease,
+                        box-shadow 0.4s ease, fill 0.4s ease, stroke 0.4s ease !important;
+        }
+        html.theme-transition .ts-thumb {
+            transition: left 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html.theme-transition *, html.theme-transition *::before, html.theme-transition *::after,
+            .ts-thumb { transition: none !important; }
         }
 
         /* HEADER */
@@ -95,7 +273,7 @@
             width: 54px;
             height: 54px;
             border-radius: 50%;
-            background: #050714;
+            background: var(--bg-deep);
             border: 2px solid var(--border-cyan);
             box-shadow: 0 0 12px rgba(0, 210, 255, 0.4);
             display: flex;
@@ -108,7 +286,7 @@
             font-family: 'Orbitron', sans-serif;
             font-size: 13px;
             letter-spacing: 2px;
-            color: #ffffff;
+            color: var(--text-main);
             font-weight: 700;
         }
 
@@ -117,8 +295,8 @@
             font-size: 26px;
             font-weight: 900;
             /* MEJORA 1.2: color sólido de respaldo si el navegador no soporta el recorte de texto */
-            color: #00f0ff;
-            background: linear-gradient(90deg, #9d4edd, #00f0ff);
+            color: var(--title-fallback);
+            background: var(--title-gradient);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -153,7 +331,7 @@
 
         .compat-banner-text {
             font-size: 11px;
-            color: #ffd9a3;
+            color: var(--text-banner);
             line-height: 1.4;
             margin-bottom: 8px;
         }
@@ -195,7 +373,7 @@
             flex-basis: 100%;
             background: linear-gradient(90deg, rgba(0,210,255,0.15), rgba(195,0,255,0.15));
             border: 1.5px solid var(--border-cyan);
-            color: #ffffff;
+            color: var(--text-main);
             box-shadow: 0 0 10px rgba(0, 210, 255, 0.25);
             font-size: 10px;
             padding: 9px 6px;
@@ -237,7 +415,7 @@
         .settings-btn {
             width: 40px;
             height: 40px;
-            background: #0d1130;
+            background: var(--bg-surface-2);
             border: 1.5px solid var(--border-purple);
             border-radius: 10px;
             display: flex;
@@ -250,7 +428,7 @@
 
         /* MEJORA 1: clases de fallback aplicadas por JS según soporte real del navegador */
         body.no-backdrop .modal-overlay {
-            background: rgba(2, 2, 8, 0.97) !important;
+            background: var(--overlay-solid) !important;
             -webkit-backdrop-filter: none !important;
             backdrop-filter: none !important;
         }
@@ -262,7 +440,7 @@
 
         /* TASA DOLAR */
         .dollar-card {
-            background: #080c25;
+            background: var(--bg-input);
             border: 1px solid rgba(0, 210, 255, 0.2);
             border-radius: 14px;
             padding: 12px 16px;
@@ -318,7 +496,7 @@
         .update-btn {
             background: transparent;
             border: 1px solid rgba(0, 210, 255, 0.4);
-            color: #ffffff;
+            color: var(--text-main);
             padding: 5px 12px;
             border-radius: 20px;
             font-size: 10px;
@@ -344,7 +522,7 @@
             padding: 16px;
             margin-bottom: 25px;
             position: relative;
-            background: #060a1f;
+            background: var(--bg-surface);
         }
 
         .section-title {
@@ -354,7 +532,7 @@
             font-family: 'Orbitron', sans-serif;
             font-size: 12px;
             letter-spacing: 1px;
-            color: #ffffff;
+            color: var(--text-main);
             margin-bottom: 16px;
         }
 
@@ -401,7 +579,7 @@
         .input-group input {
             background: transparent;
             border: none;
-            color: #ffffff;
+            color: var(--text-main);
             width: 100%;
             height: 100%;
             font-size: 14px;
@@ -409,7 +587,7 @@
         }
 
         .input-group input::placeholder {
-            color: #3e456d;
+            color: var(--text-placeholder);
         }
 
         .label-small {
@@ -447,7 +625,7 @@
             flex: 1;
             background: transparent;
             border: none;
-            color: #4a527a;
+            color: var(--text-muted);
             font-weight: 700;
             font-size: 13px;
             border-radius: 6px;
@@ -461,13 +639,13 @@
 
         .toggle-btn.active-bs {
             background: linear-gradient(90deg, #aa1400 0%, #d46a00 100%);
-            color: #ffffff;
+            color: var(--text-on-accent);
             box-shadow: 0 0 10px rgba(212, 106, 0, 0.4);
         }
 
         .toggle-btn.active-usd {
             background: linear-gradient(90deg, #0055ff 0%, #0099ff 100%);
-            color: #ffffff;
+            color: var(--text-on-accent);
             box-shadow: 0 0 10px rgba(0, 153, 255, 0.4);
         }
 
@@ -477,7 +655,7 @@
             border-radius: 8px;
             width: 100%;
             height: 40px;
-            color: #ffffff;
+            color: var(--text-main);
             padding: 0 12px;
             font-size: 14px;
             outline: none;
@@ -491,10 +669,10 @@
         .btn-add {
             width: 100%;
             height: 46px;
-            background: linear-gradient(90deg, #1f0647 0%, #3d005e 50%, #1f0647 100%);
+            background: var(--btn-add-bg);
             border: 1.5px solid var(--border-purple);
             border-radius: 12px;
-            color: #ffffff;
+            color: var(--text-on-accent);
             font-family: 'Orbitron', sans-serif;
             font-size: 13px;
             font-weight: 700;
@@ -529,9 +707,9 @@
         }
 
         .badge-count {
-            background: #0d1438;
+            background: var(--badge-bg);
             border: 1px solid rgba(0, 210, 255, 0.3);
-            color: #5580ff;
+            color: var(--badge-text);
             font-size: 9px;
             font-weight: 700;
             padding: 3px 8px;
@@ -558,8 +736,8 @@
 
         /* Eliminación de transparencias para evitar líneas horizontales (bug de renderizado móvil) */
         .cart-item {
-            background: #090e2b;
-            border: 1px solid #151d4a;
+            background: var(--bg-item);
+            border: 1px solid var(--border-item);
             border-radius: 12px;
             padding: 10px 12px;
             display: flex;
@@ -579,7 +757,7 @@
             width: 42px;
             height: 42px;
             border-radius: 8px;
-            background: #050714;
+            background: var(--bg-deep);
             border: 1px solid var(--border-purple);
             display: flex;
             align-items: center;
@@ -602,10 +780,21 @@
             stroke-width: 2;
         }
 
+        /* Corrección: los íconos de faltantes no tenían trazo y se veían como manchas negras */
+        .faltante-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
         .item-details h3 {
             font-size: 13px;
             font-weight: 600;
-            color: #ffffff;
+            color: var(--text-main);
             margin-bottom: 2px;
         }
 
@@ -629,7 +818,7 @@
         .item-currency-badge.purple {
             background: rgba(195, 0, 255, 0.15);
             border: 1px solid var(--border-purple);
-            color: #ea70ff;
+            color: var(--text-purple-soft);
         }
 
         .item-currency-badge.orange {
@@ -672,7 +861,7 @@
             border: 1px solid rgba(0, 210, 255, 0.4);
             border-radius: 14px;
             padding: 12px 16px;
-            background: #060a24;
+            background: var(--bg-totals);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -742,7 +931,7 @@
             border-radius: 16px;
             padding: 16px;
             margin-bottom: 25px;
-            background: #08071a;
+            background: var(--bg-balance);
         }
 
         /* ACCIONES INFERIORES */
@@ -770,7 +959,7 @@
 
         .btn-clear {
             border: 1px solid var(--danger);
-            color: #ffffff;
+            color: var(--text-main);
             background: linear-gradient(180deg, rgba(255,26,64,0.05) 0%, rgba(0,0,0,0) 100%);
         }
 
@@ -778,7 +967,7 @@
 
         .btn-share {
             border: 1px solid var(--success);
-            color: #ffffff;
+            color: var(--text-main);
             background: linear-gradient(180deg, rgba(0,255,170,0.05) 0%, rgba(0,0,0,0) 100%);
         }
 
@@ -812,7 +1001,7 @@
             border-radius: 12px;
             border: 1.5px solid var(--border-cyan);
             background: linear-gradient(90deg, rgba(0,210,255,0.08) 0%, rgba(195,0,255,0.08) 100%);
-            color: #ffffff;
+            color: var(--text-main);
             font-family: 'Orbitron', sans-serif;
             font-size: 12px;
             font-weight: 700;
@@ -829,7 +1018,7 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             /* MEJORA 1.1: fallback sólido por defecto (Chrome Android no siempre pinta backdrop-filter) */
-            background: rgba(2, 2, 8, 0.97);
+            background: var(--overlay-solid);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -842,7 +1031,7 @@
         /* Solo si el navegador soporta backdrop-filter de verdad, se usa el blur translúcido */
         @supports ((backdrop-filter: blur(5px)) or (-webkit-backdrop-filter: blur(5px))) {
             .modal-overlay {
-                background: rgba(2, 2, 8, 0.9);
+                background: var(--overlay-soft);
                 -webkit-backdrop-filter: blur(5px);
                 backdrop-filter: blur(5px);
             }
@@ -924,7 +1113,7 @@
         }
 
         .conv-readonly {
-            background: #04060f;
+            background: var(--bg-readonly);
             opacity: 0.92;
         }
         .conv-readonly input {
@@ -942,7 +1131,7 @@
             width: 38px;
             height: 38px;
             border-radius: 50%;
-            background: #0d1130;
+            background: var(--bg-surface-2);
             border: 1.5px solid var(--border-purple);
             color: var(--text-purple);
             display: flex;
@@ -972,7 +1161,7 @@
             color: var(--text-gray);
         }
         .conv-resultado-row strong {
-            color: #ffffff;
+            color: var(--text-main);
             font-size: 14px;
             white-space: nowrap;
         }
@@ -1009,7 +1198,7 @@
         .cashea-breakdown-row:last-child { border-bottom: none; }
 
         .cashea-breakdown-row strong {
-            color: #ffffff;
+            color: var(--text-main);
             font-size: 13px;
         }
         .cashea-breakdown-row .valor-usd { color: var(--text-cyan); }
@@ -1034,7 +1223,7 @@
             border-bottom: 1px solid rgba(125, 133, 178, 0.12);
         }
         .cashea-cuota-row:last-child { border-bottom: none; }
-        .cashea-cuota-row .etiqueta { color: #ffffff; font-weight: 600; }
+        .cashea-cuota-row .etiqueta { color: var(--text-main); font-weight: 600; }
         .cashea-cuota-row .fecha { color: var(--text-gray); font-size: 10px; display:block; }
         .cashea-cuota-row .monto { color: var(--text-orange); font-weight: 700; white-space: nowrap; }
 
@@ -1043,7 +1232,7 @@
             font-size: 14px;
             letter-spacing: 1px;
             margin-bottom: 15px;
-            color: #ffffff;
+            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -1073,7 +1262,7 @@
 
         .btn-accept {
             border: 1px solid var(--border-cyan);
-            color: #ffffff;
+            color: var(--text-main);
             background: rgba(0, 210, 255, 0.1);
         }
 
@@ -1104,7 +1293,7 @@
         .history-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(2, 2, 8, 0.75);
+            background: var(--overlay-drawer);
             z-index: 150;
             opacity: 0;
             pointer-events: none;
@@ -1155,7 +1344,7 @@
         .history-close-btn {
             width: 32px;
             height: 32px;
-            background: #0d1130;
+            background: var(--bg-surface-2);
             border: 1px solid var(--border-purple);
             border-radius: 8px;
             color: var(--text-purple);
@@ -1177,7 +1366,7 @@
             border-radius: 12px;
             margin-bottom: 12px;
             overflow: hidden;
-            background: #060a1f;
+            background: var(--bg-surface);
         }
 
         .history-day-header {
@@ -1192,7 +1381,7 @@
             font-family: 'Orbitron', sans-serif;
             font-size: 12px;
             letter-spacing: 0.5px;
-            color: #ffffff;
+            color: var(--text-main);
         }
 
         .history-day-sub {
@@ -1248,7 +1437,7 @@
             gap: 5px;
             font-size: 12px;
             font-weight: 700;
-            color: #ffffff;
+            color: var(--text-main);
             margin-bottom: 8px;
         }
 
@@ -1261,7 +1450,7 @@
             justify-content: space-between;
             font-size: 11.5px;
             padding: 3px 0;
-            color: #d7daf0;
+            color: var(--text-soft);
         }
 
         .history-item-row span:last-child {
@@ -1288,7 +1477,7 @@
         .faltantes-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(2, 2, 8, 0.75);
+            background: var(--overlay-drawer);
             z-index: 150;
             opacity: 0;
             pointer-events: none;
@@ -1351,7 +1540,7 @@
 
         .faltantes-form {
             display: none;
-            background: #060a1f;
+            background: var(--bg-surface);
             border: 1px solid rgba(255, 153, 0, 0.2);
             border-radius: 12px;
             padding: 14px;
@@ -1392,7 +1581,7 @@
         }
 
         .faltante-card {
-            background: #060a1f;
+            background: var(--bg-surface);
             border: 1px solid rgba(255, 153, 0, 0.25);
             border-radius: 12px;
             padding: 12px 14px;
@@ -1411,7 +1600,7 @@
             width: 38px;
             height: 38px;
             border-radius: 8px;
-            background: #050714;
+            background: var(--bg-deep);
             border: 1px solid var(--text-orange);
             display: flex;
             align-items: center;
@@ -1426,7 +1615,7 @@
         }
         .faltante-info h4 {
             font-size: 13px;
-            color: #ffffff;
+            color: var(--text-main);
             font-weight: 600;
             margin-bottom: 3px;
             white-space: nowrap;
@@ -1486,7 +1675,7 @@
             padding: 14px;
             font-family: 'Plus Jakarta Sans', monospace;
             font-size: 12.5px;
-            color: #d7daf0;
+            color: var(--text-soft);
             line-height: 1.9;
             margin-bottom: 6px;
             white-space: pre-line;
@@ -1524,7 +1713,7 @@
 
         .faltante-rapido-nombre {
             font-size: 13.5px;
-            color: #ffffff;
+            color: var(--text-main);
             cursor: pointer;
             flex: 1;
         }
@@ -1538,6 +1727,17 @@
 <body>
 
     <div class="app-container" id="captureArea">
+        <!-- Interruptor noche/día integrado en la barra de neón superior -->
+        <button class="theme-switch" id="themeSwitch" type="button" role="switch" aria-checked="false"
+                aria-label="Modo día" title="Cambiar a modo día" onclick="alternarTema()">
+            <span class="ts-track"></span>
+            <svg class="ts-icon moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+            <svg class="ts-icon sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <span class="ts-thumb">
+                <svg class="i-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                <svg class="i-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            </span>
+        </button>
         
         <header class="header">
             <div class="header-left">
@@ -2109,7 +2309,7 @@
     <div class="modal-overlay" id="modalCashea">
         <div class="modal-content modal-content-cashea">
             <div class="modal-title">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; color:#ffcc00;"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; color:var(--accent-gold);"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>
                 CALCULADORA CASHEA
             </div>
 
@@ -2323,12 +2523,46 @@
             renderizarLista();
             renderizarListaFaltantes();
             calcularTodo();
+            aplicarTema(temaActual(), false); // sincroniza switch/aria/meta con el tema ya aplicado
             inicializarBannerCompat();
             refinarDeteccionVersionChrome();
             inicializarIndicadorConexion();
             registrarServiceWorker();
             lucide.createIcons(); // Solo para los del header inmóviles
         };
+
+        // ===== TEMA NOCHE / DÍA =====
+        const TEMA_KEY = 'registroComprasTema';
+        const TEMA_COLOR_BARRA = { night: '#00d2ff', day: '#e3e8fb' }; // barra de estado de la PWA
+
+        function temaActual() {
+            return document.documentElement.getAttribute('data-theme') === 'day' ? 'day' : 'night';
+        }
+
+        function aplicarTema(tema, animar) {
+            const html = document.documentElement;
+            if (animar) {
+                html.classList.add('theme-transition');
+                setTimeout(() => html.classList.remove('theme-transition'), 450);
+            }
+            html.setAttribute('data-theme', tema);
+
+            const sw = document.getElementById('themeSwitch');
+            if (sw) {
+                const esDia = tema === 'day';
+                sw.setAttribute('aria-checked', String(esDia));
+                sw.setAttribute('aria-label', esDia ? 'Modo día activado' : 'Modo noche activado');
+                sw.title = esDia ? 'Cambiar a modo noche' : 'Cambiar a modo día';
+            }
+            const meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', TEMA_COLOR_BARRA[tema]);
+        }
+
+        function alternarTema() {
+            const nuevo = temaActual() === 'day' ? 'night' : 'day';
+            aplicarTema(nuevo, true);
+            try { localStorage.setItem(TEMA_KEY, nuevo); } catch (e) { /* modo privado: no se persiste */ }
+        }
 
         // ===== PWA: registro del Service Worker =====
         function registrarServiceWorker() {
