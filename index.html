@@ -1543,11 +1543,74 @@
             font-size: 12px;
             font-weight: 700;
             color: var(--text-main);
-            margin-bottom: 8px;
+            min-width: 0;
         }
 
         .history-compra-store i, .history-compra-store svg {
             color: var(--text-orange);
+            flex-shrink: 0;
+        }
+
+        .history-compra-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .history-compra-local {
+            overflow-wrap: anywhere;
+        }
+
+        .history-compra-actions {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+
+        .history-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: 1px solid var(--border-item);
+            border-radius: 8px;
+            background: var(--bg-surface-2);
+            cursor: pointer;
+            transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .history-action-btn svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .history-action-btn:hover {
+            background: var(--bg-item);
+            transform: translateY(-1px);
+        }
+
+        .history-action-btn:focus-visible {
+            outline: 2px solid var(--border-cyan);
+            outline-offset: 2px;
+        }
+
+        .history-action-delete { color: var(--danger); }
+        .history-action-edit { color: var(--text-purple); }
+        .history-action-share { color: var(--success); }
+
+        .history-action-delete:hover { border-color: var(--danger); }
+        .history-action-edit:hover { border-color: var(--text-purple); }
+        .history-action-share:hover { border-color: var(--success); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .history-action-btn { transition: none; }
+            .history-action-btn:hover { transform: none; }
         }
 
         .history-item-row {
@@ -4121,10 +4184,27 @@ ${lineasCronograma}
                         const totalItem = p.precioUnitario * p.cantidad;
                         itemsHtml += `<div class="history-item-row"><span>${p.nombre}</span><span>${p.moneda}${totalItem.toFixed(2)}</span></div>`;
                     });
+                    const nombreLocal = String(compra.local || 'Local no especificado').replace(/[&<>"']/g, caracter => ({
+                        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+                    })[caracter]);
                     bloquesHtml += `
                         <div class="history-compra-block">
-                            <div class="history-compra-store">
-                                <i data-lucide="store" style="width:12px; height:12px;"></i> ${compra.local || 'Local no especificado'}
+                            <div class="history-compra-heading">
+                                <div class="history-compra-store">
+                                    <i data-lucide="store" style="width:12px; height:12px;"></i>
+                                    <span class="history-compra-local">${nombreLocal}</span>
+                                </div>
+                                <div class="history-compra-actions">
+                                    <button class="history-action-btn history-action-delete" type="button" onclick="eliminarCompraHistorial(${Number(compra.id)})" title="Eliminar registro" aria-label="Eliminar registro de ${nombreLocal}">
+                                        <i data-lucide="trash-2"></i>
+                                    </button>
+                                    <button class="history-action-btn history-action-edit" type="button" onclick="editarNombreLocalHistorial(${Number(compra.id)})" title="Editar nombre del local" aria-label="Editar nombre de ${nombreLocal}">
+                                        <i data-lucide="pencil"></i>
+                                    </button>
+                                    <button class="history-action-btn history-action-share" type="button" onclick="compartirCompraHistorial(${Number(compra.id)})" title="Compartir registro" aria-label="Compartir compra de ${nombreLocal}">
+                                        <i data-lucide="share-2"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="history-compra-meta">
                                 <span>${compra.horaDisplay}</span>
@@ -4157,6 +4237,71 @@ ${lineasCronograma}
             });
 
             lucide.createIcons();
+        }
+
+        function eliminarCompraHistorial(idCompra) {
+            const compra = historial.find(registro => registro.id === idCompra);
+            if (!compra) return;
+            const local = compra.local || 'Local no especificado';
+            if (!confirm(`¿Eliminar el registro de compra de "${local}"? Esta acción no se puede deshacer.`)) return;
+
+            historial = historial.filter(registro => registro.id !== idCompra);
+            guardarEstado();
+            renderizarHistorial();
+        }
+
+        function editarNombreLocalHistorial(idCompra) {
+            const compra = historial.find(registro => registro.id === idCompra);
+            if (!compra) return;
+
+            const nombreActual = compra.local || 'Local no especificado';
+            const nuevoNombre = prompt('Editar nombre del local:', nombreActual);
+            if (nuevoNombre === null) return;
+
+            const nombreLimpio = nuevoNombre.trim();
+            if (!nombreLimpio) {
+                alert('El nombre del local no puede estar vacío.');
+                return;
+            }
+
+            compra.local = nombreLimpio;
+            guardarEstado();
+            renderizarHistorial();
+        }
+
+        function compartirCompraHistorial(idCompra) {
+            const compra = historial.find(registro => registro.id === idCompra);
+            if (!compra) return;
+
+            const lineas = compra.productos.map((producto, indice) => {
+                const totalProducto = producto.precioUnitario * producto.cantidad;
+                return `${indice + 1}. ${producto.nombre} - ${producto.cantidad} x ${producto.moneda}${producto.precioUnitario.toFixed(2)} = ${producto.moneda}${totalProducto.toFixed(2)}`;
+            });
+            const texto =
+`🛒 *REGISTRO DE COMPRAS*
+🏪 ${compra.local || 'Local no especificado'}
+📅 ${compra.fechaDisplay} - ${compra.horaDisplay}
+💵 Tasa: Bs ${compra.tasa.toFixed(2)}
+━━━━━━━━━━━━━━
+${lineas.join('\n')}
+━━━━━━━━━━━━━━
+💰 Total: *$${compra.totalUsd.toFixed(2)}*
+💰 Total: *Bs ${compra.totalBs.toFixed(2)}*
+💳 Pagado: *${compra.pagadoMoneda}${compra.pagado.toFixed(2)}*
+
+_Generado con Registro de Compras_`;
+
+            if (navigator.share) {
+                navigator.share({ text: texto, title: `Compra en ${compra.local || 'local'}` }).catch(() => {});
+            } else {
+                const enlace = document.createElement('a');
+                enlace.href = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+                enlace.target = '_blank';
+                enlace.rel = 'noopener noreferrer';
+                document.body.appendChild(enlace);
+                enlace.click();
+                document.body.removeChild(enlace);
+            }
         }
 
         function toggleDiaHistorial(idElemento) {
