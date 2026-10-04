@@ -1022,7 +1022,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 100;
+            z-index: 300; /* por encima de los paneles laterales (150/200) */
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.2s ease;
@@ -1168,6 +1168,111 @@
         .conv-resultado-row strong.destacado {
             color: var(--text-orange);
             font-size: 16px;
+        }
+
+        /* ===== MODAL DE AYUDA ===== */
+        .modal-content-ayuda { max-width: 370px; }
+        .ayuda-body {
+            max-height: 58vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-right: 4px;
+            margin-bottom: 14px;
+            outline: none;
+        }
+        .ayuda-intro { font-size: 12px; line-height: 1.5; color: var(--text-soft); margin-bottom: 4px; }
+        .ayuda-intro strong, .ayuda-desc strong, .ayuda-formula strong { color: var(--text-main); }
+        .ayuda-seccion {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            letter-spacing: 1px;
+            color: var(--text-cyan);
+            border-bottom: 1px solid rgba(0, 210, 255, 0.25);
+            padding-bottom: 5px;
+            margin: 16px 0 9px;
+        }
+        .ayuda-item { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 9px; }
+        .ayuda-term {
+            flex: 0 0 96px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            line-height: 1.4;
+            padding-top: 1px;
+        }
+        .ayuda-desc { font-size: 11.5px; line-height: 1.45; color: var(--text-soft); }
+        .t-naranja { color: var(--text-orange); }
+        .t-cian    { color: var(--text-cyan); }
+        .t-morado  { color: var(--text-purple); }
+        .t-verde   { color: var(--success); }
+        .t-rojo    { color: var(--danger); }
+        .t-gris    { color: var(--text-gray); }
+        .ayuda-formula {
+            background: var(--bg-input);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 11.5px;
+            line-height: 1.7;
+            color: var(--text-soft);
+        }
+
+        /* ===== AVISO: NUEVA VERSIÓN DISPONIBLE ===== */
+        .update-toast {
+            position: fixed;
+            left: 50%;
+            bottom: 16px;
+            width: calc(100% - 24px);
+            max-width: 380px;
+            transform: translate(-50%, 160%);
+            opacity: 0;
+            visibility: hidden;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-cyan);
+            border-radius: 14px;
+            padding: 10px 10px 10px 14px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45), 0 0 14px rgba(0, 210, 255, 0.25);
+            z-index: 400;
+            transition: transform 0.35s ease, opacity 0.35s ease, visibility 0s linear 0.35s;
+        }
+        .update-toast.active {
+            transform: translate(-50%, 0);
+            opacity: 1;
+            visibility: visible;
+            transition: transform 0.35s ease, opacity 0.35s ease, visibility 0s;
+        }
+        .update-toast-icon { width: 18px; height: 18px; color: var(--text-cyan); flex-shrink: 0; }
+        .update-toast-text { flex: 1; font-size: 12px; font-weight: 700; color: var(--text-main); line-height: 1.3; }
+        .update-toast-btn {
+            background: rgba(0, 210, 255, 0.12);
+            border: 1.5px solid var(--border-cyan);
+            color: var(--text-cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .update-toast-btn:disabled { opacity: 0.6; cursor: default; }
+        .update-toast-close {
+            width: 28px; height: 28px;
+            background: transparent;
+            border: none;
+            color: var(--text-gray);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .update-toast, .update-toast.active { transition: none; }
         }
 
         /* PUNTO 3: MODAL CASHEA */
@@ -1510,11 +1615,34 @@
             left: 0;
         }
 
+        .faltantes-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
         .faltantes-counter {
             font-size: 11px;
             color: var(--text-gray);
-            margin-bottom: 14px;
         }
+
+        .btn-ayuda {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0, 210, 255, 0.1);
+            border: 1px solid var(--border-cyan);
+            color: var(--text-cyan);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .btn-ayuda:active { background: rgba(0, 210, 255, 0.2); }
 
         .faltantes-form-toggle {
             display: flex;
@@ -2116,7 +2244,13 @@
                 <i data-lucide="x" style="width:18px; height:18px;"></i>
             </button>
         </div>
-        <div class="faltantes-counter" id="lblContadorFaltantes">0 productos</div>
+        <div class="faltantes-meta">
+            <div class="faltantes-counter" id="lblContadorFaltantes">0 productos</div>
+            <button class="btn-ayuda" type="button" onclick="abrirAyudaFaltantes()" aria-label="Abrir ayuda de la lista de faltantes">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                AYUDA
+            </button>
+        </div>
 
         <div class="faltantes-form-toggle" id="btnToggleFormFaltante" onclick="toggleFormFaltante()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); toggleFormFaltante();}" role="button" tabindex="0" aria-label="Mostrar u ocultar formulario para agregar faltante">
             <span>+ AGREGAR FALTANTE</span>
@@ -2130,7 +2264,7 @@
             </div>
             <div class="row-inputs">
                 <div class="col-half">
-                    <span class="label-small">Cantidad (unidades)</span>
+                    <span class="label-small">Cant. uni</span>
                     <div class="input-group" style="margin:0;">
                         <i data-lucide="hash" style="width: 15px; height: 15px;"></i>
                         <input type="number" id="txtFaltanteCantidad" placeholder="1" value="1" min="1" step="1">
@@ -2146,7 +2280,7 @@
             </div>
             <div class="row-inputs">
                 <div class="col-half">
-                    <span class="label-small" style="color: var(--text-cyan);">Consumo/comida (g)</span>
+                    <span class="label-small" style="color: var(--text-cyan);">Consumo <span style="text-transform:none;">(gr)</span></span>
                     <div class="input-group cyan-icon" style="margin:0;">
                         <i data-lucide="utensils" style="width: 15px; height: 15px;"></i>
                         <input type="number" id="txtFaltanteConsumo" placeholder="Ej. 100" step="1">
@@ -2190,6 +2324,58 @@
         </div>
     </div>
 
+    <!-- ===== MODAL DE AYUDA: LISTA DE FALTANTES ===== -->
+    <div class="modal-overlay" id="modalAyudaFaltantes" role="dialog" aria-modal="true" aria-labelledby="tituloAyudaFaltantes">
+        <div class="modal-content modal-content-ayuda">
+            <div class="modal-title" id="tituloAyudaFaltantes">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="color:var(--text-cyan);"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                AYUDA · FALTANTES
+            </div>
+
+            <div class="ayuda-body" id="ayudaFaltantesBody" tabindex="0">
+                <p class="ayuda-intro">Esta lista calcula <strong>cuántas comidas y cuántos días</strong> te durará cada producto de tu despensa, para que sepas qué comprar <strong>antes de que se acabe</strong>.</p>
+
+                <div class="ayuda-seccion">ENCABEZADO</div>
+                <div class="ayuda-item"><span class="ayuda-term t-gris">Contador</span><span class="ayuda-desc">Muestra cuántos productos tienes en la lista ("2 producto(s)").</span></div>
+                <div class="ayuda-item"><span class="ayuda-term t-morado">Botón ✕</span><span class="ayuda-desc">Cierra este panel. También puedes tocar fuera de él.</span></div>
+
+                <div class="ayuda-seccion">+ AGREGAR FALTANTE</div>
+                <div class="ayuda-item"><span class="ayuda-term t-naranja">Barra naranja</span><span class="ayuda-desc">Toca para mostrar u ocultar el formulario y ganar espacio.</span></div>
+                <div class="ayuda-item"><span class="ayuda-term t-morado">Producto</span><span class="ayuda-desc">Nombre del producto (ej. Harina P.A.N.). El ícono de la tarjeta se elige solo según el nombre.</span></div>
+                <div class="ayuda-item"><span class="ayuda-term t-naranja">Cant. uni</span><span class="ayuda-desc">Cuántas <strong>unidades</strong> tienes o vas a comprar (ej. 2 paquetes).</span></div>
+                <div class="ayuda-item"><span class="ayuda-term t-naranja">Peso x unidad (g)</span><span class="ayuda-desc">Gramos que trae <strong>cada unidad</strong>. Un kilo son 1000; un paquete de 500 g son 500.</span></div>
+                <div class="ayuda-item"><span class="ayuda-term t-cian">Consumo <span style="text-transform:none;">(gr)</span></span><span class="ayuda-desc">Gramos que gastas en <strong>cada comida</strong> (ej. 100). No puede ser mayor al peso de una unidad.</span></div>
+                <div class="ayuda-item"><span class="ayuda-term t-morado">Comidas x día</span><span class="ayuda-desc">Cuántas veces al día lo consumes, de 1 a 6 (por defecto 3).</span></div>
+                <div class="ayuda-item"><span class="ayuda-term t-cian">Botón calculadora</span><span class="ayuda-desc">Muestra el desglose (peso total, comidas totales y duración) <strong>sin guardar nada</strong>. Útil para probar valores.</span></div>
+                <div class="ayuda-item"><span class="ayuda-term t-cian">Agregar a faltantes</span><span class="ayuda-desc">Guarda el producto en la lista y limpia el formulario para el siguiente.</span></div>
+
+                <div class="ayuda-seccion">CÓMO SE CALCULA</div>
+                <div class="ayuda-formula">
+                    <strong>Comidas</strong> = (peso x unidad × cant. uni) ÷ consumo<br>
+                    <strong>Días</strong> = comidas ÷ comidas por día<br>
+                    <em>Ejemplo:</em> 2 unidades de 1000 g, consumo 100 g, 3 comidas al día → 2000 g ÷ 100 g = <strong>20 comidas</strong> → 20 ÷ 3 = <strong>6,7 días</strong>.
+                </div>
+
+                <div class="ayuda-seccion">TARJETA DE CADA PRODUCTO</div>
+                <div class="ayuda-item"><span class="ayuda-term t-cian">Etiqueta cian</span><span class="ayuda-desc">Ej. "2u • 100 comidas / 33.3 días": unidades, comidas que rinde y días que te dura.</span></div>
+                <div class="ayuda-item"><span class="ayuda-term t-morado">Ícono o nombre</span><span class="ayuda-desc">Tócalos para <strong>editar</strong> el producto; la duración se recalcula sola.</span></div>
+                <div class="ayuda-item"><span class="ayuda-term t-verde">Carrito (verde)</span><span class="ayuda-desc"><strong>Mover a compras</strong>: lo copia a tu lista de compras con precio 0 para que lo completes. La tarjeta queda atenuada con ✓.</span></div>
+                <div class="ayuda-item"><span class="ayuda-term t-rojo">Papelera (roja)</span><span class="ayuda-desc">Elimina solo ese producto de la lista de faltantes.</span></div>
+
+                <div class="ayuda-seccion">PARTE INFERIOR</div>
+                <div class="ayuda-item"><span class="ayuda-term t-verde">Compartir</span><span class="ayuda-desc">Envía la lista como texto (WhatsApp u otra app): ✅ los adquiridos y ⬜ los pendientes.</span></div>
+                <div class="ayuda-item"><span class="ayuda-term t-rojo">Borrar todo</span><span class="ayuda-desc">Vacía la lista completa. Pide confirmación y no se puede deshacer.</span></div>
+
+                <div class="ayuda-seccion">ATAJO EN LA PANTALLA PRINCIPAL</div>
+                <div class="ayuda-item"><span class="ayuda-term t-cian">Ícono de lista</span><span class="ayuda-desc">Está dentro del campo "Producto" de AGREGAR PRODUCTO. Abre un checklist: marca ✓ lo que ya compraste (se tacha) o toca un nombre para copiarlo al campo. Al usar NUEVA COMPRA, la app pregunta si quieres reiniciar esas marcas.</span></div>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn btn-accept" id="btnCerrarAyuda" style="width:100%;" onclick="cerrarAyudaFaltantes()">ENTENDIDO</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL EDITAR FALTANTE -->
     <div class="modal-overlay" id="modalEditarFaltante">
         <div class="modal-content">
@@ -2202,7 +2388,7 @@
             </div>
             <div class="row-inputs">
                 <div class="col-half">
-                    <span class="label-small">Cantidad</span>
+                    <span class="label-small">Cant. uni</span>
                     <div class="input-group" style="margin:0;">
                         <i data-lucide="hash" style="width: 15px; height: 15px;"></i>
                         <input type="number" id="txtEditFaltanteCantidad" min="1" step="1">
@@ -2218,7 +2404,7 @@
             </div>
             <div class="row-inputs">
                 <div class="col-half">
-                    <span class="label-small" style="color: var(--text-cyan);">Consumo/comida (g)</span>
+                    <span class="label-small" style="color: var(--text-cyan);">Consumo <span style="text-transform:none;">(gr)</span></span>
                     <div class="input-group cyan-icon" style="margin:0;">
                         <i data-lucide="utensils" style="width: 15px; height: 15px;"></i>
                         <input type="number" id="txtEditFaltanteConsumo" step="1">
@@ -2409,6 +2595,16 @@
         </div>
     </div>
 
+    <!-- ===== AVISO: NUEVA VERSIÓN DISPONIBLE ===== -->
+    <div class="update-toast" id="updateToast" role="status" aria-live="polite">
+        <svg class="update-toast-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+        <span class="update-toast-text">Nueva versión disponible</span>
+        <button class="update-toast-btn" id="btnActualizarApp" type="button" onclick="actualizarAhora()">ACTUALIZAR</button>
+        <button class="update-toast-close" type="button" onclick="cerrarAvisoActualizacion()" aria-label="Cerrar aviso de actualización">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+    </div>
+
     <script>
         // ===== MEJORA 1: DETECCIÓN DE FEATURES (Chrome Android compat) =====
         const soportaBackdrop = window.CSS && CSS.supports && (CSS.supports('backdrop-filter', 'blur(5px)') || CSS.supports('-webkit-backdrop-filter', 'blur(5px)'));
@@ -2565,11 +2761,70 @@
         }
 
         // ===== PWA: registro del Service Worker =====
+        let registroSW = null;
+        let recargandoPorActualizacion = false;
+
         function registrarServiceWorker() {
             if (!('serviceWorker' in navigator)) return;
+
             navigator.serviceWorker.register('./service-worker.js')
-                .then((registro) => console.log('[PWA] Service Worker registrado:', registro.scope))
+                .then((registro) => {
+                    registroSW = registro;
+                    console.log('[PWA] Service Worker registrado:', registro.scope);
+
+                    // Caso 1: ya había una versión nueva descargada y esperando (visita anterior)
+                    if (registro.waiting && navigator.serviceWorker.controller) {
+                        mostrarAvisoActualizacion();
+                    }
+
+                    // Caso 2: se descarga una versión nueva mientras la app está abierta
+                    registro.addEventListener('updatefound', () => {
+                        const nuevo = registro.installing;
+                        if (!nuevo) return;
+                        nuevo.addEventListener('statechange', () => {
+                            // "controller" existe solo si es una ACTUALIZACIÓN (no la primera instalación)
+                            if (nuevo.state === 'installed' && navigator.serviceWorker.controller) {
+                                mostrarAvisoActualizacion();
+                            }
+                        });
+                    });
+
+                    // Buscar versiones nuevas al volver a la app y cada 30 minutos si queda abierta
+                    document.addEventListener('visibilitychange', () => {
+                        if (document.visibilityState === 'visible') registro.update().catch(() => {});
+                    });
+                    setInterval(() => registro.update().catch(() => {}), 30 * 60 * 1000);
+                })
                 .catch((err) => console.warn('[PWA] Error registrando Service Worker:', err));
+
+            // Cuando la versión nueva toma el control (tras pulsar ACTUALIZAR), se recarga la página
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (recargandoPorActualizacion) window.location.reload();
+            });
+        }
+
+        // ===== AVISO "NUEVA VERSIÓN DISPONIBLE" =====
+        function mostrarAvisoActualizacion() {
+            const aviso = document.getElementById('updateToast');
+            if (aviso) aviso.classList.add('active');
+        }
+
+        function cerrarAvisoActualizacion() {
+            const aviso = document.getElementById('updateToast');
+            if (aviso) aviso.classList.remove('active');
+            // Si lo cierras, la versión nueva se aplicará sola la próxima vez que abras la app
+        }
+
+        function actualizarAhora() {
+            const btn = document.getElementById('btnActualizarApp');
+            if (btn) { btn.disabled = true; btn.innerText = 'ACTUALIZANDO...'; }
+
+            recargandoPorActualizacion = true;
+            const esperando = registroSW && registroSW.waiting;
+            if (esperando) esperando.postMessage({ type: 'SKIP_WAITING' });
+
+            // Respaldo: si el navegador no avisa del cambio de versión, se recarga igualmente
+            setTimeout(() => window.location.reload(), 2500);
         }
 
         // ===== PWA (mejora opcional): botón "Instalar app" cuando el navegador lo permite =====
@@ -3264,6 +3519,25 @@ _Generado con Registro de Compras_`;
                 }
             }
         }
+
+        // ===== AYUDA DEL PANEL DE FALTANTES =====
+        function abrirAyudaFaltantes() {
+            const modal = document.getElementById('modalAyudaFaltantes');
+            modal.classList.add('active');
+            document.getElementById('ayudaFaltantesBody').scrollTop = 0;
+            document.getElementById('btnCerrarAyuda').focus();
+        }
+
+        function cerrarAyudaFaltantes() {
+            document.getElementById('modalAyudaFaltantes').classList.remove('active');
+        }
+
+        // Escape cierra la ayuda (accesibilidad en teclado físico)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('modalAyudaFaltantes').classList.contains('active')) {
+                cerrarAyudaFaltantes();
+            }
+        });
 
         function abrirModalFaltantesRapido() {
             renderizarListaFaltantes();
