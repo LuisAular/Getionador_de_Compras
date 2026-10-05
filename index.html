@@ -73,12 +73,6 @@
             color-scheme: dark;
         }
 
-        /* ============================================================
-           TEMA DÍA — "Cyberpunk diurno"
-           Fondo lavanda-hielo, tarjetas blancas con borde tintado y los
-           neones convertidos en tonos profundos (todos con contraste AA).
-           Se activa con <html data-theme="day">. Noche = valores de :root.
-           ============================================================ */
         html[data-theme="day"] {
             --bg-main: #e3e8fb;
             --bg-card: #f4f6ff;
@@ -91,7 +85,6 @@
             --text-gray: #586390;
             --danger: #d0103a;
             --success: #007a52;
-
             --text-main: #0c1233;
             --text-on-accent: #ffffff;
             --text-soft: #2a3260;
@@ -135,7 +128,6 @@
             margin: 0;
             padding: 0;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            /* Previene bugs de zoom de texto en móviles */
             -webkit-text-size-adjust: 100%;
         }
 
@@ -1913,6 +1905,318 @@
             color: var(--text-gray);
             opacity: 0.6;
         }
+
+        /* ===== VISTA DE MERCADOS ===== */
+        .mercados-view {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 10px;
+            background: var(--bg-main);
+            overscroll-behavior: contain;
+        }
+        .mercados-view.active { display: flex; }
+        .mercados-view [hidden] { display: none !important; }
+        .mercados-app-container {
+            width: 100%;
+            max-width: 520px;
+            height: calc(100vh - 20px);
+            height: calc(100dvh - 20px);
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding-top: 30px;
+        }
+        .mercados-header, .mercados-rate, .mercados-tabs,
+        .mercado-selection-row, .mercado-current-actions, .mercado-currency-display {
+            flex: 0 0 auto;
+        }
+        .mercados-panel-view {
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .mercados-panel-view[hidden] { display: none !important; }
+        .mercados-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .mercados-back {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            border-color: var(--border-cyan);
+            color: var(--text-cyan);
+        }
+        .mercados-heading { flex: 1; min-width: 0; }
+        .mercados-heading h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 17px;
+            line-height: 1.2;
+            color: var(--text-cyan);
+        }
+        .mercados-heading p { margin-top: 3px; font-size: 10px; color: var(--text-gray); }
+        .mercados-header-actions { display: flex; gap: 6px; }
+        .mercados-header-actions .settings-btn {
+            width: 34px;
+            height: 34px;
+            color: var(--text-cyan);
+            border-color: var(--border-cyan);
+        }
+        .mercados-rate {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 9px 11px;
+            color: var(--text-soft);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-item);
+            border-radius: 9px;
+            font-size: 11px;
+        }
+        .mercados-rate strong { color: var(--text-orange); white-space: nowrap; }
+        .mercados-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            margin-bottom: 14px;
+            padding: 4px;
+            border: 1px solid var(--border-item);
+            border-radius: 10px;
+            background: var(--bg-surface);
+        }
+        .mercados-tab {
+            min-height: 38px;
+            border: 1px solid transparent;
+            border-radius: 7px;
+            background: transparent;
+            color: var(--text-gray);
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .mercados-tab.active {
+            color: var(--text-cyan);
+            border-color: var(--border-cyan);
+            background: rgba(0, 210, 255, 0.1);
+        }
+        .mercado-selection-row, .mercado-section-heading, .mercado-product-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .mercado-selection-row { margin-bottom: 9px; }
+        .mercado-select-wrap { flex: 1; min-width: 0; }
+        .mercado-select-wrap label, .mercado-field-label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-gray);
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .mercado-select {
+            width: 100%;
+            height: 40px;
+            padding: 0 10px;
+            color: var(--text-main);
+            background: var(--bg-input);
+            border: 1px solid var(--border-cyan);
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        .mercado-icon-btn {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-cyan);
+            background: rgba(0, 210, 255, 0.08);
+            border: 1px solid var(--border-cyan);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .mercado-icon-btn.danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+        .mercado-icon-btn.purple { color: var(--text-purple); border-color: var(--border-purple); background: transparent; }
+        .mercado-current-actions { display: flex; gap: 6px; margin-bottom: 12px; }
+        .mercado-panel {
+            padding: 12px;
+            margin-bottom: 12px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-item);
+            border-radius: 10px;
+        }
+        .mercado-panel#panelFormularioProducto { flex: 0 0 auto; }
+        .mercado-products-panel, .mercado-economy-panel {
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+            min-height: 0;
+            margin-bottom: 0;
+        }
+        .mercado-product-form { display: grid; gap: 9px; }
+        .mercado-product-form input {
+            width: 100%;
+            min-width: 0;
+            height: 40px;
+            padding: 0 10px;
+            color: var(--text-main);
+            background: var(--bg-input);
+            border: 1px solid var(--border-item);
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        .mercado-product-form input:focus, .mercado-select:focus, .mercado-modal input:focus {
+            outline: 2px solid var(--border-cyan);
+            outline-offset: 1px;
+        }
+        .mercado-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .mercado-price-row { display: grid; grid-template-columns: minmax(0, 1fr) 112px; gap: 8px; }
+        .mercado-currency-toggle { height: 40px; }
+        .mercado-currency-toggle .toggle-btn { font-size: 12px; }
+        .mercado-form-actions { display: flex; gap: 7px; }
+        .mercado-form-actions .modal-btn { min-height: 38px; flex: 1; }
+        .mercado-list { display: grid; gap: 7px; align-content: start; }
+        .mercado-products-panel .mercado-list, .mercado-economy-panel .mercado-list {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-color: var(--border-cyan) var(--bg-surface-2);
+        }
+        .mercado-product-row, .precio-economico-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            padding: 9px;
+            background: var(--bg-item);
+            border: 1px solid var(--border-item);
+            border-radius: 8px;
+        }
+        .mercado-product-info, .precio-economico-info { flex: 1; min-width: 0; }
+        .mercado-product-info strong, .precio-economico-info strong {
+            display: block;
+            overflow: hidden;
+            color: var(--text-main);
+            font-size: 12px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .mercado-product-info small, .precio-economico-info small {
+            display: block;
+            margin-top: 3px;
+            color: var(--text-gray);
+            font-size: 10px;
+        }
+        .mercado-product-price, .precio-economico-price {
+            color: var(--text-cyan);
+            font-size: 12px;
+            font-weight: 800;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .mercado-row-actions { display: flex; gap: 4px; }
+        .mercado-row-actions .mercado-icon-btn { width: 32px; height: 32px; flex-basis: 32px; }
+        .mercado-section-heading { margin-bottom: 9px; }
+        .mercado-section-heading h2, .mercado-product-heading h2 {
+            color: var(--text-main);
+            font-size: 12px;
+        }
+        .mercado-section-heading span { color: var(--text-gray); font-size: 10px; }
+        .mercado-empty {
+            padding: 22px 10px;
+            color: var(--text-gray);
+            font-size: 12px;
+            line-height: 1.5;
+            text-align: center;
+        }
+        .mercado-currency-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin: 0 0 11px;
+        }
+        .mercado-currency-display span { color: var(--text-gray); font-size: 10px; }
+        .mercado-currency-display .currency-toggle { width: 112px; height: 34px; }
+        .precio-economico-row.ganador { border-color: var(--success); }
+        .precio-economico-price small { display: block; margin-top: 3px; color: var(--text-gray); font-size: 9px; font-weight: 400; }
+        .mercado-chart-card {
+            display: flex;
+            flex: 0 0 auto;
+            flex-direction: column;
+            max-height: 42%;
+            min-height: 0;
+            overflow: hidden;
+            padding: 12px;
+            margin-top: 12px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-item);
+            border-radius: 10px;
+            box-shadow: var(--shadow-app);
+        }
+        .mercado-chart-card h2 { margin-bottom: 10px; color: var(--text-main); font-size: 12px; }
+        .mercado-chart-card .mercado-select { height: 36px; margin-bottom: 12px; }
+        .mercado-chart { display: grid; gap: 11px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+        .mercado-chart-row { display: grid; grid-template-columns: minmax(72px, 1fr) minmax(70px, 1.5fr) auto; align-items: center; gap: 7px; }
+        .mercado-chart-name { overflow: hidden; color: var(--text-soft); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+        .mercado-chart-track { height: 13px; overflow: hidden; background: var(--bg-input); border-radius: 3px; }
+        .mercado-chart-bar { height: 100%; min-width: 3px; background: var(--border-cyan); border-radius: 3px; }
+        .mercado-chart-row.ganador .mercado-chart-bar { background: var(--success); }
+        .mercado-chart-value { color: var(--text-main); font-size: 10px; font-weight: 700; white-space: nowrap; }
+        .mercado-status { min-height: 18px; margin: 4px 1px 0; color: var(--text-gray); font-size: 10px; }
+        .mercado-status.error { color: var(--danger); }
+        .mercado-status.success { color: var(--success); }
+        .mercado-theme-switch { z-index: 6; }
+        .mercado-meta-actions { display: flex; align-items: center; gap: 6px; }
+        .btn-mercados {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            min-height: 30px;
+            padding: 5px 9px;
+            color: var(--text-purple);
+            background: rgba(195, 0, 255, 0.08);
+            border: 1px solid var(--border-purple);
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .mercados-view .mercado-modal { z-index: 5001; }
+        .mercado-modal .modal-content { max-width: 360px; }
+        .mercado-modal input {
+            width: 100%;
+            height: 42px;
+            margin: 10px 0 14px;
+            padding: 0 11px;
+            color: var(--text-main);
+            background: var(--bg-input);
+            border: 1px solid var(--border-cyan);
+            border-radius: 8px;
+        }
+        @media (max-width: 360px) {
+            .mercados-app-container { padding-left: 14px; padding-right: 14px; }
+            .mercados-heading h1 { font-size: 15px; }
+            .mercado-price-row { grid-template-columns: minmax(0, 1fr) 100px; }
+            .mercado-chart-row { grid-template-columns: minmax(58px, 0.9fr) minmax(55px, 1fr) auto; gap: 5px; }
+            .mercados-header-actions { gap: 4px; }
+            .mercados-header-actions .settings-btn { width: 31px; height: 31px; }
+        }
     </style>
 </head>
 <body>
@@ -2136,6 +2440,56 @@
 
     </div>
 
+    <!-- ===== COMPARADOR DE PRECIOS POR MERCADO ===== -->
+    <div class="mercados-view" id="mercadosView" aria-hidden="true">
+        <div class="app-container mercados-app-container">
+            <button class="theme-switch mercado-theme-switch" type="button" role="switch" aria-checked="false" aria-label="Modo noche activado" title="Cambiar tema" onclick="alternarTema()">
+                <span class="ts-track"></span>
+                <svg class="ts-icon moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                <svg class="ts-icon sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41-1.41"/><path d="m19.07 4.93-1.41-1.41"/></svg>
+                <span class="ts-thumb">
+                    <svg class="i-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                    <svg class="i-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41-1.41"/></svg>
+                </span>
+            </button>
+            <header class="mercados-header">
+                <button class="settings-btn mercados-back" id="btnVolverMercados" type="button" onclick="volverDesdeMercados()" aria-label="Volver a la vista anterior" title="Volver"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i></button>
+                <div class="mercados-heading"><h1>MERCADOS</h1><p>Compara precios antes de comprar</p></div>
+                <div class="mercados-header-actions">
+                    <button class="settings-btn" type="button" onclick="compartirResumenMercados()" aria-label="Compartir precios" title="Compartir"><i data-lucide="share-2" style="width:16px;height:16px;"></i></button>
+                    <button class="settings-btn" type="button" onclick="exportarRespaldoMercados()" aria-label="Respaldar mercados" title="Respaldar"><i data-lucide="download" style="width:16px;height:16px;"></i></button>
+                    <button class="settings-btn" type="button" onclick="document.getElementById('archivoRespaldoMercados').click()" aria-label="Importar respaldo de mercados" title="Importar respaldo"><i data-lucide="upload" style="width:16px;height:16px;"></i></button>
+                    <input id="archivoRespaldoMercados" type="file" accept=".json,application/json" hidden onchange="importarRespaldoMercados(event)">
+                </div>
+            </header>
+            <div class="mercados-rate"><span>Tasa compartida con la pantalla principal</span><strong id="tasaMercadosActual">Bs. 36.85 / $</strong></div>
+            <div class="mercados-tabs" role="tablist" aria-label="Vistas de comparación">
+                <button class="mercados-tab active" id="tabMercadoIndividual" type="button" role="tab" aria-selected="true" onclick="cambiarPestanaMercados('mercado')">Por mercado</button>
+                <button class="mercados-tab" id="tabPreciosEconomicos" type="button" role="tab" aria-selected="false" onclick="cambiarPestanaMercados('economicos')">Más económicos</button>
+            </div>
+            <section id="panelMercadoIndividual" class="mercados-panel-view" aria-label="Productos del mercado seleccionado">
+                <div class="mercado-selection-row"><div class="mercado-select-wrap"><label for="selectorMercado">Mercado seleccionado</label><select class="mercado-select" id="selectorMercado" onchange="seleccionarMercado(this.value)"></select></div><button class="mercado-icon-btn" type="button" onclick="abrirFormularioMercado()" aria-label="Crear mercado" title="Crear mercado"><i data-lucide="plus" style="width:18px;height:18px;"></i></button></div>
+                <div class="mercado-current-actions" id="accionesMercadoActual" hidden><button class="mercado-icon-btn purple" type="button" onclick="abrirFormularioMercado(mercadoSeleccionadoId)" aria-label="Editar nombre del mercado" title="Editar mercado"><i data-lucide="pencil" style="width:16px;height:16px;"></i></button><button class="mercado-icon-btn danger" type="button" onclick="eliminarMercadoActual()" aria-label="Eliminar mercado" title="Eliminar mercado"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button></div>
+                <div class="mercado-panel" id="panelFormularioProducto" hidden>
+                    <div class="mercado-product-heading"><h2 id="tituloFormularioProducto">Agregar producto</h2></div>
+                    <form class="mercado-product-form" onsubmit="guardarProductoMercado(event)">
+                        <div class="mercado-form-grid"><div><label class="mercado-field-label" for="nombreProductoMercado">Producto</label><input id="nombreProductoMercado" type="text" maxlength="80" placeholder="Ej. Arroz" required></div><div><label class="mercado-field-label" for="presentacionProductoMercado">Presentación (opcional)</label><input id="presentacionProductoMercado" type="text" maxlength="50" placeholder="Ej. 1 kg"></div></div>
+                        <div><label class="mercado-field-label" for="precioProductoMercado">Precio registrado</label><div class="mercado-price-row"><input id="precioProductoMercado" type="number" min="0.01" step="0.01" placeholder="0.00" required><div class="currency-toggle mercado-currency-toggle" role="group" aria-label="Moneda del precio"><button class="toggle-btn active-bs" id="mercadoPrecioBs" type="button" aria-pressed="true" onclick="cambiarMonedaPrecioMercado('Bs')">Bs</button><button class="toggle-btn" id="mercadoPrecioUsd" type="button" aria-pressed="false" onclick="cambiarMonedaPrecioMercado('$')">$</button></div></div></div>
+                        <div class="mercado-form-actions"><button class="modal-btn btn-accept" id="btnGuardarProductoMercado" type="submit">AGREGAR PRECIO</button><button class="modal-btn btn-cancel" id="btnCancelarEdicionMercado" type="button" onclick="cancelarEdicionProductoMercado()" hidden>CANCELAR</button></div>
+                    </form>
+                </div>
+                <div class="mercado-panel mercado-products-panel"><div class="mercado-section-heading"><h2 id="tituloListaProductosMercado">Productos</h2><span id="contadorProductosMercado"></span></div><div class="mercado-list" id="listaProductosMercado"></div></div>
+            </section>
+            <section id="panelPreciosEconomicos" class="mercados-panel-view" aria-label="Precios más económicos" hidden>
+                <div class="mercado-currency-display"><span>Mostrar precios en</span><div class="currency-toggle" role="group" aria-label="Moneda de visualización"><button class="toggle-btn active-bs" id="vistaMercadosBs" type="button" aria-pressed="true" onclick="cambiarMonedaVistaMercados('Bs')">Bs</button><button class="toggle-btn" id="vistaMercadosUsd" type="button" aria-pressed="false" onclick="cambiarMonedaVistaMercados('$')">$</button></div></div>
+                <div class="mercado-panel mercado-economy-panel"><div class="mercado-section-heading"><h2>Mejor precio por producto</h2><span id="contadorPreciosEconomicos"></span></div><div class="mercado-list" id="listaPreciosEconomicos"></div></div>
+                <div class="mercado-chart-card"><h2>Comparación entre mercados</h2><label class="mercado-field-label" for="selectorProductoGrafico">Producto a comparar</label><select class="mercado-select" id="selectorProductoGrafico" onchange="renderizarGraficoMercados()"></select><div class="mercado-chart" id="graficoMercados" role="img" aria-label="Comparación de precios por mercado"></div></div>
+            </section>
+            <p class="mercado-status" id="estadoMercados" role="status" aria-live="polite"></p>
+            <div class="modal-overlay mercado-modal" id="modalMercado" role="dialog" aria-modal="true" aria-labelledby="tituloModalMercado"><div class="modal-content"><div class="modal-title" id="tituloModalMercado"><i data-lucide="store" style="width:16px;height:16px;color:var(--text-cyan);"></i> NUEVO MERCADO</div><form onsubmit="guardarFormularioMercado(event)"><label class="mercado-field-label" for="nombreMercadoInput">Nombre del mercado</label><input id="nombreMercadoInput" type="text" maxlength="60" placeholder="Ej. Mercado Central" required><div class="modal-buttons"><button class="modal-btn btn-cancel" type="button" onclick="cerrarFormularioMercado()">CANCELAR</button><button class="modal-btn btn-accept" type="submit">GUARDAR</button></div></form></div></div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="modalTasa">
         <div class="modal-content">
             <div class="modal-title">
@@ -2309,10 +2663,15 @@
         </div>
         <div class="faltantes-meta">
             <div class="faltantes-counter" id="lblContadorFaltantes">0 productos</div>
-            <button class="btn-ayuda" type="button" onclick="abrirAyudaFaltantes()" aria-label="Abrir ayuda de la lista de faltantes">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
-                AYUDA
-            </button>
+            <div class="mercado-meta-actions">
+                <button class="btn-mercados" id="btnMercadosFaltantes" type="button" onclick="abrirVistaMercados()" aria-label="Abrir comparación de mercados">
+                    <i data-lucide="store" style="width:13px;height:13px;"></i> MERCADOS
+                </button>
+                <button class="btn-ayuda" type="button" onclick="abrirAyudaFaltantes()" aria-label="Abrir ayuda de la lista de faltantes">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                    AYUDA
+                </button>
+            </div>
         </div>
 
         <div class="faltantes-form-toggle" id="btnToggleFormFaltante" onclick="toggleFormFaltante()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); toggleFormFaltante();}" role="button" tabindex="0" aria-label="Mostrar u ocultar formulario para agregar faltante">
@@ -2778,6 +3137,7 @@
             inicializarSelectComidasDia('selFaltanteComidasDia');
             inicializarSelectComidasDia('selEditFaltanteComidasDia');
             cargarEstado();
+            cargarMercados();
             actualizarPantallaTasa();
             renderizarLista();
             renderizarListaFaltantes();
@@ -2806,13 +3166,12 @@
             }
             html.setAttribute('data-theme', tema);
 
-            const sw = document.getElementById('themeSwitch');
-            if (sw) {
+            document.querySelectorAll('.theme-switch').forEach((sw) => {
                 const esDia = tema === 'day';
                 sw.setAttribute('aria-checked', String(esDia));
                 sw.setAttribute('aria-label', esDia ? 'Modo día activado' : 'Modo noche activado');
                 sw.title = esDia ? 'Cambiar a modo noche' : 'Cambiar a modo día';
-            }
+            });
             const meta = document.querySelector('meta[name="theme-color"]');
             if (meta) meta.setAttribute('content', TEMA_COLOR_BARRA[tema]);
         }
@@ -3282,6 +3641,7 @@
             document.getElementById('lblTasaDolar').innerText = `Bs. ${tasaDolar.toFixed(2)}`;
             document.getElementById('lblSubtextTasa').innerText = `Bs. ${tasaDolar.toFixed(2)}`;
             ajustarTamanoTexto('lblTasaDolar', 1.25); // 20px base
+            actualizarEtiquetaTasaMercados();
         }
 
         function cambiarMonedaFormulario(moneda) {
@@ -3808,6 +4168,111 @@ _Generado con Registro de Compras_`;
                 fila.innerHTML = `
                     <div>
                         <span class="etiqueta">${cuota.etiqueta}</span>
+
+                <!-- ===== COMPARADOR DE PRECIOS POR MERCADO ===== -->
+                <div class="mercados-view" id="mercadosView" aria-hidden="true">
+                    <div class="app-container mercados-app-container">
+                        <button class="theme-switch mercado-theme-switch" type="button" role="switch" aria-checked="false" aria-label="Modo noche activado" title="Cambiar tema" onclick="alternarTema()">
+                            <span class="ts-track"></span>
+                            <svg class="ts-icon moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                            <svg class="ts-icon sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                            <span class="ts-thumb">
+                                <svg class="i-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                                <svg class="i-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41-1.41"/></svg>
+                            </span>
+                        </button>
+                        <header class="mercados-header">
+                            <button class="settings-btn mercados-back" id="btnVolverMercados" type="button" onclick="volverDesdeMercados()" aria-label="Volver a la vista anterior" title="Volver">
+                                <i data-lucide="arrow-left" style="width:18px;height:18px;"></i>
+                            </button>
+                            <div class="mercados-heading"><h1>MERCADOS</h1><p>Compara precios antes de comprar</p></div>
+                            <div class="mercados-header-actions">
+                                <button class="settings-btn" type="button" onclick="compartirResumenMercados()" aria-label="Compartir precios" title="Compartir">
+                                    <i data-lucide="share-2" style="width:16px;height:16px;"></i>
+                                </button>
+                                <button class="settings-btn" type="button" onclick="exportarRespaldoMercados()" aria-label="Respaldar mercados" title="Respaldar">
+                                    <i data-lucide="download" style="width:16px;height:16px;"></i>
+                                </button>
+                                <button class="settings-btn" type="button" onclick="document.getElementById('archivoRespaldoMercados').click()" aria-label="Importar respaldo de mercados" title="Importar respaldo">
+                                    <i data-lucide="upload" style="width:16px;height:16px;"></i>
+                                </button>
+                                <input id="archivoRespaldoMercados" type="file" accept=".json,application/json" hidden onchange="importarRespaldoMercados(event)">
+                            </div>
+                        </header>
+                        <div class="mercados-rate"><span>Tasa compartida con la pantalla principal</span><strong id="tasaMercadosActual">Bs. 36.85 / $</strong></div>
+                        <div class="mercados-tabs" role="tablist" aria-label="Vistas de comparación">
+                            <button class="mercados-tab active" id="tabMercadoIndividual" type="button" role="tab" aria-selected="true" onclick="cambiarPestanaMercados('mercado')">Por mercado</button>
+                            <button class="mercados-tab" id="tabPreciosEconomicos" type="button" role="tab" aria-selected="false" onclick="cambiarPestanaMercados('economicos')">Más económicos</button>
+                        </div>
+
+                        <section id="panelMercadoIndividual" class="mercados-panel-view" aria-label="Productos del mercado seleccionado">
+                            <div class="mercado-selection-row">
+                                <div class="mercado-select-wrap"><label for="selectorMercado">Mercado seleccionado</label><select class="mercado-select" id="selectorMercado" onchange="seleccionarMercado(this.value)"></select></div>
+                                <button class="mercado-icon-btn" type="button" onclick="abrirFormularioMercado()" aria-label="Crear mercado" title="Crear mercado"><i data-lucide="plus" style="width:18px;height:18px;"></i></button>
+                            </div>
+                            <div class="mercado-current-actions" id="accionesMercadoActual" hidden>
+                                <button class="mercado-icon-btn purple" type="button" onclick="abrirFormularioMercado(mercadoSeleccionadoId)" aria-label="Editar nombre del mercado" title="Editar mercado"><i data-lucide="pencil" style="width:16px;height:16px;"></i></button>
+                                <button class="mercado-icon-btn danger" type="button" onclick="eliminarMercadoActual()" aria-label="Eliminar mercado" title="Eliminar mercado"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
+                            </div>
+                            <div class="mercado-panel" id="panelFormularioProducto" hidden>
+                                <div class="mercado-product-heading"><h2 id="tituloFormularioProducto">Agregar producto</h2><span>Sin totales</span></div>
+                                <form class="mercado-product-form" onsubmit="guardarProductoMercado(event)">
+                                    <div class="mercado-form-grid">
+                                        <div><label class="mercado-field-label" for="nombreProductoMercado">Producto</label><input id="nombreProductoMercado" type="text" maxlength="80" placeholder="Ej. Arroz" required></div>
+                                        <div><label class="mercado-field-label" for="presentacionProductoMercado">Presentación (opcional)</label><input id="presentacionProductoMercado" type="text" maxlength="50" placeholder="Ej. 1 kg"></div>
+                                    </div>
+                                    <div><label class="mercado-field-label" for="precioProductoMercado">Precio registrado</label>
+                                        <div class="mercado-price-row"><input id="precioProductoMercado" type="number" min="0.01" step="0.01" placeholder="0.00" required>
+                                            <div class="currency-toggle mercado-currency-toggle" role="group" aria-label="Moneda del precio">
+                                                <button class="toggle-btn active-bs" id="mercadoPrecioBs" type="button" aria-pressed="true" onclick="cambiarMonedaPrecioMercado('Bs')">Bs</button>
+                                                <button class="toggle-btn" id="mercadoPrecioUsd" type="button" aria-pressed="false" onclick="cambiarMonedaPrecioMercado('$')">$</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mercado-form-actions">
+                                        <button class="modal-btn btn-accept" id="btnGuardarProductoMercado" type="submit">AGREGAR PRECIO</button>
+                                        <button class="modal-btn btn-cancel" id="btnCancelarEdicionMercado" type="button" onclick="cancelarEdicionProductoMercado()" hidden>CANCELAR</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="mercado-panel">
+                                <div class="mercado-section-heading"><h2 id="tituloListaProductosMercado">Productos</h2><span id="contadorProductosMercado"></span></div>
+                                <div class="mercado-list" id="listaProductosMercado"></div>
+                            </div>
+                        </section>
+
+                        <section id="panelPreciosEconomicos" class="mercados-panel-view" aria-label="Precios más económicos" hidden>
+                            <div class="mercado-currency-display"><span>Mostrar precios en</span>
+                                <div class="currency-toggle" role="group" aria-label="Moneda de visualización">
+                                    <button class="toggle-btn active-bs" id="vistaMercadosBs" type="button" aria-pressed="true" onclick="cambiarMonedaVistaMercados('Bs')">Bs</button>
+                                    <button class="toggle-btn" id="vistaMercadosUsd" type="button" aria-pressed="false" onclick="cambiarMonedaVistaMercados('$')">$</button>
+                                </div>
+                            </div>
+                            <div class="mercado-panel">
+                                <div class="mercado-section-heading"><h2>Mejor precio por producto</h2><span id="contadorPreciosEconomicos"></span></div>
+                                <div class="mercado-list" id="listaPreciosEconomicos"></div>
+                            </div>
+                            <div class="mercado-chart-card">
+                                <h2>Comparación entre mercados</h2>
+                                <label class="mercado-field-label" for="selectorProductoGrafico">Producto a comparar</label>
+                                <select class="mercado-select" id="selectorProductoGrafico" onchange="renderizarGraficoMercados()"></select>
+                                <div class="mercado-chart" id="graficoMercados" role="img" aria-label="Comparación de precios por mercado"></div>
+                            </div>
+                        </section>
+                        <p class="mercado-status" id="estadoMercados" role="status" aria-live="polite"></p>
+
+                        <div class="modal-overlay mercado-modal" id="modalMercado" role="dialog" aria-modal="true" aria-labelledby="tituloModalMercado">
+                            <div class="modal-content">
+                                <div class="modal-title" id="tituloModalMercado"><i data-lucide="store" style="width:16px;height:16px;color:var(--text-cyan);"></i> NUEVO MERCADO</div>
+                                <form onsubmit="guardarFormularioMercado(event)">
+                                    <label class="mercado-field-label" for="nombreMercadoInput">Nombre del mercado</label>
+                                    <input id="nombreMercadoInput" type="text" maxlength="60" placeholder="Ej. Mercado Central" required>
+                                    <div class="modal-buttons"><button class="modal-btn btn-cancel" type="button" onclick="cerrarFormularioMercado()">CANCELAR</button><button class="modal-btn btn-accept" type="submit">GUARDAR</button></div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                         <span class="fecha">${formatearFechaDDMMYYYY(cuota.fecha)}</span>
                     </div>
                     <span class="monto">$${cuota.montoUsd.toFixed(2)}</span>
@@ -4681,6 +5146,512 @@ _Generado con Registro de Compras_`;
                 document.body.removeChild(enlace);
             }
         }
+        // ====== MERCADOS: datos separados del estado de compras ======
+        const MERCADOS_STORAGE_KEY = 'registroComprasMercados_v1';
+        const MERCADOS_BACKUP_FORMAT = 'registro-compras-mercados';
+        const MERCADOS_BACKUP_VERSION = 1;
+        const MERCADOS_BACKUP_MAX_BYTES = 2 * 1024 * 1024;
+        let mercados = [];
+        let mercadoSeleccionadoId = '';
+        let monedaPrecioMercado = 'Bs';
+        let monedaVistaMercados = 'Bs';
+        let productoMercadoEditandoId = '';
+        let mercadoMercadoEditandoId = '';
+        let pestanaMercadosActiva = 'mercado';
+        let volverAFaltantesDesdeMercados = false;
+        let overflowAnteriorMercados = '';
+
+        function crearIdMercado(prefijo) {
+            const aleatorio = window.crypto && crypto.randomUUID
+                ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+            return `${prefijo}-${aleatorio}`;
+        }
+
+        function normalizarClaveMercado(valor) {
+            return String(valor || '').trim().toLocaleLowerCase('es-VE')
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function claveProductoMercado(nombre, presentacion) {
+            return `${normalizarClaveMercado(nombre)}\u001f${normalizarClaveMercado(presentacion)}`;
+        }
+
+        function escaparHtmlMercado(valor) {
+            return String(valor == null ? '' : valor).replace(/[&<>"']/g, (caracter) => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[caracter]);
+        }
+
+        function cargarMercados() {
+            try {
+                const contenido = localStorage.getItem(MERCADOS_STORAGE_KEY);
+                if (!contenido) return;
+                const guardado = JSON.parse(contenido);
+                if (!guardado || !Array.isArray(guardado.mercados)) return;
+                mercados = guardado.mercados.map((mercado) => {
+                    if (!mercado || typeof mercado !== 'object') return null;
+                    const nombre = limpiarTexto(mercado.nombre, 60);
+                    if (!nombre) return null;
+                    const productos = Array.isArray(mercado.productos) ? mercado.productos.map((producto) => {
+                        if (!producto || typeof producto !== 'object') return null;
+                        const nombreProducto = limpiarTexto(producto.nombre, 80);
+                        const precio = Number(producto.precio);
+                        if (!nombreProducto || !Number.isFinite(precio) || precio <= 0) return null;
+                        return {
+                            id: limpiarTexto(producto.id, 100) || crearIdMercado('producto'),
+                            nombre: nombreProducto,
+                            presentacion: limpiarTexto(producto.presentacion, 50),
+                            precio,
+                            moneda: producto.moneda === '$' ? '$' : 'Bs',
+                            actualizadoEn: Number(producto.actualizadoEn) || Date.now()
+                        };
+                    }).filter(Boolean) : [];
+                    return { id: limpiarTexto(mercado.id, 100) || crearIdMercado('mercado'), nombre, productos };
+                }).filter(Boolean);
+                mercadoSeleccionadoId = mercados.some((mercado) => mercado.id === guardado.seleccionadoId)
+                    ? guardado.seleccionadoId : (mercados[0] ? mercados[0].id : '');
+                monedaVistaMercados = guardado.monedaVista === '$' ? '$' : 'Bs';
+                monedaPrecioMercado = guardado.monedaPrecio === '$' ? '$' : 'Bs';
+            } catch (error) {
+                console.warn('No se pudieron cargar los mercados guardados:', error);
+                mercados = [];
+                mercadoSeleccionadoId = '';
+            }
+        }
+
+        function guardarMercados() {
+            try {
+                localStorage.setItem(MERCADOS_STORAGE_KEY, JSON.stringify({
+                    mercados,
+                    seleccionadoId: mercadoSeleccionadoId,
+                    monedaVista: monedaVistaMercados,
+                    monedaPrecio: monedaPrecioMercado
+                }));
+                mostrarEstadoMercados('Cambios guardados.', 'success');
+                return true;
+            } catch (error) {
+                console.warn('No se pudieron guardar los mercados:', error);
+                mostrarEstadoMercados('No se pudieron guardar los cambios en este dispositivo.', 'error');
+                return false;
+            }
+        }
+
+        function mostrarEstadoMercados(mensaje, tipo) {
+            const estado = document.getElementById('estadoMercados');
+            if (!estado) return;
+            estado.textContent = mensaje;
+            estado.className = `mercado-status${tipo ? ` ${tipo}` : ''}`;
+        }
+
+        function actualizarEtiquetaTasaMercados() {
+            const etiqueta = document.getElementById('tasaMercadosActual');
+            if (etiqueta) etiqueta.textContent = `Bs. ${Number(tasaDolar).toFixed(2)} / $`;
+        }
+
+        function abrirVistaMercados() {
+            const drawer = document.getElementById('faltantesDrawer');
+            volverAFaltantesDesdeMercados = drawer.classList.contains('active');
+            if (volverAFaltantesDesdeMercados) toggleListaFaltantes();
+            overflowAnteriorMercados = document.body.style.overflow;
+            document.body.style.overflow = 'hidden';
+            const vista = document.getElementById('mercadosView');
+            vista.classList.add('active');
+            vista.setAttribute('aria-hidden', 'false');
+            renderizarVistaMercados();
+            document.getElementById('btnVolverMercados').focus();
+        }
+
+        function volverDesdeMercados() {
+            const vista = document.getElementById('mercadosView');
+            vista.classList.remove('active');
+            vista.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = overflowAnteriorMercados;
+            if (volverAFaltantesDesdeMercados) {
+                toggleListaFaltantes();
+                document.getElementById('btnMercadosFaltantes')?.focus();
+            } else {
+                document.getElementById('btnFaltantes')?.focus();
+            }
+        }
+
+        function cambiarPestanaMercados(pestana) {
+            pestanaMercadosActiva = pestana === 'economicos' ? 'economicos' : 'mercado';
+            const esEconomicos = pestanaMercadosActiva === 'economicos';
+            document.getElementById('panelMercadoIndividual').hidden = esEconomicos;
+            document.getElementById('panelPreciosEconomicos').hidden = !esEconomicos;
+            document.getElementById('tabMercadoIndividual').classList.toggle('active', !esEconomicos);
+            document.getElementById('tabMercadoIndividual').setAttribute('aria-selected', String(!esEconomicos));
+            document.getElementById('tabPreciosEconomicos').classList.toggle('active', esEconomicos);
+            document.getElementById('tabPreciosEconomicos').setAttribute('aria-selected', String(esEconomicos));
+            if (esEconomicos) renderizarComparacionMercados();
+        }
+
+        function seleccionarMercado(id) {
+            mercadoSeleccionadoId = mercados.some((mercado) => mercado.id === id) ? id : '';
+            guardarMercados();
+            renderizarVistaMercados();
+        }
+
+        function obtenerMercadoSeleccionado() {
+            return mercados.find((mercado) => mercado.id === mercadoSeleccionadoId) || null;
+        }
+
+        function convertirPrecioMercado(producto, monedaDestino) {
+            if (producto.moneda === monedaDestino) return producto.precio;
+            if (!Number.isFinite(Number(tasaDolar)) || Number(tasaDolar) <= 0) return null;
+            return monedaDestino === '$' ? producto.precio / tasaDolar : producto.precio * tasaDolar;
+        }
+
+        function formatearPrecioMercado(precio, moneda) {
+            if (!Number.isFinite(precio)) return 'No disponible';
+            return moneda === '$' ? `$${precio.toFixed(2)}` : `Bs. ${precio.toFixed(2)}`;
+        }
+
+        function formatearFechaPrecioMercado(timestamp) {
+            const fecha = new Date(Number(timestamp));
+            if (!Number.isFinite(fecha.getTime())) return 'fecha no disponible';
+            return new Intl.DateTimeFormat('es-VE', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(fecha);
+        }
+
+        function renderizarVistaMercados() {
+            actualizarEtiquetaTasaMercados();
+            const selector = document.getElementById('selectorMercado');
+            selector.innerHTML = mercados.length
+                ? mercados.map((mercado) => `<option value="${escaparHtmlMercado(mercado.id)}"${mercado.id === mercadoSeleccionadoId ? ' selected' : ''}>${escaparHtmlMercado(mercado.nombre)}</option>`).join('')
+                : '<option value="">Crea tu primer mercado</option>';
+            const mercado = obtenerMercadoSeleccionado();
+            document.getElementById('accionesMercadoActual').hidden = !mercado;
+            document.getElementById('panelFormularioProducto').hidden = !mercado;
+            document.getElementById('tituloListaProductosMercado').textContent = mercado ? `Productos en ${mercado.nombre}` : 'Tus mercados';
+            renderizarProductosMercado();
+            cambiarPestanaMercados(pestanaMercadosActiva);
+            document.getElementById('vistaMercadosBs').className = monedaVistaMercados === 'Bs' ? 'toggle-btn active-bs' : 'toggle-btn';
+            document.getElementById('vistaMercadosUsd').className = monedaVistaMercados === '$' ? 'toggle-btn active-usd' : 'toggle-btn';
+            document.getElementById('vistaMercadosBs').setAttribute('aria-pressed', String(monedaVistaMercados === 'Bs'));
+            document.getElementById('vistaMercadosUsd').setAttribute('aria-pressed', String(monedaVistaMercados === '$'));
+            actualizarBotonesMonedaPrecioMercado();
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function renderizarProductosMercado() {
+            const lista = document.getElementById('listaProductosMercado');
+            const contador = document.getElementById('contadorProductosMercado');
+            const mercado = obtenerMercadoSeleccionado();
+            if (!mercado) {
+                contador.textContent = '';
+                lista.innerHTML = '<div class="mercado-empty">Crea un mercado para empezar a registrar precios.</div>';
+                return;
+            }
+            const productos = mercado.productos.slice().sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+            contador.textContent = `${productos.length} ${productos.length === 1 ? 'producto' : 'productos'}`;
+            if (!productos.length) {
+                lista.innerHTML = '<div class="mercado-empty">Todavía no hay precios en este mercado. Agrega el primero arriba.</div>';
+                return;
+            }
+            lista.innerHTML = productos.map((producto) => {
+                const precioVisible = convertirPrecioMercado(producto, monedaVistaMercados);
+                const original = producto.moneda === monedaVistaMercados ? `Precio ingresado en ${producto.moneda}` : `Registrado: ${formatearPrecioMercado(producto.precio, producto.moneda)}`;
+                const presentacion = producto.presentacion ? ` · ${escaparHtmlMercado(producto.presentacion)}` : '';
+                return `<article class="mercado-product-row"><div class="mercado-product-info"><strong>${escaparHtmlMercado(producto.nombre)}${presentacion}</strong><small>${original} · Actualizado ${formatearFechaPrecioMercado(producto.actualizadoEn)}</small></div>
+                    <div class="mercado-product-price">${formatearPrecioMercado(precioVisible, monedaVistaMercados)}</div><div class="mercado-row-actions">
+                    <button class="mercado-icon-btn purple" type="button" onclick="editarProductoMercado('${escaparHtmlMercado(producto.id)}')" aria-label="Editar ${escaparHtmlMercado(producto.nombre)}" title="Editar"><i data-lucide="pencil" style="width:14px;height:14px;"></i></button>
+                    <button class="mercado-icon-btn danger" type="button" onclick="eliminarProductoMercado('${escaparHtmlMercado(producto.id)}')" aria-label="Eliminar ${escaparHtmlMercado(producto.nombre)}" title="Eliminar"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button></div></article>`;
+            }).join('');
+        }
+
+        function cambiarMonedaVistaMercados(moneda) {
+            monedaVistaMercados = moneda === '$' ? '$' : 'Bs';
+            guardarMercados();
+            renderizarVistaMercados();
+        }
+
+        function cambiarMonedaPrecioMercado(moneda) {
+            monedaPrecioMercado = moneda === '$' ? '$' : 'Bs';
+            actualizarBotonesMonedaPrecioMercado();
+            guardarMercados();
+        }
+
+        function actualizarBotonesMonedaPrecioMercado() {
+            document.getElementById('mercadoPrecioBs').className = monedaPrecioMercado === 'Bs' ? 'toggle-btn active-bs' : 'toggle-btn';
+            document.getElementById('mercadoPrecioUsd').className = monedaPrecioMercado === '$' ? 'toggle-btn active-usd' : 'toggle-btn';
+            document.getElementById('mercadoPrecioBs').setAttribute('aria-pressed', String(monedaPrecioMercado === 'Bs'));
+            document.getElementById('mercadoPrecioUsd').setAttribute('aria-pressed', String(monedaPrecioMercado === '$'));
+        }
+
+        function abrirFormularioMercado(id) {
+            mercadoMercadoEditandoId = id || '';
+            const mercado = mercados.find((elemento) => elemento.id === mercadoMercadoEditandoId);
+            document.getElementById('tituloModalMercado').lastChild.textContent = mercado ? ' EDITAR MERCADO' : ' NUEVO MERCADO';
+            document.getElementById('nombreMercadoInput').value = mercado ? mercado.nombre : '';
+            document.getElementById('modalMercado').classList.add('active');
+            document.getElementById('nombreMercadoInput').focus();
+        }
+
+        function cerrarFormularioMercado() {
+            document.getElementById('modalMercado').classList.remove('active');
+            mercadoMercadoEditandoId = '';
+        }
+
+        function guardarFormularioMercado(evento) {
+            evento.preventDefault();
+            const nombre = limpiarTexto(document.getElementById('nombreMercadoInput').value, 60);
+            if (!nombre) return;
+            const clave = normalizarClaveMercado(nombre);
+            if (mercados.some((mercado) => normalizarClaveMercado(mercado.nombre) === clave && mercado.id !== mercadoMercadoEditandoId)) {
+                mostrarEstadoMercados('Ya existe un mercado con ese nombre.', 'error');
+                return;
+            }
+            if (mercadoMercadoEditandoId) {
+                const mercado = mercados.find((elemento) => elemento.id === mercadoMercadoEditandoId);
+                if (mercado) mercado.nombre = nombre;
+            } else {
+                const mercadoNuevo = { id: crearIdMercado('mercado'), nombre, productos: [] };
+                mercados.push(mercadoNuevo);
+                mercadoSeleccionadoId = mercadoNuevo.id;
+            }
+            cerrarFormularioMercado();
+            guardarMercados();
+            renderizarVistaMercados();
+            document.getElementById('nombreProductoMercado').focus();
+        }
+
+        function eliminarMercadoActual() {
+            const mercado = obtenerMercadoSeleccionado();
+            if (!mercado || !confirm(`¿Eliminar ${mercado.nombre} y sus ${mercado.productos.length} precios? Esta acción no se puede deshacer.`)) return;
+            mercados = mercados.filter((elemento) => elemento.id !== mercado.id);
+            mercadoSeleccionadoId = mercados[0]?.id || '';
+            cancelarEdicionProductoMercado();
+            guardarMercados();
+            renderizarVistaMercados();
+        }
+
+        function guardarProductoMercado(evento) {
+            evento.preventDefault();
+            const mercado = obtenerMercadoSeleccionado();
+            if (!mercado) return mostrarEstadoMercados('Crea un mercado antes de agregar precios.', 'error');
+            const nombre = limpiarTexto(document.getElementById('nombreProductoMercado').value, 80);
+            const presentacion = limpiarTexto(document.getElementById('presentacionProductoMercado').value, 50);
+            const precio = Number(document.getElementById('precioProductoMercado').value);
+            if (!nombre || !Number.isFinite(precio) || precio <= 0) return mostrarEstadoMercados('Escribe un producto y un precio mayor que cero.', 'error');
+            const clave = claveProductoMercado(nombre, presentacion);
+            const duplicado = mercado.productos.find((producto) => producto.id !== productoMercadoEditandoId && claveProductoMercado(producto.nombre, producto.presentacion) === clave);
+            if (duplicado) return mostrarEstadoMercados('Ese producto y presentación ya existen en este mercado. Edita el registro.', 'error');
+            if (productoMercadoEditandoId) {
+                const producto = mercado.productos.find((elemento) => elemento.id === productoMercadoEditandoId);
+                if (producto) Object.assign(producto, { nombre, presentacion, precio, moneda: monedaPrecioMercado, actualizadoEn: Date.now() });
+            } else {
+                mercado.productos.push({ id: crearIdMercado('producto'), nombre, presentacion, precio, moneda: monedaPrecioMercado, actualizadoEn: Date.now() });
+            }
+            cancelarEdicionProductoMercado();
+            guardarMercados();
+            renderizarVistaMercados();
+            document.getElementById('nombreProductoMercado').focus();
+        }
+
+        function editarProductoMercado(id) {
+            const mercado = obtenerMercadoSeleccionado();
+            const producto = mercado && mercado.productos.find((elemento) => elemento.id === id);
+            if (!producto) return;
+            productoMercadoEditandoId = producto.id;
+            document.getElementById('nombreProductoMercado').value = producto.nombre;
+            document.getElementById('presentacionProductoMercado').value = producto.presentacion;
+            document.getElementById('precioProductoMercado').value = producto.precio;
+            document.getElementById('tituloFormularioProducto').textContent = 'Editar precio';
+            document.getElementById('btnGuardarProductoMercado').textContent = 'GUARDAR CAMBIOS';
+            document.getElementById('btnCancelarEdicionMercado').hidden = false;
+            cambiarMonedaPrecioMercado(producto.moneda);
+            document.getElementById('nombreProductoMercado').focus();
+            document.getElementById('panelFormularioProducto').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function cancelarEdicionProductoMercado() {
+            productoMercadoEditandoId = '';
+            document.querySelector('.mercado-product-form')?.reset();
+            const titulo = document.getElementById('tituloFormularioProducto');
+            if (titulo) titulo.textContent = 'Agregar producto';
+            const guardar = document.getElementById('btnGuardarProductoMercado');
+            if (guardar) guardar.textContent = 'AGREGAR PRECIO';
+            const cancelar = document.getElementById('btnCancelarEdicionMercado');
+            if (cancelar) cancelar.hidden = true;
+        }
+
+        function eliminarProductoMercado(id) {
+            const mercado = obtenerMercadoSeleccionado();
+            const producto = mercado && mercado.productos.find((elemento) => elemento.id === id);
+            if (!mercado || !producto || !confirm(`¿Eliminar el precio de ${producto.nombre} en ${mercado.nombre}?`)) return;
+            mercado.productos = mercado.productos.filter((elemento) => elemento.id !== id);
+            if (productoMercadoEditandoId === id) cancelarEdicionProductoMercado();
+            guardarMercados();
+            renderizarVistaMercados();
+        }
+
+        function obtenerGruposComparablesMercados() {
+            const gruposPorClave = new Map();
+            mercados.forEach((mercado) => mercado.productos.forEach((producto) => {
+                const clave = claveProductoMercado(producto.nombre, producto.presentacion);
+                if (!gruposPorClave.has(clave)) gruposPorClave.set(clave, { clave, nombre: producto.nombre, presentacion: producto.presentacion, registros: [] });
+                gruposPorClave.get(clave).registros.push({ mercado, producto });
+            }));
+            return Array.from(gruposPorClave.values()).map((grupo) => {
+                const monedas = new Set(grupo.registros.map((registro) => registro.producto.moneda));
+                const tasaValida = Number.isFinite(Number(tasaDolar)) && Number(tasaDolar) > 0;
+                const comparable = monedas.size <= 1 || tasaValida;
+                const registros = grupo.registros.map((registro) => ({ ...registro,
+                    valorComparacion: registro.producto.moneda === '$' || !tasaValida ? registro.producto.precio : registro.producto.precio / tasaDolar
+                }));
+                registros.sort((a, b) => a.valorComparacion - b.valorComparacion);
+                const precioMinimo = registros.length ? Number(registros[0].valorComparacion.toFixed(2)) : null;
+                const ganadores = comparable ? registros.filter((registro) => Number(registro.valorComparacion.toFixed(2)) === precioMinimo) : [];
+                return { ...grupo, registros, comparable, ganadores, ganador: ganadores[0] || null };
+            }).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+        }
+
+        function renderizarComparacionMercados() {
+            const grupos = obtenerGruposComparablesMercados();
+            const lista = document.getElementById('listaPreciosEconomicos');
+            const comparables = grupos.filter((grupo) => grupo.comparable);
+            document.getElementById('contadorPreciosEconomicos').textContent = `${comparables.length} productos`;
+            if (!grupos.length) {
+                lista.innerHTML = '<div class="mercado-empty">Agrega productos en varios mercados para comparar precios.</div>';
+            } else {
+                lista.innerHTML = comparables.map((grupo) => {
+                    const registro = grupo.ganador;
+                    const precio = convertirPrecioMercado(registro.producto, monedaVistaMercados);
+                    const presentacion = grupo.presentacion ? ` · ${escaparHtmlMercado(grupo.presentacion)}` : '';
+                    const mercadosGanadores = grupo.ganadores.map((ganador) => escaparHtmlMercado(ganador.mercado.nombre)).join(', ');
+                    const empate = grupo.ganadores.length > 1 ? ' (empate)' : '';
+                    const originales = grupo.ganadores.map((ganador) => `${escaparHtmlMercado(ganador.mercado.nombre)}: ${formatearPrecioMercado(ganador.producto.precio, ganador.producto.moneda)} (${formatearFechaPrecioMercado(ganador.producto.actualizadoEn)})`).join(' · ');
+                    return `<article class="precio-economico-row ganador"><div class="precio-economico-info"><strong>${escaparHtmlMercado(grupo.nombre)}${presentacion}</strong><small>Más económico en ${mercadosGanadores}${empate}</small><small>Precios registrados: ${originales}</small></div><div class="precio-economico-price">${formatearPrecioMercado(precio, monedaVistaMercados)}<small>MEJOR PRECIO</small></div></article>`;
+                }).join('');
+                if (!comparables.length) lista.innerHTML = '<div class="mercado-empty">No se pueden comparar precios mixtos sin una tasa válida.</div>';
+            }
+            const selector = document.getElementById('selectorProductoGrafico');
+            const claveAnterior = selector.value;
+            selector.innerHTML = comparables.length
+                ? comparables.map((grupo) => `<option value="${escaparHtmlMercado(grupo.clave)}">${escaparHtmlMercado(grupo.nombre)}${grupo.presentacion ? ` · ${escaparHtmlMercado(grupo.presentacion)}` : ''}</option>`).join('')
+                : '<option value="">Sin productos comparables</option>';
+            if (comparables.some((grupo) => grupo.clave === claveAnterior)) selector.value = claveAnterior;
+            renderizarGraficoMercados();
+        }
+
+        function renderizarGraficoMercados() {
+            const selector = document.getElementById('selectorProductoGrafico');
+            const grafico = document.getElementById('graficoMercados');
+            const grupo = obtenerGruposComparablesMercados().find((elemento) => elemento.clave === selector.value && elemento.comparable);
+            if (!grupo || !grupo.registros.length) {
+                grafico.setAttribute('aria-label', 'No hay datos suficientes para comparar mercados');
+                grafico.innerHTML = '<div class="mercado-empty">El gráfico aparecerá cuando haya precios comparables.</div>';
+                return;
+            }
+            const maximo = Math.max(...grupo.registros.map((registro) => registro.valorComparacion), 0);
+            grafico.setAttribute('aria-label', `Precios de ${grupo.nombre} comparados en ${grupo.registros.length} mercados`);
+            grafico.innerHTML = grupo.registros.map((registro) => {
+                const ancho = maximo > 0 ? Math.max(3, registro.valorComparacion / maximo * 100) : 3;
+                const precio = convertirPrecioMercado(registro.producto, monedaVistaMercados);
+                const ganador = grupo.ganadores.some((elemento) => elemento.mercado.id === registro.mercado.id);
+                return `<div class="mercado-chart-row${ganador ? ' ganador' : ''}"><span class="mercado-chart-name" title="${escaparHtmlMercado(registro.mercado.nombre)}">${escaparHtmlMercado(registro.mercado.nombre)}</span><div class="mercado-chart-track"><div class="mercado-chart-bar" style="width:${ancho.toFixed(1)}%"></div></div><span class="mercado-chart-value">${formatearPrecioMercado(precio, monedaVistaMercados)}</span></div>`;
+            }).join('');
+        }
+
+        async function compartirResumenMercados() {
+            const grupos = obtenerGruposComparablesMercados().filter((grupo) => grupo.comparable);
+            const lineas = grupos.map((grupo) => {
+                const registro = grupo.ganador;
+                const precio = convertirPrecioMercado(registro.producto, monedaVistaMercados);
+                const mercadosGanadores = grupo.ganadores.map((ganador) => ganador.mercado.nombre).join(', ');
+                return `- ${grupo.nombre}${grupo.presentacion ? ` (${grupo.presentacion})` : ''}: ${formatearPrecioMercado(precio, monedaVistaMercados)} en ${mercadosGanadores}${grupo.ganadores.length > 1 ? ' (empate)' : ''} · ${formatearFechaPrecioMercado(registro.producto.actualizadoEn)}`;
+            });
+            const texto = ['Mejores precios por mercado', ...lineas].join('\n');
+            try {
+                if (navigator.share) {
+                    await navigator.share({ title: 'Comparación de precios', text: texto });
+                    return;
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') return;
+            }
+            const enlace = document.createElement('a');
+            enlace.href = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+            enlace.target = '_blank';
+            enlace.rel = 'noopener noreferrer';
+            document.body.appendChild(enlace);
+            enlace.click();
+            enlace.remove();
+        }
+
+        function exportarRespaldoMercados() {
+            const respaldo = {
+                formato: MERCADOS_BACKUP_FORMAT,
+                version: MERCADOS_BACKUP_VERSION,
+                exportadoEn: new Date().toISOString(),
+                mercados
+            };
+            const blob = new Blob([JSON.stringify(respaldo, null, 2)], { type: 'application/json;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const enlace = document.createElement('a');
+            enlace.href = url;
+            enlace.download = `mercados-precios_${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(enlace);
+            enlace.click();
+            enlace.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            mostrarEstadoMercados(`${mercados.length} mercado(s) incluidos en el respaldo.`, 'success');
+        }
+
+        function importarRespaldoMercados(evento) {
+            const archivo = evento.target.files && evento.target.files[0];
+            evento.target.value = '';
+            if (!archivo) return;
+            if (archivo.size > MERCADOS_BACKUP_MAX_BYTES) {
+                mostrarEstadoMercados('El respaldo supera el tamaño máximo de 2 MB.', 'error');
+                return;
+            }
+
+            const lector = new FileReader();
+            lector.onerror = () => mostrarEstadoMercados('No se pudo leer el archivo de respaldo.', 'error');
+            lector.onload = () => {
+                let datos;
+                try { datos = JSON.parse(lector.result); }
+                catch (error) { mostrarEstadoMercados('El archivo no contiene JSON válido.', 'error'); return; }
+                if (!datos || datos.formato !== MERCADOS_BACKUP_FORMAT || datos.version !== MERCADOS_BACKUP_VERSION || !Array.isArray(datos.mercados)) {
+                    mostrarEstadoMercados('El archivo no es un respaldo compatible de mercados.', 'error');
+                    return;
+                }
+
+                const mercadosImportados = [];
+                for (const mercado of datos.mercados) {
+                    const nombre = mercado && limpiarTexto(mercado.nombre, 60);
+                    if (!nombre || !Array.isArray(mercado.productos)) {
+                        mostrarEstadoMercados('El respaldo contiene un mercado inválido; no se importó ningún dato.', 'error');
+                        return;
+                    }
+                    const productos = [];
+                    for (const producto of mercado.productos) {
+                        const nombreProducto = producto && limpiarTexto(producto.nombre, 80);
+                        const precio = Number(producto && producto.precio);
+                        if (!nombreProducto || !Number.isFinite(precio) || precio <= 0 || !['Bs', '$'].includes(producto.moneda)) {
+                            mostrarEstadoMercados('El respaldo contiene un precio inválido; no se importó ningún dato.', 'error');
+                            return;
+                        }
+                        productos.push({
+                            id: crearIdMercado('producto'), nombre: nombreProducto,
+                            presentacion: limpiarTexto(producto.presentacion, 50), precio,
+                            moneda: producto.moneda, actualizadoEn: Number(producto.actualizadoEn) || Date.now()
+                        });
+                    }
+                    mercadosImportados.push({ id: crearIdMercado('mercado'), nombre, productos });
+                }
+                if (!confirm(`El respaldo contiene ${mercadosImportados.length} mercado(s). ¿Reemplazar los mercados guardados? Esta acción no modifica compras ni faltantes.`)) return;
+                mercados = mercadosImportados;
+                mercadoSeleccionadoId = mercados[0]?.id || '';
+                cancelarEdicionProductoMercado();
+                guardarMercados();
+                renderizarVistaMercados();
+                mostrarEstadoMercados('Respaldo de mercados importado correctamente.', 'success');
+            };
+            lector.readAsText(archivo);
+        }
+
     </script>
 </body>
 </html>

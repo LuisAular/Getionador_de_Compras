@@ -12,7 +12,7 @@
  * SKIP_WAITING para activarlo y recargar.
  */
 
-const CACHE_NAME = 'registro-compras-cache-v4';
+const CACHE_NAME = 'registro-compras-cache-v5';
 
 // Recursos que se guardan de una vez al instalar el Service Worker.
 const ARCHIVOS_CORE = [
