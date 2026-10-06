@@ -1739,6 +1739,62 @@
             margin-top: 4px;
         }
 
+        .faltantes-calculator-switch {
+            width: 50px;
+            height: 30px;
+            flex: 0 0 50px;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            padding: 3px;
+            color: var(--text-gray);
+            background: var(--bg-input);
+            border: 1px solid var(--border-item);
+            border-radius: 18px;
+            cursor: pointer;
+        }
+        .faltantes-calculator-switch[aria-checked="true"] {
+            color: var(--text-cyan);
+            border-color: var(--border-cyan);
+            background: rgba(0, 210, 255, 0.12);
+        }
+        .faltantes-calculator-switch-thumb {
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--bg-surface-2);
+            transform: translateX(0);
+            transition: transform 0.2s ease;
+        }
+        .faltantes-calculator-switch[aria-checked="true"] .faltantes-calculator-switch-thumb {
+            transform: translateX(19px);
+        }
+        .faltantes-form-mode {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: var(--text-gray);
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .faltante-simple-quantity {
+            width: 62px;
+            flex: 0 0 62px;
+            height: 38px;
+            color: var(--text-main);
+            background: var(--bg-input);
+            border: 1px solid var(--text-orange);
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        .faltante-calculation-fields[hidden], .faltante-simple-quantity[hidden] {
+            display: none !important;
+        }
+
         .btn-calc-faltante {
             width: 46px;
             flex-shrink: 0;
@@ -1751,6 +1807,7 @@
             justify-content: center;
             cursor: pointer;
         }
+        .btn-calc-faltante[hidden] { display: none !important; }
 
         .faltantes-list {
             flex: 1;
@@ -1913,7 +1970,7 @@
             z-index: 5000;
             display: none;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             overflow: hidden;
             padding: 10px;
             background: var(--bg-main);
@@ -1923,13 +1980,16 @@
         .mercados-view [hidden] { display: none !important; }
         .mercados-app-container {
             width: 100%;
-            max-width: 520px;
-            height: calc(100vh - 20px);
-            height: calc(100dvh - 20px);
+            max-width: 412px;
+            max-height: calc(100vh - 20px);
+            max-height: calc(100dvh - 20px);
             min-height: 0;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
             padding-top: 30px;
         }
         .mercados-header, .mercados-rate, .mercados-tabs,
@@ -1938,10 +1998,10 @@
         }
         .mercados-panel-view {
             display: flex;
-            flex: 1 1 auto;
+            flex: 0 0 auto;
             flex-direction: column;
-            min-height: 0;
-            overflow: hidden;
+            min-height: auto;
+            overflow: visible;
         }
         .mercados-panel-view[hidden] { display: none !important; }
         .mercados-header {
@@ -2061,7 +2121,7 @@
         .mercado-panel#panelFormularioProducto { flex: 0 0 auto; }
         .mercado-products-panel, .mercado-economy-panel {
             display: flex;
-            flex: 1 1 auto;
+            flex: 0 0 auto;
             flex-direction: column;
             min-height: 0;
             margin-bottom: 0;
@@ -2090,8 +2150,10 @@
         .mercado-form-actions .modal-btn { min-height: 38px; flex: 1; }
         .mercado-list { display: grid; gap: 7px; align-content: start; }
         .mercado-products-panel .mercado-list, .mercado-economy-panel .mercado-list {
-            flex: 1 1 auto;
-            min-height: 0;
+            flex: 0 1 auto;
+            max-height: 34vh;
+            max-height: 34dvh;
+            min-height: 70px;
             overflow-y: auto;
             overscroll-behavior: contain;
             -webkit-overflow-scrolling: touch;
@@ -2159,9 +2221,9 @@
             display: flex;
             flex: 0 0 auto;
             flex-direction: column;
-            max-height: 42%;
+            max-height: none;
             min-height: 0;
-            overflow: hidden;
+            overflow: visible;
             padding: 12px;
             margin-top: 12px;
             background: var(--bg-surface);
@@ -2171,7 +2233,9 @@
         }
         .mercado-chart-card h2 { margin-bottom: 10px; color: var(--text-main); font-size: 12px; }
         .mercado-chart-card .mercado-select { height: 36px; margin-bottom: 12px; }
-        .mercado-chart { display: grid; gap: 11px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+        .mercado-chart { display: grid; gap: 11px; max-height: 190px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+        .mercado-chart-label-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 5px; }
+        .mercado-chart-label-row .mercado-field-label { margin: 0; }
         .mercado-chart-row { display: grid; grid-template-columns: minmax(72px, 1fr) minmax(70px, 1.5fr) auto; align-items: center; gap: 7px; }
         .mercado-chart-name { overflow: hidden; color: var(--text-soft); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
         .mercado-chart-track { height: 13px; overflow: hidden; background: var(--bg-input); border-radius: 3px; }
@@ -2199,6 +2263,17 @@
         }
         .mercados-view .mercado-modal { z-index: 5001; }
         .mercado-modal .modal-content { max-width: 360px; }
+        .mercado-winners-content { max-height: min(60vh, 480px); overflow-y: auto; overscroll-behavior: contain; }
+        .mercado-winners-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .mercado-winners-heading .modal-title { margin-bottom: 12px; }
+        .mercado-winners-actions { display: flex; gap: 6px; }
+        .mercado-winners-actions .mercado-icon-btn { width: 32px; height: 32px; flex-basis: 32px; }
+        .mercado-winner-group { padding: 10px 0; border-bottom: 1px solid var(--border-item); }
+        .mercado-winner-group:last-child { border-bottom: 0; }
+        .mercado-winner-group > strong { display: block; margin-bottom: 6px; color: var(--text-main); font-size: 12px; }
+        .mercado-winner-entry { display: flex; justify-content: space-between; gap: 8px; padding: 5px 0; color: var(--text-soft); font-size: 11px; }
+        .mercado-winner-entry span:first-child { min-width: 0; overflow-wrap: anywhere; }
+        .mercado-winner-entry span:last-child { color: var(--text-cyan); font-weight: 700; text-align: right; white-space: nowrap; }
         .mercado-modal input {
             width: 100%;
             height: 42px;
@@ -2216,6 +2291,7 @@
             .mercado-chart-row { grid-template-columns: minmax(58px, 0.9fr) minmax(55px, 1fr) auto; gap: 5px; }
             .mercados-header-actions { gap: 4px; }
             .mercados-header-actions .settings-btn { width: 31px; height: 31px; }
+            .mercado-winner-entry { font-size: 10px; }
         }
     </style>
 </head>
@@ -2483,10 +2559,11 @@
             <section id="panelPreciosEconomicos" class="mercados-panel-view" aria-label="Precios más económicos" hidden>
                 <div class="mercado-currency-display"><span>Mostrar precios en</span><div class="currency-toggle" role="group" aria-label="Moneda de visualización"><button class="toggle-btn active-bs" id="vistaMercadosBs" type="button" aria-pressed="true" onclick="cambiarMonedaVistaMercados('Bs')">Bs</button><button class="toggle-btn" id="vistaMercadosUsd" type="button" aria-pressed="false" onclick="cambiarMonedaVistaMercados('$')">$</button></div></div>
                 <div class="mercado-panel mercado-economy-panel"><div class="mercado-section-heading"><h2>Mejor precio por producto</h2><span id="contadorPreciosEconomicos"></span></div><div class="mercado-list" id="listaPreciosEconomicos"></div></div>
-                <div class="mercado-chart-card"><h2>Comparación entre mercados</h2><label class="mercado-field-label" for="selectorProductoGrafico">Producto a comparar</label><select class="mercado-select" id="selectorProductoGrafico" onchange="renderizarGraficoMercados()"></select><div class="mercado-chart" id="graficoMercados" role="img" aria-label="Comparación de precios por mercado"></div></div>
+                <div class="mercado-chart-card"><h2>Comparación entre mercados</h2><div class="mercado-chart-label-row"><label class="mercado-field-label" for="selectorProductoGrafico">Producto a comparar</label><button class="mercado-icon-btn" type="button" onclick="abrirModalGanadoresMercados()" aria-label="Ver lista de productos más económicos" title="Lista de mejores precios"><i data-lucide="list" style="width:16px;height:16px;"></i></button></div><select class="mercado-select" id="selectorProductoGrafico" onchange="renderizarGraficoMercados()"></select><div class="mercado-chart" id="graficoMercados" role="img" aria-label="Comparación de precios por mercado"></div></div>
             </section>
             <p class="mercado-status" id="estadoMercados" role="status" aria-live="polite"></p>
             <div class="modal-overlay mercado-modal" id="modalMercado" role="dialog" aria-modal="true" aria-labelledby="tituloModalMercado"><div class="modal-content"><div class="modal-title" id="tituloModalMercado"><i data-lucide="store" style="width:16px;height:16px;color:var(--text-cyan);"></i> NUEVO MERCADO</div><form onsubmit="guardarFormularioMercado(event)"><label class="mercado-field-label" for="nombreMercadoInput">Nombre del mercado</label><input id="nombreMercadoInput" type="text" maxlength="60" placeholder="Ej. Mercado Central" required><div class="modal-buttons"><button class="modal-btn btn-cancel" type="button" onclick="cerrarFormularioMercado()">CANCELAR</button><button class="modal-btn btn-accept" type="submit">GUARDAR</button></div></form></div></div>
+            <div class="modal-overlay mercado-modal" id="modalListaGanadoresMercados" role="dialog" aria-modal="true" aria-labelledby="tituloListaGanadoresMercados"><div class="modal-content"><div class="mercado-winners-heading"><div class="modal-title" id="tituloListaGanadoresMercados"><i data-lucide="list" style="width:16px;height:16px;color:var(--text-cyan);"></i> MEJORES PRECIOS</div><div class="mercado-winners-actions"><button class="mercado-icon-btn" type="button" onclick="compartirPreciosGanadores()" aria-label="Compartir mejores precios" title="Compartir"><i data-lucide="share-2" style="width:15px;height:15px;"></i></button><button class="mercado-icon-btn danger" type="button" onclick="cerrarModalGanadoresMercados()" aria-label="Cerrar lista" title="Cerrar"><i data-lucide="x" style="width:15px;height:15px;"></i></button></div></div><div class="mercado-winners-content" id="listaGanadoresMercados"></div></div></div>
         </div>
     </div>
 
@@ -2674,8 +2751,8 @@
             </div>
         </div>
 
-        <div class="faltantes-form-toggle" id="btnToggleFormFaltante" onclick="toggleFormFaltante()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); toggleFormFaltante();}" role="button" tabindex="0" aria-label="Mostrar u ocultar formulario para agregar faltante">
-            <span>+ AGREGAR FALTANTE</span>
+        <div class="faltantes-form-toggle" id="btnToggleFormFaltante" onclick="toggleFormFaltante()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); toggleFormFaltante();}" role="button" tabindex="0" aria-label="Mostrar u ocultar el formulario de la lista de compras">
+            <span>LISTA DE COMPRAS</span>
             <i data-lucide="chevron-down" id="iconFormFaltante" style="width:16px; height:16px;"></i>
         </div>
 
@@ -2683,7 +2760,18 @@
             <div class="input-group">
                 <i data-lucide="shopping-bag" style="width: 16px; height: 16px;"></i>
                 <input type="text" id="txtFaltanteNombre" placeholder="Ej. Harina P.A.N.">
+                <select class="faltante-simple-quantity" id="selFaltanteCantidadSimple" aria-label="Cantidad de unidades">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                    <option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option>
+                </select>
             </div>
+            <div class="faltantes-form-mode">
+                <span>Calcular duración</span>
+                <button class="faltantes-calculator-switch" id="btnModoCalculoFaltante" type="button" role="switch" aria-checked="false" aria-label="Activar cálculo de duración" title="Activar cálculo de duración" onclick="alternarModoCalculoFaltante()">
+                    <span class="faltantes-calculator-switch-thumb"><i data-lucide="calculator" style="width:14px;height:14px;"></i></span>
+                </button>
+            </div>
+            <div class="faltante-calculation-fields" id="faltanteCalculationFields" hidden>
             <div class="row-inputs">
                 <div class="col-half">
                     <span class="label-small">Cant. uni</span>
@@ -2713,11 +2801,12 @@
                     <select class="select-custom" id="selFaltanteComidasDia" style="margin:0;"></select>
                 </div>
             </div>
+            </div>
             <div class="faltantes-form-buttons">
-                <button class="btn-calc-faltante" onclick="abrirModalCalculadoraFaltante()" title="Ver cálculo" aria-label="Ver cálculo de duración">
+                <button class="btn-calc-faltante" id="btnCalculadoraFaltante" onclick="abrirModalCalculadoraFaltante()" title="Ver cálculo" aria-label="Ver cálculo de duración" hidden>
                     <i data-lucide="calculator" style="width: 16px; height: 16px;"></i>
                 </button>
-                <button class="modal-btn btn-accept" style="flex:1;" onclick="agregarFaltante()">AGREGAR A FALTANTES</button>
+                <button class="modal-btn btn-accept" style="flex:1;" onclick="agregarFaltante()">AGREGAR A LISTA</button>
             </div>
         </div>
 
@@ -2761,10 +2850,11 @@
                 <div class="ayuda-item"><span class="ayuda-term t-gris">Contador</span><span class="ayuda-desc">Muestra cuántos productos tienes en la lista ("2 producto(s)").</span></div>
                 <div class="ayuda-item"><span class="ayuda-term t-morado">Botón ✕</span><span class="ayuda-desc">Cierra este panel. También puedes tocar fuera de él.</span></div>
 
-                <div class="ayuda-seccion">+ AGREGAR FALTANTE</div>
+                <div class="ayuda-seccion">LISTA DE COMPRAS</div>
                 <div class="ayuda-item"><span class="ayuda-term t-naranja">Barra naranja</span><span class="ayuda-desc">Toca para mostrar u ocultar el formulario y ganar espacio.</span></div>
                 <div class="ayuda-item"><span class="ayuda-term t-morado">Producto</span><span class="ayuda-desc">Nombre del producto (ej. Harina P.A.N.). El ícono de la tarjeta se elige solo según el nombre.</span></div>
-                <div class="ayuda-item"><span class="ayuda-term t-naranja">Cant. uni</span><span class="ayuda-desc">Cuántas <strong>unidades</strong> tienes o vas a comprar (ej. 2 paquetes).</span></div>
+                <div class="ayuda-item"><span class="ayuda-term t-naranja">Cantidad simple</span><span class="ayuda-desc">Con el cálculo apagado puedes seleccionar de 1 a 10 unidades junto al nombre.</span></div>
+                <div class="ayuda-item"><span class="ayuda-term t-cian">Interruptor calculadora</span><span class="ayuda-desc">Actívalo para mostrar cantidad de unidades, peso, consumo, comidas por día y el desglose de duración.</span></div>
                 <div class="ayuda-item"><span class="ayuda-term t-naranja">Peso x unidad (g)</span><span class="ayuda-desc">Gramos que trae <strong>cada unidad</strong>. Un kilo son 1000; un paquete de 500 g son 500.</span></div>
                 <div class="ayuda-item"><span class="ayuda-term t-cian">Consumo <span style="text-transform:none;">(gr)</span></span><span class="ayuda-desc">Gramos que gastas en <strong>cada comida</strong> (ej. 100). No puede ser mayor al peso de una unidad.</span></div>
                 <div class="ayuda-item"><span class="ayuda-term t-morado">Comidas x día</span><span class="ayuda-desc">Cuántas veces al día lo consumes, de 1 a 6 (por defecto 3).</span></div>
@@ -3689,6 +3779,19 @@
             document.getElementById('btnToggleFormFaltante').classList.toggle('open');
         }
 
+        let modoCalculoFaltante = false;
+
+        function alternarModoCalculoFaltante() {
+            modoCalculoFaltante = !modoCalculoFaltante;
+            const interruptor = document.getElementById('btnModoCalculoFaltante');
+            interruptor.setAttribute('aria-checked', String(modoCalculoFaltante));
+            interruptor.setAttribute('aria-label', `${modoCalculoFaltante ? 'Desactivar' : 'Activar'} cálculo de duración`);
+            interruptor.title = `${modoCalculoFaltante ? 'Desactivar' : 'Activar'} cálculo de duración`;
+            document.getElementById('faltanteCalculationFields').hidden = !modoCalculoFaltante;
+            document.getElementById('btnCalculadoraFaltante').hidden = !modoCalculoFaltante;
+            document.getElementById('selFaltanteCantidadSimple').hidden = modoCalculoFaltante;
+        }
+
         // Valida y calcula comidasTotales/diasDuracion. Devuelve null (y alerta) si algo es inválido.
         function calcularFaltanteValores(pesoUnidad, cantidad, consumoPorComida, comidasPorDia) {
             if (isNaN(pesoUnidad) || pesoUnidad <= 0 || isNaN(consumoPorComida) || consumoPorComida <= 0) {
@@ -3738,7 +3841,9 @@ Comidas por día:  ${comidasPorDia}
 
         function agregarFaltante() {
             const nombre = document.getElementById('txtFaltanteNombre').value.trim();
-            const cantidad = parseInt(document.getElementById('txtFaltanteCantidad').value) || 1;
+            const cantidad = modoCalculoFaltante
+                ? (parseInt(document.getElementById('txtFaltanteCantidad').value) || 1)
+                : (parseInt(document.getElementById('selFaltanteCantidadSimple').value) || 1);
             const pesoUnidad = parseFloat(document.getElementById('txtFaltantePeso').value);
             const consumoPorComida = parseFloat(document.getElementById('txtFaltanteConsumo').value);
             const comidasPorDia = parseInt(document.getElementById('selFaltanteComidasDia').value) || 3;
@@ -3747,21 +3852,27 @@ Comidas por día:  ${comidasPorDia}
                 alert("Ingresa el nombre del producto.");
                 return;
             }
-            const resultado = calcularFaltanteValores(pesoUnidad, cantidad, consumoPorComida, comidasPorDia);
-            if (!resultado) return;
+            const resultado = modoCalculoFaltante
+                ? calcularFaltanteValores(pesoUnidad, cantidad, consumoPorComida, comidasPorDia)
+                : null;
+            if (modoCalculoFaltante && !resultado) return;
 
             listaFaltantes.push({
                 id: Date.now(),
-                nombre, cantidad, pesoUnidad, consumoPorComida, comidasPorDia,
+                nombre, cantidad,
+                pesoUnidad: resultado ? pesoUnidad : null,
+                consumoPorComida: resultado ? consumoPorComida : null,
+                comidasPorDia: resultado ? comidasPorDia : null,
                 icono: obtenerIconoPorNombre(nombre),
                 adquirido: false,
                 movido: false,
-                comidasTotales: resultado.comidasTotales,
-                diasDuracion: resultado.diasDuracion
+                comidasTotales: resultado ? resultado.comidasTotales : null,
+                diasDuracion: resultado ? resultado.diasDuracion : null
             });
 
             document.getElementById('txtFaltanteNombre').value = '';
             document.getElementById('txtFaltanteCantidad').value = '1';
+            document.getElementById('selFaltanteCantidadSimple').value = '1';
             document.getElementById('txtFaltantePeso').value = '';
             document.getElementById('txtFaltanteConsumo').value = '';
 
@@ -3809,17 +3920,21 @@ Comidas por día:  ${comidasPorDia}
                 alert("Ingresa el nombre del producto.");
                 return;
             }
-            const resultado = calcularFaltanteValores(pesoUnidad, cantidad, consumoPorComida, comidasPorDia);
-            if (!resultado) return;
+            const tieneDatosCalculo = ['txtEditFaltantePeso', 'txtEditFaltanteConsumo']
+                .some(id => document.getElementById(id).value.trim() !== '');
+            const resultado = tieneDatosCalculo
+                ? calcularFaltanteValores(pesoUnidad, cantidad, consumoPorComida, comidasPorDia)
+                : null;
+            if (tieneDatosCalculo && !resultado) return;
 
             item.nombre = nombre;
             item.cantidad = cantidad;
-            item.pesoUnidad = pesoUnidad;
-            item.consumoPorComida = consumoPorComida;
-            item.comidasPorDia = comidasPorDia;
+            item.pesoUnidad = resultado ? pesoUnidad : null;
+            item.consumoPorComida = resultado ? consumoPorComida : null;
+            item.comidasPorDia = resultado ? comidasPorDia : null;
             item.icono = obtenerIconoPorNombre(nombre);
-            item.comidasTotales = resultado.comidasTotales;
-            item.diasDuracion = resultado.diasDuracion;
+            item.comidasTotales = resultado ? resultado.comidasTotales : null;
+            item.diasDuracion = resultado ? resultado.diasDuracion : null;
 
             cerrarModalEditarFaltante();
             renderizarListaFaltantes();
@@ -3906,7 +4021,7 @@ _Generado con Registro de Compras_`;
                             <div class="faltante-icon" onclick="abrirModalEditarFaltante(${item.id})" role="button" tabindex="0" aria-label="Editar ${item.nombre}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); abrirModalEditarFaltante(${item.id});}">${svgInyectable}</div>
                             <div class="faltante-info" onclick="abrirModalEditarFaltante(${item.id})" role="button" tabindex="0" aria-label="Editar ${item.nombre}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); abrirModalEditarFaltante(${item.id});}">
                                 <h4>${item.nombre}${item.movido ? ' ✓' : ''}</h4>
-                                <span class="faltante-badge">${item.cantidad}u &bull; ${Math.round(item.comidasTotales)} comidas / ${item.diasDuracion.toFixed(1)} días</span>
+                                <span class="faltante-badge">${Number.isFinite(item.comidasTotales) && Number.isFinite(item.diasDuracion) ? `${item.cantidad}u &bull; ${Math.round(item.comidasTotales)} comidas / ${item.diasDuracion.toFixed(1)} días` : `${item.cantidad} ${item.cantidad === 1 ? 'unidad' : 'unidades'}`}</span>
                             </div>
                             <div class="faltante-actions">
                                 <button class="btn-mover-faltante" onclick="event.stopPropagation(); moverFaltanteACompras(${item.id})" title="Mover a compras" aria-label="Mover a lista de compras">${svgCarrito}</button>
@@ -5532,6 +5647,59 @@ _Generado con Registro de Compras_`;
                 : '<option value="">Sin productos comparables</option>';
             if (comparables.some((grupo) => grupo.clave === claveAnterior)) selector.value = claveAnterior;
             renderizarGraficoMercados();
+        }
+
+        function abrirModalGanadoresMercados() {
+            const grupos = obtenerGruposComparablesMercados().filter((grupo) => grupo.comparable && grupo.ganadores.length);
+            const lista = document.getElementById('listaGanadoresMercados');
+            if (!grupos.length) {
+                lista.innerHTML = '<div class="mercado-empty">Todavía no hay productos con precios comparables.</div>';
+            } else {
+                lista.innerHTML = grupos.map((grupo) => {
+                    const presentacion = grupo.presentacion ? ` · ${escaparHtmlMercado(grupo.presentacion)}` : '';
+                    const ganadores = grupo.ganadores.map((ganador) => {
+                        const precioConvertido = convertirPrecioMercado(ganador.producto, monedaVistaMercados);
+                        const precioOriginal = formatearPrecioMercado(ganador.producto.precio, ganador.producto.moneda);
+                        const precioVisible = formatearPrecioMercado(precioConvertido, monedaVistaMercados);
+                        return `<div class="mercado-winner-entry"><span>${escaparHtmlMercado(ganador.mercado.nombre)} · ${formatearFechaPrecioMercado(ganador.producto.actualizadoEn)} · Registrado ${precioOriginal}</span><span>${precioVisible}</span></div>`;
+                    }).join('');
+                    return `<section class="mercado-winner-group"><strong>${escaparHtmlMercado(grupo.nombre)}${presentacion}${grupo.ganadores.length > 1 ? ' · Empate' : ''}</strong>${ganadores}</section>`;
+                }).join('');
+            }
+            document.getElementById('modalListaGanadoresMercados').classList.add('active');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function cerrarModalGanadoresMercados() {
+            document.getElementById('modalListaGanadoresMercados').classList.remove('active');
+        }
+
+        async function compartirPreciosGanadores() {
+            const grupos = obtenerGruposComparablesMercados().filter((grupo) => grupo.comparable && grupo.ganadores.length);
+            if (!grupos.length) {
+                mostrarEstadoMercados('No hay mejores precios para compartir.', 'error');
+                return;
+            }
+            const lineas = grupos.flatMap((grupo) => grupo.ganadores.map((ganador) => {
+                const precio = convertirPrecioMercado(ganador.producto, monedaVistaMercados);
+                return `- ${grupo.nombre}${grupo.presentacion ? ` (${grupo.presentacion})` : ''} · ${ganador.mercado.nombre}: ${formatearPrecioMercado(precio, monedaVistaMercados)} (registrado ${formatearPrecioMercado(ganador.producto.precio, ganador.producto.moneda)}) · ${formatearFechaPrecioMercado(ganador.producto.actualizadoEn)}`;
+            }));
+            const texto = ['Productos con el mejor precio por mercado', ...lineas].join('\n');
+            try {
+                if (navigator.share) {
+                    await navigator.share({ title: 'Mejores precios', text: texto });
+                    return;
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') return;
+            }
+            const enlace = document.createElement('a');
+            enlace.href = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+            enlace.target = '_blank';
+            enlace.rel = 'noopener noreferrer';
+            document.body.appendChild(enlace);
+            enlace.click();
+            enlace.remove();
         }
 
         function renderizarGraficoMercados() {
